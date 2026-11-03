@@ -77,13 +77,6 @@ export const PROFILE_DATA = {
       color: '#FFFFFF',
       bg: '#24292e',
     },
-    {
-      title: 'エノキ電気 公式',
-      url: 'https://enoki.xyz',
-      icon: 'mdi-web',
-      color: '#FFFFFF',
-      bg: '#4CAF50',
-    },
   ] as SocialLink[],
 
   licenses: [
@@ -198,7 +191,8 @@ export const PROFILE_DATA = {
       badge: '音楽',
       badgeColor: 'purple',
       icon: 'mdi-music-box-multiple',
-      description: '制作楽曲のさらなる世界配信拡大に向け委託契約を締結（当時）。',
+      description:
+        '制作楽曲のさらなる世界配信拡大に向け委託契約を締結（当時）。',
     },
     {
       id: 'redbull',
@@ -207,7 +201,8 @@ export const PROFILE_DATA = {
       badge: '制作・広告',
       badgeColor: 'amber',
       icon: 'mdi-bullhorn',
-      description: '自作の屋外電光掲示板を活用し、レッドブル公式の大型宣伝を展開！',
+      description:
+        '自作の屋外電光掲示板を活用し、レッドブル公式の大型宣伝を展開！',
     },
     {
       id: 'naunau',
@@ -216,7 +211,8 @@ export const PROFILE_DATA = {
       badge: 'アンバサダー',
       badgeColor: 'teal',
       icon: 'mdi-account-star',
-      description: '急速にユーザーを増やしたSNS「Naunau」の公式アンバサダに抜擢。',
+      description:
+        '急速にユーザーを増やしたSNS「Naunau」の公式アンバサダに抜擢。',
     },
     {
       id: 'cities-skylines',
@@ -225,7 +221,8 @@ export const PROFILE_DATA = {
       badge: 'ゲーム・音楽',
       badgeColor: 'indigo',
       icon: 'mdi-steam',
-      description: '世界的人気都市開発シミュレーションゲームのSteamワークショップで楽曲を公開。',
+      description:
+        '世界的人気都市開発シミュレーションゲームのSteamワークショップで楽曲を公開。',
     },
     {
       id: 'fascode-music',
@@ -234,7 +231,8 @@ export const PROFILE_DATA = {
       badge: '楽曲提供',
       badgeColor: 'pink',
       icon: 'mdi-handshake',
-      description: 'プログラマ団体 Fascode Network の公式コンテンツ向けに楽曲を提供。',
+      description:
+        'プログラマ団体 Fascode Network の公式コンテンツ向けに楽曲を提供。',
     },
     {
       id: 'joysound',
@@ -243,7 +241,8 @@ export const PROFILE_DATA = {
       badge: '音楽配信',
       badgeColor: 'red',
       icon: 'mdi-microphone-variant',
-      description: '全国のJOYSOUND設置店舗にて、オリジナル楽曲がカラオケ歌唱可能に！',
+      description:
+        '全国のJOYSOUND設置店舗にて、オリジナル楽曲がカラオケ歌唱可能に！',
     },
     {
       id: 'xubuntu',
@@ -252,7 +251,8 @@ export const PROFILE_DATA = {
       badge: '自作OS・OSS',
       badgeColor: 'blue',
       icon: 'mdi-linux',
-      description: 'Ubuntu派生の公式トップページにて、公式派生ディストリビューションとして紹介される快挙。',
+      description:
+        'Ubuntu派生の公式トップページにて、公式派生ディストリビューションとして紹介される快挙。',
     },
     {
       id: 'fascode-partner',
@@ -261,7 +261,8 @@ export const PROFILE_DATA = {
       badge: '提携',
       badgeColor: 'cyan',
       icon: 'mdi-transit-connection-variant',
-      description: '技術コミュニティとのパートナーシップを締結し、ソフトウェア開発を加速。',
+      description:
+        '技術コミュニティとのパートナーシップを締結し、ソフトウェア開発を加速。',
     },
   ] as AchievementItem[],
 
@@ -336,7 +337,8 @@ export const PROFILE_DATA = {
       id: '2024-03',
       date: '2024/03/30',
       year: 2024,
-      title: '日本工学院専門学校を留年して卒業、就活をしておらずギグワーカーを開始',
+      title:
+        '日本工学院専門学校を留年して卒業、就活をしておらずギグワーカーを開始',
       icon: 'mdi-school',
       tag: '学歴',
     },
@@ -443,7 +445,8 @@ export const PROFILE_DATA = {
       id: '2022-05',
       date: '2022/05/15',
       year: 2022,
-      title: 'ときえのき名義から「エノキ電気グループ」に名義変更（所属は自分のみ）',
+      title:
+        'ときえのき名義から「エノキ電気グループ」に名義変更（所属は自分のみ）',
       icon: 'mdi-account-group',
       highlight: true,
       tag: 'ビジネス',
@@ -500,7 +503,8 @@ export const PROFILE_DATA = {
       id: '2021-09-21',
       date: '2021/09/21',
       year: 2021,
-      title: '開業届と青色申告承認申請書を提出、ときえのき名義を取得（自営業者へ）',
+      title:
+        '開業届と青色申告承認申請書を提出、ときえのき名義を取得（自営業者へ）',
       icon: 'mdi-briefcase-check',
       highlight: true,
       tag: 'ビジネス',
@@ -585,7 +589,8 @@ export const PROFILE_DATA = {
       id: '2020-03',
       date: '2020/03/03',
       year: 2020,
-      title: 'Linuxディストリビューションを自作・公開（caramelos.xyz）、同時にブログ開設',
+      title:
+        'Linuxディストリビューションを自作・公開（caramelos.xyz）、同時にブログ開設',
       icon: 'mdi-laptop',
       highlight: true,
       tag: 'OSS・Web',

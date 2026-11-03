@@ -73,8 +73,7 @@
 
 ## アクセス
 
-- **公式サイト**: <https://app.enoki.xyz>
-- **エノキ電気（運営）**: <https://enoki.xyz>
+- **公式サイト**: <https://enoki.xyz>
 
 ---
 
@@ -305,9 +304,9 @@ define('DIRECTORY_NAME', '/');
 // WebPush 設定（フロントエンドの .env と同じ鍵を指定）
 define('NUXT_WebPush_PublicKey', 'パブリックキー');
 define('NUXT_WebPush_PrivateKey', 'プライベートキー');
-define('WebPush_URL', 'https://app.enoki.xyz');
-define('WebPush_icon', 'https://app.enoki.xyz/icon.png');
-define('Default_user_icon', 'https://app.enoki.xyz/account_default.jpg');
+define('WebPush_URL', 'https://enoki.xyz');
+define('WebPush_icon', 'https://enoki.xyz/icon.png');
+define('Default_user_icon', 'https://enoki.xyz/account_default.jpg');
 
 // MySQL データベース接続情報
 define('MySQL_Host', 'localhost');
@@ -325,7 +324,7 @@ define('SMTP_Port', 587);
 
 // メールヘッダー・フッター
 $mailHeader = "<p>いつも エノキ電気 公式ホームページ をご利用いただきありがとうございます。<hr></p>";
-$mailFooter = "<p><hr>このメールに返信することはできません。<br><a href=\"https://app.enoki.xyz\">エノキ電気</a></p>";
+$mailFooter = "<p><hr>このメールに返信することはできません。<br><a href=\"https://enoki.xyz\">エノキ電気</a></p>";
 ```
 
 #### PHP サーバーの Apache / .htaccess 設定例:

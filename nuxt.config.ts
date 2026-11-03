@@ -85,7 +85,7 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         {
           property: 'og:image',
-          content: 'https://app.enoki.xyz/img/thumbnail.jpg',
+          content: 'https://enoki.xyz/img/thumbnail.jpg',
         },
         { name: 'format-detection', content: 'telephone=no' },
         { name: 'mobile-web-app-capable', content: 'yes' },
