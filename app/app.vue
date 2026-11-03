@@ -354,4 +354,9 @@ $breakpoints: (
 .v-responsive__sizer {
   display: none;
 }
+
+.v-chip {
+  padding: 0.5em 0.7em;
+  margin: 0 0.2em;
+}
 </style>

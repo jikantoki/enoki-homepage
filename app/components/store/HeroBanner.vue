@@ -46,6 +46,7 @@ defineEmits<{
 .hero-banner-container {
   padding: 0 16px;
   margin-bottom: 8px;
+  margin-top: 1em;
 
   :deep(.v-carousel) {
     border-radius: 20px;

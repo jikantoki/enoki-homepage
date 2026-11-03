@@ -3,13 +3,13 @@ v-card.playstore-root(
   style="width: 100%; height: 100%;"
   :class="settings.hidden.isAndroid15OrHigher ? 'top-android-15-or-higher' : ''"
 )
-  //- ================= Google Play 検索バーヘッダー =================
+  //- ================= トップ検索バーヘッダー =================
   .store-top-bar
     .search-pill
       v-icon.search-icon mdi-magnify
       input.search-input(
         v-model="searchQuery"
-        placeholder="アプリやゲームを検索"
+        :placeholder="searchPlaceholder"
         @focus="isSearchActive = true"
       )
       v-btn(
@@ -30,8 +30,8 @@ v-card.playstore-root(
           onerror="this.src='/account_default.jpg'"
         )
 
-  //- ================= タブバー（非検索時） =================
-  .store-sub-nav(v-if="!searchQuery")
+  //- ================= サブナビバー（アプリ選択時のみ表示） =================
+  .store-sub-nav(v-if="!searchQuery && currentNav === 'apps'")
     v-tabs(
       v-model="activeTab"
       color="primary"
@@ -50,292 +50,338 @@ v-card.playstore-root(
 
     //- ---------------- 1. 検索結果表示モード ----------------
     .search-results-view(v-if="searchQuery")
-      .search-header
-        .search-title 「{{ searchQuery }}」の検索結果 ({{ searchResults.length }}件)
-        .filter-chips
-          v-chip(
-            :color="searchFilter === 'all' ? 'primary' : undefined"
-            :variant="searchFilter === 'all' ? 'flat' : 'outlined'"
-            size="small"
-            @click="searchFilter = 'all'"
-          ) すべて
-          v-chip(
-            :color="searchFilter === 'game' ? 'primary' : undefined"
-            :variant="searchFilter === 'game' ? 'flat' : 'outlined'"
-            size="small"
-            @click="searchFilter = 'game'"
-          ) ゲーム
-          v-chip(
-            :color="searchFilter === 'app' ? 'primary' : undefined"
-            :variant="searchFilter === 'app' ? 'flat' : 'outlined'"
-            size="small"
-            @click="searchFilter = 'app'"
-          ) アプリ
-          v-chip(
-            :color="searchFilter === 'free' ? 'primary' : undefined"
-            :variant="searchFilter === 'free' ? 'flat' : 'outlined'"
-            size="small"
-            @click="searchFilter = 'free'"
-          ) 無料のみ
-
-      .results-list(v-if="searchResults.length > 0")
-        AppRankItem(
-          v-for="(item, idx) in searchResults"
-          :key="item.id"
-          :item="item"
-          :rank="idx + 1"
-          @click="openDetail(item)"
-        )
-      .no-results(v-else)
-        v-icon(size="48" color="grey") mdi-magnify-remove-outline
-        p 一致するアプリやゲームが見つかりませんでした
-
-    //- ---------------- 2. おすすめタブ ----------------
-    .tab-content(v-else-if="activeTab === 'foryou'")
-      //- ヒーローカルーセル
-      HeroBanner(
-        :items="featuredApps"
-        @click="openDetail"
-      )
-
-      //- 棚: あなたへのおすすめ
-      AppShelf(
-        title="あなたへのおすすめ"
-        subtitle="利用傾向に基づいてピックアップ"
-        showMore
-        @more="activeTab = 'ranking'"
-      )
-        AppCard(
-          v-for="item in recommendedApps"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      //- 棚: 注目の新作ゲーム
-      AppShelf(
-        title="注目の新作ゲーム"
-        subtitle="話題の最新タイトルをプレイしよう"
-        showMore
-        @more="activeTab = 'games'"
-      )
-        AppCard(
-          v-for="item in newGames"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      //- 棚: 日常と仕事を便利にするツール
-      AppShelf(
-        title="生産性を高めるおすすめツール"
-        subtitle="日々のタスクや作業効率をアップ"
-        showMore
-        @more="activeTab = 'apps'"
-      )
-        AppCard(
-          v-for="item in productivityApps"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      //- 棚: 高評価セレクション
-      AppShelf(
-        title="★ 4.7 以上の高評価アプリ＆ゲーム"
-        subtitle="ユーザー満足度の高い定番コレクション"
-      )
-        AppCard(
-          v-for="item in topRatedApps"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      //- 棚: 癒しとライフスタイル
-      AppShelf(
-        title="健康＆ライフスタイル"
-        subtitle="毎日の生活をサポート"
-      )
-        AppCard(
-          v-for="item in lifestyleApps"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-    //- ---------------- 3. ランキングタブ ----------------
-    .tab-content(v-else-if="activeTab === 'ranking'")
-      .ranking-filter-row
-        v-chip-group(v-model="rankingType" selected-class="text-primary" mandatory)
-          v-chip(value="all" variant="tonal" size="small") 総合人気
-          v-chip(value="free" variant="tonal" size="small") 人気の無料
-          v-chip(value="paid" variant="tonal" size="small") 人気の有料
-          v-chip(value="games" variant="tonal" size="small") ゲーム人気
-          v-chip(value="apps" variant="tonal" size="small") アプリ人気
-
-      .ranking-list
-        AppRankItem(
-          v-for="(item, idx) in currentRankings"
-          :key="item.id"
-          :item="item"
-          :rank="idx + 1"
-          @click="openDetail(item)"
-        )
-
-    //- ---------------- 4. ゲームタブ ----------------
-    .tab-content(v-else-if="activeTab === 'games'")
-      HeroBanner(
-        :items="featuredGames"
-        @click="openDetail"
-      )
-
-      AppShelf(title="ロールプレイング" subtitle="壮大な物語と冒険の世界")
-        AppCard(
-          v-for="item in gamesByCategory('RPG')"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      AppShelf(title="アクション＆バトル" subtitle="爽快なアクションを楽しもう")
-        AppCard(
-          v-for="item in gamesByCategory('アクション')"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      AppShelf(title="パズル＆脳トレ" subtitle="ひらめきと直感でパズルを解こう")
-        AppCard(
-          v-for="item in gamesByCategory('パズル')"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      AppShelf(title="シミュレーション" subtitle="自分だけの街や世界を創ろう")
-        AppCard(
-          v-for="item in gamesByCategory('シミュレーション')"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      AppShelf(title="レース＆ドライブ" subtitle="スピードとスリルを体感")
-        AppCard(
-          v-for="item in gamesByCategory('レース')"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-    //- ---------------- 5. アプリタブ ----------------
-    .tab-content(v-else-if="activeTab === 'apps'")
-      HeroBanner(
-        :items="featuredAppItems"
-        @click="openDetail"
-      )
-
-      AppShelf(title="ツール＆ユーティリティ" subtitle="スマホをさらに便利にする便利ツール")
-        AppCard(
-          v-for="item in appsByCategory('ツール')"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      AppShelf(title="仕事効率化" subtitle="日々の作業や予定をスマートに")
-        AppCard(
-          v-for="item in appsByCategory('仕事効率化')"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      AppShelf(title="写真＆動画" subtitle="思い出を美しく残そう")
-        AppCard(
-          v-for="item in appsByCategory('写真')"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      AppShelf(title="音楽＆オーディオ" subtitle="最高の音響体験")
-        AppCard(
-          v-for="item in appsByCategory('音楽＆オーディオ')"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-      AppShelf(title="ファイナンス" subtitle="お金の管理・家計簿")
-        AppCard(
-          v-for="item in appsByCategory('ファイナンス')"
-          :key="item.id"
-          :item="item"
-          @click="openDetail(item)"
-        )
-
-    //- ---------------- 6. カテゴリ一覧タブ ----------------
-    .tab-content(v-else-if="activeTab === 'categories'")
-      .categories-view
-        .category-select-row(v-if="selectedCategory")
-          v-btn(
-            prepend-icon="mdi-arrow-left"
-            variant="tonal"
-            size="small"
-            rounded="pill"
-            @click="selectedCategory = null"
-          ) カテゴリ一覧に戻る
-          span.category-heading {{ selectedCategory }} ({{ categoryApps.length }}件)
-
-          .category-apps-grid
-            AppCard(
-              v-for="item in categoryApps"
-              :key="item.id"
-              :item="item"
-              @click="openDetail(item)"
-            )
-
-        .category-grid(v-else)
-          .category-card(
-            v-for="cat in allCategoriesWithMeta"
-            :key="cat.name"
-            v-ripple
-            @click="selectedCategory = cat.name"
+      //- 1-A. 音楽検索モード
+      template(v-if="currentNav === 'music'")
+        .search-header
+          .search-title 「{{ searchQuery }}」の楽曲検索結果 ({{ musicSearchResults.length }}件)
+        .results-list(v-if="musicSearchResults.length > 0")
+          MusicTrackRow(
+            v-for="(item, idx) in musicSearchResults"
+            :key="item.id"
+            :item="item"
+            :rank="idx + 1"
+            :isPlaying="musicStore.isPlaying"
+            :currentTrackId="musicStore.currentTrack?.id || ''"
+            :isLiked="musicStore.isLiked(item.id)"
+            @click="playMusic(item)"
+            @play="playMusic(item, musicSearchResults)"
+            @like="musicStore.toggleLike($event)"
           )
-            v-icon(:color="cat.color" size="28") {{ cat.icon }}
-            .cat-name {{ cat.name }}
-            .cat-count {{ cat.count }}個のアプリ
+        .no-results(v-else)
+          v-icon(size="48" color="grey") mdi-music-note-off
+          p 一致する楽曲やアーティストが見つかりませんでした
+
+      //- 1-B. アプリ検索モード
+      template(v-else)
+        .search-header
+          .search-title 「{{ searchQuery }}」の検索結果 ({{ searchResults.length }}件)
+          .filter-chips
+            v-chip(
+              :color="searchFilter === 'all' ? 'primary' : undefined"
+              :variant="searchFilter === 'all' ? 'flat' : 'outlined'"
+              size="small"
+              @click="searchFilter = 'all'"
+            ) すべて
+            v-chip(
+              :color="searchFilter === 'game' ? 'primary' : undefined"
+              :variant="searchFilter === 'game' ? 'flat' : 'outlined'"
+              size="small"
+              @click="searchFilter = 'game'"
+            ) ゲーム
+            v-chip(
+              :color="searchFilter === 'app' ? 'primary' : undefined"
+              :variant="searchFilter === 'app' ? 'flat' : 'outlined'"
+              size="small"
+              @click="searchFilter = 'app'"
+            ) アプリ
+            v-chip(
+              :color="searchFilter === 'free' ? 'primary' : undefined"
+              :variant="searchFilter === 'free' ? 'flat' : 'outlined'"
+              size="small"
+              @click="searchFilter = 'free'"
+            ) 無料のみ
+
+        .results-list(v-if="searchResults.length > 0")
+          AppRankItem(
+            v-for="(item, idx) in searchResults"
+            :key="item.id"
+            :item="item"
+            :rank="idx + 1"
+            @click="openDetail(item)"
+          )
+        .no-results(v-else)
+          v-icon(size="48" color="grey") mdi-magnify-remove-outline
+          p 一致するアプリやゲームが見つかりませんでした
+
+    //- ---------------- 2. 音楽タブ（Spotify / Apple Music風） ----------------
+    .music-content-view(v-else-if="currentNav === 'music'")
+      MusicView
+
+    //- ---------------- 3. 運営情報タブ ----------------
+    .about-content-view(v-else-if="currentNav === 'about'")
+      AboutView
+
+    //- ---------------- 4. アプリタブ（サブナビ連動） ----------------
+    template(v-else-if="currentNav === 'apps'")
+      //- おすすめタブ
+      .tab-content(v-if="activeTab === 'foryou'")
+        //- ヒーローカルーセル
+        HeroBanner(
+          :items="featuredApps"
+          @click="openDetail"
+        )
+
+        //- 棚: あなたへのおすすめ
+        AppShelf(
+          title="あなたへのおすすめ"
+          subtitle="利用傾向に基づいてピックアップ"
+          showMore
+          @more="activeTab = 'ranking'"
+        )
+          AppCard(
+            v-for="item in recommendedApps"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        //- 棚: 注目の新作ゲーム
+        AppShelf(
+          title="注目の新作ゲーム"
+          subtitle="話題の最新タイトルをプレイしよう"
+          showMore
+          @more="activeTab = 'games'"
+        )
+          AppCard(
+            v-for="item in newGames"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        //- 棚: 日常と仕事を便利にするツール
+        AppShelf(
+          title="生産性を高めるおすすめツール"
+          subtitle="日々のタスクや作業効率をアップ"
+          showMore
+          @more="activeTab = 'apps'"
+        )
+          AppCard(
+            v-for="item in productivityApps"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        //- 棚: 高評価セレクション
+        AppShelf(
+          title="★ 4.7 以上の高評価アプリ＆ゲーム"
+          subtitle="ユーザー満足度の高い定番コレクション"
+        )
+          AppCard(
+            v-for="item in topRatedApps"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        //- 棚: 癒しとライフスタイル
+        AppShelf(
+          title="健康＆ライフスタイル"
+          subtitle="毎日の生活をサポート"
+        )
+          AppCard(
+            v-for="item in lifestyleApps"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+      //- ランキングタブ
+      .tab-content(v-else-if="activeTab === 'ranking'")
+        .ranking-filter-row
+          v-chip-group(v-model="rankingType" selected-class="text-primary" mandatory)
+            v-chip(value="all" variant="tonal" size="small") 総合人気
+            v-chip(value="free" variant="tonal" size="small") 人気の無料
+            v-chip(value="paid" variant="tonal" size="small") 人気の有料
+            v-chip(value="games" variant="tonal" size="small") ゲーム人気
+            v-chip(value="apps" variant="tonal" size="small") アプリ人気
+
+        .ranking-list
+          AppRankItem(
+            v-for="(item, idx) in currentRankings"
+            :key="item.id"
+            :item="item"
+            :rank="idx + 1"
+            @click="openDetail(item)"
+          )
+
+      //- ゲームタブ
+      .tab-content(v-else-if="activeTab === 'games'")
+        HeroBanner(
+          :items="featuredGames"
+          @click="openDetail"
+        )
+
+        AppShelf(title="ロールプレイング" subtitle="壮大な物語と冒険の世界")
+          AppCard(
+            v-for="item in gamesByCategory('RPG')"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        AppShelf(title="アクション＆バトル" subtitle="爽快なアクションを楽しもう")
+          AppCard(
+            v-for="item in gamesByCategory('アクション')"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        AppShelf(title="パズル＆脳トレ" subtitle="ひらめきと直感でパズルを解こう")
+          AppCard(
+            v-for="item in gamesByCategory('パズル')"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        AppShelf(title="シミュレーション" subtitle="自分だけの街や世界を創ろう")
+          AppCard(
+            v-for="item in gamesByCategory('シミュレーション')"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        AppShelf(title="レース＆ドライブ" subtitle="スピードとスリルを体感")
+          AppCard(
+            v-for="item in gamesByCategory('レース')"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+      //- アプリタブ
+      .tab-content(v-else-if="activeTab === 'apps'")
+        HeroBanner(
+          :items="featuredAppItems"
+          @click="openDetail"
+        )
+
+        AppShelf(title="ツール＆ユーティリティ" subtitle="スマホをさらに便利にする便利ツール")
+          AppCard(
+            v-for="item in appsByCategory('ツール')"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        AppShelf(title="仕事効率化" subtitle="日々の作業や予定をスマートに")
+          AppCard(
+            v-for="item in appsByCategory('仕事効率化')"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        AppShelf(title="写真＆動画" subtitle="思い出を美しく残そう")
+          AppCard(
+            v-for="item in appsByCategory('写真')"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        AppShelf(title="音楽＆オーディオ" subtitle="最高の音響体験")
+          AppCard(
+            v-for="item in appsByCategory('音楽＆オーディオ')"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+        AppShelf(title="ファイナンス" subtitle="お金の管理・家計簿")
+          AppCard(
+            v-for="item in appsByCategory('ファイナンス')"
+            :key="item.id"
+            :item="item"
+            @click="openDetail(item)"
+          )
+
+      //- カテゴリ一覧タブ
+      .tab-content(v-else-if="activeTab === 'categories'")
+        .categories-view
+          .category-select-row(v-if="selectedCategory")
+            v-btn(
+              prepend-icon="mdi-arrow-left"
+              variant="tonal"
+              size="small"
+              rounded="pill"
+              @click="selectedCategory = null"
+            ) カテゴリ一覧に戻る
+            span.category-heading {{ selectedCategory }} ({{ categoryApps.length }}件)
+
+            .category-apps-grid
+              AppCard(
+                v-for="item in categoryApps"
+                :key="item.id"
+                :item="item"
+                @click="openDetail(item)"
+              )
+
+          .category-grid(v-else)
+            .category-card(
+              v-for="cat in allCategoriesWithMeta"
+              :key="cat.name"
+              v-ripple
+              @click="selectedCategory = cat.name"
+            )
+              v-icon(:color="cat.color" size="28") {{ cat.icon }}
+              .cat-name {{ cat.name }}
+              .cat-count {{ cat.count }}個のアプリ
 
     //- 下部ナビゲーションバー用の余白
-    .bottom-nav-spacer
+    .bottom-nav-spacer(:class="{ 'has-mini-player': musicStore.currentTrack }")
 
-  //- ================= Google Play風ボトムナビゲーション =================
+  //- ================= 常駐ミニプレイヤー (音楽再生時) =================
+  MiniPlayer(:bottomOffset="settings.hidden.isAndroid15OrHigher ? 72 : 56")
+
+  //- ================= フル画面 Now Playing モーダル =================
+  NowPlayingModal
+
+  //- ================= ボトムナビゲーション (アプリ / 音楽 / 運営情報 / その他) =================
   .store-bottom-nav
     .nav-buttons
+      //- 1. アプリ
       .nav-btn(
-        :class="{ active: activeTab === 'games' && !searchQuery }"
+        :class="{ active: currentNav === 'apps' && !searchQuery }"
         v-ripple
-        @click="switchBottomNav('games')"
+        @click="switchBottomNav('apps')"
       )
-        v-icon {{ activeTab === 'games' && !searchQuery ? 'mdi-gamepad-variant' : 'mdi-gamepad-variant-outline' }}
-        span ゲーム
+        v-icon {{ currentNav === 'apps' && !searchQuery ? 'mdi-apps' : 'mdi-apps' }}
+        span ソフトウェア
+
+      //- 2. 音楽 (Spotify / Apple Music風)
       .nav-btn(
-        :class="{ active: (activeTab === 'apps' || activeTab === 'foryou') && !searchQuery }"
+        :class="{ active: currentNav === 'music' && !searchQuery }"
         v-ripple
-        @click="switchBottomNav('foryou')"
+        @click="switchBottomNav('music')"
       )
-        v-icon {{ (activeTab === 'apps' || activeTab === 'foryou') && !searchQuery ? 'mdi-apps' : 'mdi-apps' }}
-        span アプリ
+        v-icon {{ currentNav === 'music' && !searchQuery ? 'mdi-music' : 'mdi-music' }}
+        span 音楽
+
+      //- 3. 運営情報
       .nav-btn(
-        :class="{ active: activeTab === 'ranking' && !searchQuery }"
+        :class="{ active: currentNav === 'about' && !searchQuery }"
         v-ripple
-        @click="switchBottomNav('ranking')"
+        @click="switchBottomNav('about')"
       )
-        v-icon {{ activeTab === 'ranking' && !searchQuery ? 'mdi-trophy' : 'mdi-trophy-outline' }}
-        span ランキング
+        v-icon {{ currentNav === 'about' && !searchQuery ? 'mdi-information' : 'mdi-information-outline' }}
+        span リンク
+
+      //- 4. その他
       .nav-btn(
         :class="{ active: optionsDialog }"
         v-ripple
@@ -343,6 +389,7 @@ v-card.playstore-root(
       )
         v-icon mdi-dots-horizontal
         span その他
+
     .bottom-android-15-or-higher(v-if="settings.hidden.isAndroid15OrHigher")
 
   //- ================= アプリ詳細ダイアログ =================
@@ -352,7 +399,7 @@ v-card.playstore-root(
     @search="detailDialogOpen = false; searchQuery = ''"
   )
 
-  //- ================= その他 / ようこそダイアログ（既存機能継承） =================
+  //- ================= その他 / ようこそダイアログ =================
   v-dialog(
     v-model="optionsDialog"
     transition="dialog-bottom-transition"
@@ -418,7 +465,7 @@ v-card.playstore-root(
             .icon-and-text
               v-icon mdi-shield-lock-outline
               v-list-item-title プライバシーポリシー
-          v-list-item.item(@click="$router.push('/about')")
+          v-list-item.item(@click="optionsDialog = false; switchBottomNav('about')")
             .icon-and-text
               v-icon mdi-information
               v-list-item-title 運営情報
@@ -429,7 +476,11 @@ v-card.playstore-root(
           v-list-item.item(@click="reloadMockData")
             .icon-and-text
               v-icon mdi-refresh
-              v-list-item-title モックデータを再読み込み (100件)
+              v-list-item-title アプリモックデータを再読み込み (100件)
+          v-list-item.item(@click="reloadMusicData")
+            .icon-and-text
+              v-icon mdi-music-box-multiple
+              v-list-item-title 音楽モックデータを再読み込み (60曲)
 </template>
 
 <script lang="ts">
@@ -441,12 +492,18 @@ import mixins from '@/mixins/mixins'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
 import { useAppStore, type AppOrMusicItem } from '@/stores/app'
+import { useMusicStore, type MusicItem } from '@/stores/music'
 import Setup from '@/js/setup'
 import AppCard from '@/components/store/AppCard.vue'
 import AppRankItem from '@/components/store/AppRankItem.vue'
 import AppShelf from '@/components/store/AppShelf.vue'
 import HeroBanner from '@/components/store/HeroBanner.vue'
 import AppDetailModal from '@/components/store/AppDetailModal.vue'
+import MusicView from '@/components/music/MusicView.vue'
+import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
+import MiniPlayer from '@/components/music/MiniPlayer.vue'
+import NowPlayingModal from '@/components/music/NowPlayingModal.vue'
+import AboutView from '@/components/about/AboutView.vue'
 
 export default {
   components: {
@@ -455,6 +512,11 @@ export default {
     AppShelf,
     HeroBanner,
     AppDetailModal,
+    MusicView,
+    MusicTrackRow,
+    MiniPlayer,
+    NowPlayingModal,
+    AboutView,
   },
   mixins: [mixins],
   data() {
@@ -463,6 +525,8 @@ export default {
       myProfile: useMyProfileStore(),
       settings: useSettingsStore(),
       appStore: useAppStore(),
+      musicStore: useMusicStore(),
+      currentNav: 'apps' as 'apps' | 'music' | 'about',
       searchQuery: '',
       isSearchActive: false,
       searchFilter: 'all' as 'all' | 'game' | 'app' | 'free',
@@ -474,50 +538,73 @@ export default {
     }
   },
   computed: {
+    searchPlaceholder(): string {
+      if (this.currentNav === 'music') {
+        return '楽曲、アーティスト、アルバムを検索'
+      }
+      return 'アプリやゲームを検索'
+    },
     allApps(): AppOrMusicItem[] {
       return this.appStore.list
     },
     featuredApps(): AppOrMusicItem[] {
-      return this.allApps.filter(item => item.featured).slice(0, 6)
+      return this.allApps.filter((item) => item.featured).slice(0, 6)
     },
     featuredGames(): AppOrMusicItem[] {
-      return this.allApps.filter(item => item.type === 'game' && item.featured).slice(0, 5)
+      return this.allApps
+        .filter((item) => item.type === 'game' && item.featured)
+        .slice(0, 5)
     },
     featuredAppItems(): AppOrMusicItem[] {
-      return this.allApps.filter(item => item.type === 'app' && item.featured).slice(0, 5)
+      return this.allApps
+        .filter((item) => item.type === 'app' && item.featured)
+        .slice(0, 5)
     },
     recommendedApps(): AppOrMusicItem[] {
       return this.allApps.slice(0, 12)
     },
     newGames(): AppOrMusicItem[] {
-      return this.allApps.filter(item => item.type === 'game').slice(10, 22)
+      return this.allApps.filter((item) => item.type === 'game').slice(10, 22)
     },
     productivityApps(): AppOrMusicItem[] {
-      return this.allApps.filter(item => item.category === '仕事効率化' || item.category === 'ツール').slice(0, 12)
+      return this.allApps
+        .filter(
+          (item) =>
+            item.category === '仕事効率化' || item.category === 'ツール',
+        )
+        .slice(0, 12)
     },
     topRatedApps(): AppOrMusicItem[] {
-      return [...this.allApps].filter(item => (item.rating || 0) >= 4.7).slice(0, 12)
+      return [...this.allApps]
+        .filter((item) => (item.rating || 0) >= 4.7)
+        .slice(0, 12)
     },
     lifestyleApps(): AppOrMusicItem[] {
-      return this.allApps.filter(item => item.category === '健康＆フィットネス' || item.category === 'ライフスタイル').slice(0, 12)
+      return this.allApps
+        .filter(
+          (item) =>
+            item.category === '健康＆フィットネス' ||
+            item.category === 'ライフスタイル',
+        )
+        .slice(0, 12)
     },
     currentRankings(): AppOrMusicItem[] {
       let list = [...this.allApps]
       if (this.rankingType === 'free') {
-        list = list.filter(item => !item.price || item.price === 0)
+        list = list.filter((item) => !item.price || item.price === 0)
       } else if (this.rankingType === 'paid') {
-        list = list.filter(item => item.price && item.price > 0)
+        list = list.filter((item) => item.price && item.price > 0)
       } else if (this.rankingType === 'games') {
-        list = list.filter(item => item.type === 'game')
+        list = list.filter((item) => item.type === 'game')
       } else if (this.rankingType === 'apps') {
-        list = list.filter(item => item.type === 'app')
+        list = list.filter((item) => item.type === 'app')
       }
       return list.sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 30)
     },
     searchResults(): AppOrMusicItem[] {
       const q = this.searchQuery.trim().toLowerCase()
       if (!q) return []
-      let filtered = this.allApps.filter(item => {
+      let filtered = this.allApps.filter((item) => {
         const nameMatch = item.name.toLowerCase().includes(q)
         const catMatch = (item.category || '').toLowerCase().includes(q)
         const descMatch = (item.description || '').toLowerCase().includes(q)
@@ -525,42 +612,65 @@ export default {
       })
 
       if (this.searchFilter === 'game') {
-        filtered = filtered.filter(item => item.type === 'game')
+        filtered = filtered.filter((item) => item.type === 'game')
       } else if (this.searchFilter === 'app') {
-        filtered = filtered.filter(item => item.type === 'app')
+        filtered = filtered.filter((item) => item.type === 'app')
       } else if (this.searchFilter === 'free') {
-        filtered = filtered.filter(item => !item.price || item.price === 0)
+        filtered = filtered.filter((item) => !item.price || item.price === 0)
       }
       return filtered
     },
+    musicSearchResults(): MusicItem[] {
+      const q = this.searchQuery.trim().toLowerCase()
+      if (!q || this.currentNav !== 'music') return []
+      return this.musicStore.list.filter((item) => {
+        const titleMatch = (item.title || item.name || '')
+          .toLowerCase()
+          .includes(q)
+        const artistMatch = (item.artist || '').toLowerCase().includes(q)
+        const albumMatch = (item.album || '').toLowerCase().includes(q)
+        const genreMatch = (item.genre || '').toLowerCase().includes(q)
+        return titleMatch || artistMatch || albumMatch || genreMatch
+      })
+    },
     categoryApps(): AppOrMusicItem[] {
       if (!this.selectedCategory) return []
-      return this.allApps.filter(item => item.category === this.selectedCategory)
+      return this.allApps.filter(
+        (item) => item.category === this.selectedCategory,
+      )
     },
-    allCategoriesWithMeta(): Array<{ name: string; count: number; icon: string; color: string }> {
+    allCategoriesWithMeta(): Array<{
+      name: string
+      count: number
+      icon: string
+      color: string
+    }> {
       const iconMap: Record<string, { icon: string; color: string }> = {
-        'RPG': { icon: 'mdi-sword-cross', color: '#6366f1' },
-        'アクション': { icon: 'mdi-lightning-bolt', color: '#ef4444' },
-        'パズル': { icon: 'mdi-puzzle', color: '#f59e0b' },
-        'シミュレーション': { icon: 'mdi-city', color: '#10b981' },
-        '音楽ゲーム': { icon: 'mdi-music', color: '#ec4899' },
-        'レース': { icon: 'mdi-car-sports', color: '#3b82f6' },
-        'ストラテジー': { icon: 'mdi-shield-crown', color: '#8b5cf6' },
-        'ツール': { icon: 'mdi-tools', color: '#06b6d4' },
-        '仕事効率化': { icon: 'mdi-check-decagram', color: '#10b981' },
-        '写真': { icon: 'mdi-camera', color: '#f97316' },
-        'ファイナンス': { icon: 'mdi-wallet', color: '#14b8a6' },
-        '教育': { icon: 'mdi-school', color: '#8b5cf6' },
+        RPG: { icon: 'mdi-sword-cross', color: '#6366f1' },
+        アクション: { icon: 'mdi-lightning-bolt', color: '#ef4444' },
+        パズル: { icon: 'mdi-puzzle', color: '#f59e0b' },
+        シミュレーション: { icon: 'mdi-city', color: '#10b981' },
+        音楽ゲーム: { icon: 'mdi-music', color: '#ec4899' },
+        レース: { icon: 'mdi-car-sports', color: '#3b82f6' },
+        ストラテジー: { icon: 'mdi-shield-crown', color: '#8b5cf6' },
+        ツール: { icon: 'mdi-tools', color: '#06b6d4' },
+        仕事効率化: { icon: 'mdi-check-decagram', color: '#10b981' },
+        写真: { icon: 'mdi-camera', color: '#f97316' },
+        ファイナンス: { icon: 'mdi-wallet', color: '#14b8a6' },
+        教育: { icon: 'mdi-school', color: '#8b5cf6' },
         '健康＆フィットネス': { icon: 'mdi-heart-pulse', color: '#ef4444' },
         '音楽＆オーディオ': { icon: 'mdi-headphones', color: '#a855f7' },
-        '天気': { icon: 'mdi-weather-partly-cloudy', color: '#0284c7' },
-        'ライフスタイル': { icon: 'mdi-coffee', color: '#d97706' },
-        'マンガ＆書籍': { icon: 'mdi-book-open-page-variant', color: '#e11d48' },
-        'ビジネス': { icon: 'mdi-briefcase', color: '#475569' },
+        天気: { icon: 'mdi-weather-partly-cloudy', color: '#0284c7' },
+        ライフスタイル: { icon: 'mdi-coffee', color: '#d97706' },
+        'マンガ＆書籍': {
+          icon: 'mdi-book-open-page-variant',
+          color: '#e11d48',
+        },
+        ビジネス: { icon: 'mdi-briefcase', color: '#475569' },
       }
 
       const map = new Map<string, number>()
-      this.allApps.forEach(item => {
+      this.allApps.forEach((item) => {
         if (item.category) {
           map.set(item.category, (map.get(item.category) || 0) + 1)
         }
@@ -578,20 +688,27 @@ export default {
     },
   },
   setup() {
-    Setup.setTitle('ENOKI Appcenter - Play Store')
-    Setup.setDescription('エノキ電気公式アプリストア。Google Play Storeライクなアプリ一覧を提供します。')
+    Setup.setTitle('ENOKI Appcenter')
+    Setup.setDescription('エノキ電気公式アプリ＆音楽プラットフォーム。')
   },
   async mounted() {
     this.setTitle('ENOKI Appcenter')
 
-    // モックデータが存在しない場合は確実にロード
+    // アプリモックデータが存在しない場合は確実にロード
     if (!this.appStore.list || this.appStore.list.length === 0) {
       this.appStore.loadMockData(true)
     }
 
+    // 音楽モックデータが存在しない場合はロード
+    if (!this.musicStore.list || this.musicStore.list.length === 0) {
+      this.musicStore.loadMockData(true)
+    }
+
     /** バックボタンのリスナーを追加 */
     App.addListener('backButton', () => {
-      if (this.detailDialogOpen) {
+      if (this.musicStore.nowPlayingModalOpen) {
+        this.musicStore.closeNowPlaying()
+      } else if (this.detailDialogOpen) {
         this.detailDialogOpen = false
       } else if (this.optionsDialog) {
         this.optionsDialog = false
@@ -599,6 +716,8 @@ export default {
         this.selectedCategory = null
       } else if (this.searchQuery) {
         this.searchQuery = ''
+      } else if (this.currentNav !== 'apps') {
+        this.currentNav = 'apps'
       } else if (this.$route.path === '/') {
         App.minimizeApp()
         Toast.show({ text: 'アプリはバックグラウンドで実行されます' })
@@ -615,10 +734,12 @@ export default {
       this.selectedApp = item
       this.detailDialogOpen = true
     },
-    switchBottomNav(tab: string) {
+    playMusic(item: MusicItem, queue?: MusicItem[]) {
+      this.musicStore.play(item, queue)
+    },
+    switchBottomNav(nav: 'apps' | 'music' | 'about') {
       this.searchQuery = ''
-      this.activeTab = tab
-      // 最上部にスクロール
+      this.currentNav = nav
       const container = this.$refs.scrollContainer as HTMLElement
       if (container) {
         container.scrollTop = 0
@@ -626,14 +747,23 @@ export default {
     },
     reloadMockData() {
       this.appStore.loadMockData(true)
-      Toast.show({ text: '100件のモックデータを再読み込みしました' })
+      Toast.show({ text: '100件のアプリモックデータを再読み込みしました' })
+      this.optionsDialog = false
+    },
+    reloadMusicData() {
+      this.musicStore.loadMockData(true)
+      Toast.show({ text: '60曲の音楽モックデータを再読み込みしました' })
       this.optionsDialog = false
     },
     gamesByCategory(category: string): AppOrMusicItem[] {
-      return this.allApps.filter(item => item.type === 'game' && item.category === category)
+      return this.allApps.filter(
+        (item) => item.type === 'game' && item.category === category,
+      )
     },
     appsByCategory(category: string): AppOrMusicItem[] {
-      return this.allApps.filter(item => item.type === 'app' && item.category === category)
+      return this.allApps.filter(
+        (item) => item.type === 'app' && item.category === category,
+      )
     },
     async share(content: string, title = '') {
       await Share.share({
@@ -653,7 +783,7 @@ export default {
   background-color: rgb(var(--v-theme-surface));
 }
 
-// ---------------- Google Play風トップ検索バー ----------------
+// ---------------- トップ検索バー ----------------
 .store-top-bar {
   padding: 12px 16px 8px 16px;
   background-color: rgb(var(--v-theme-surface));
@@ -712,7 +842,7 @@ export default {
   }
 }
 
-// ---------------- サブナビ（タブバー） ----------------
+// ---------------- サブナビ（アプリ用タブバー） ----------------
 .store-sub-nav {
   background-color: rgb(var(--v-theme-surface));
   border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
@@ -847,7 +977,7 @@ export default {
   }
 }
 
-// ---------------- Google Play風ボトムナビゲーション ----------------
+// ---------------- ボトムナビゲーション ----------------
 .store-bottom-nav {
   position: fixed;
   bottom: 0;
@@ -895,6 +1025,11 @@ export default {
 
 .bottom-nav-spacer {
   height: 64px;
+  transition: height 0.2s;
+
+  &.has-mini-player {
+    height: 128px;
+  }
 }
 
 .bottom-android-15-or-higher {
