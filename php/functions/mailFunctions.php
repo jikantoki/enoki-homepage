@@ -9,11 +9,11 @@ use PHPMailer\PHPMailer\Exception;
 // 本当はここenvから取得したい
 define('MailHeader', "
 <div style=\"text-align: center;\">
-<img src=\"https://enoki.xyz/icon.png\" alt=\"ENOKI Appcenter\" height=\"64px\">
+<img src=\"https://enoki.xyz/icon.png\" alt=\"エノキ電気\" height=\"64px\">
 </div>
 <br>
 <p>
-いつも ENOKI Appcenter をご利用いただきありがとうございます。
+いつも エノキ電気 公式ホームページ をご利用いただきありがとうございます。
 </p>
 <hr>");
 define('MailFooter', "
@@ -21,7 +21,7 @@ define('MailFooter', "
 <p>このメールに返信することはできません。</p>
 <p>また、このメールに身に覚えのない場合は、エノキ電気までお問い合わせください。</p>
 <p>
-<a href=\"https://enoki.xyz\">ENOKI Appcenter</a> by <a href=\"https://enoki.xyz\">エノキ電気</a>
+<a href=\"https://enoki.xyz\">エノキ電気 公式ホームページ</a> by <a href=\"https://enoki.xyz\">エノキ電気</a>
 </p>
 <p>お問い合わせはこちら: <a href=\"mailto:info@enoki.xyz\">info@enoki.xyz</a></p>
 <p>&copy; 2024 エノキ電気</p>

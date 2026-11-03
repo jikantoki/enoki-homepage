@@ -372,14 +372,14 @@ v-card.playstore-root(
         v-icon {{ currentNav === 'music' && !searchQuery ? 'mdi-music' : 'mdi-music' }}
         span 音楽
 
-      //- 3. 運営情報
+      //- 3. プロフィール・経歴・実績
       .nav-btn(
         :class="{ active: currentNav === 'about' && !searchQuery }"
         v-ripple
         @click="switchBottomNav('about')"
       )
-        v-icon {{ currentNav === 'about' && !searchQuery ? 'mdi-information' : 'mdi-information-outline' }}
-        span リンク
+        v-icon {{ currentNav === 'about' && !searchQuery ? 'mdi-account-circle' : 'mdi-account-circle-outline' }}
+        span プロフィール
 
       //- 4. その他
       .nav-btn(
@@ -467,9 +467,9 @@ v-card.playstore-root(
               v-list-item-title プライバシーポリシー
           v-list-item.item(@click="optionsDialog = false; switchBottomNav('about')")
             .icon-and-text
-              v-icon mdi-information
-              v-list-item-title 運営情報
-          v-list-item.item(@click="share('https://enoki.xyz?openExternalBrowser=1', 'ENOKI Appcenter')")
+              v-icon mdi-account-circle-outline
+              v-list-item-title プロフィール・実績（ときえのき）
+          v-list-item.item(@click="share('https://enoki.xyz?openExternalBrowser=1', 'エノキ電気 公式ホームページ')") --- IGNORE ---
             .icon-and-text
               v-icon mdi-share-variant
               v-list-item-title 共有する
@@ -688,11 +688,11 @@ export default {
     },
   },
   setup() {
-    Setup.setTitle('ENOKI Appcenter')
+    Setup.setTitle('トップ')
     Setup.setDescription('エノキ電気公式アプリ＆音楽プラットフォーム。')
   },
   async mounted() {
-    this.setTitle('ENOKI Appcenter')
+    this.setTitle('トップ')
 
     // アプリモックデータが存在しない場合は確実にロード
     if (!this.appStore.list || this.appStore.list.length === 0) {

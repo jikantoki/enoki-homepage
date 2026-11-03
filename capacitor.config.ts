@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'xyz.enoki.appcenter',
-  appName: 'ENOKI Appcenter',
+  appId: 'xyz.enoki.home',
+  appName: 'エノキ電気アプリ',
   webDir: 'dist',
   plugins: {
     StatusBar: {
@@ -25,12 +25,12 @@ const config: CapacitorConfig = {
     },
   },
   server: {
-    hostname: 'app.enoki.xyz',
+    hostname: 'enoki.xyz',
     androidScheme: 'https',
   },
   // deepLinks: {
   //   enabled: true,
-  //   prefixes: ['capacitor://', 'https://app.enoki.xyz'],
+  //   prefixes: ['capacitor://', 'https://enoki.xyz'],
   // },
   android: {
     // useLegacyBridge: true,

@@ -71,7 +71,7 @@
     //-.createdat.mx-2(v-show="!loading")
       p(
         v-if="userData && userData.status != 'ng'"
-        ) {{ new Date(userData.createdAt * 1000) }}からENOKI Appcenterを利用しています
+        ) {{ new Date(userData.createdAt * 1000) }}からエノキ電気 公式ホームページを利用しています
     //.share-and-sns-links.px-2(v-show="userData")
       .share-buttons
         v-btn.mx-2(
@@ -282,7 +282,7 @@ export default {
       this.userData = JSON.parse(localUserData)
     }
 
-    this.myLink = `https://capacitor-template.enoki.xyz/user/${userId}?openExternalBrowser=1`
+    this.myLink = `https://enoki.xyz/user/${userId}?openExternalBrowser=1`
 
     setTimeout(() => {
       const canvas = document.querySelector('#qr-canvas') as HTMLCanvasElement
@@ -396,7 +396,7 @@ export default {
       //   string: content,
       // })
       await Share.share({
-        title: 'ENOKI Appcenterです',
+        title: 'エノキ電気 公式ホームページ',
         url: content,
       })
     },

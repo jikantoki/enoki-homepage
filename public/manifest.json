@@ -1,6 +1,6 @@
 {
   "short_name": "エノキ電気",
-  "name": "ENOKI Appcenter",
+  "name": "エノキ電気 公式ホームページ",
   "display": "standalone",
   "display_override": ["standalone"],
   "lang": "ja-JP",
@@ -79,5 +79,5 @@
       ]
     }
   ],
-  "description": "ENOKI Appcenterです。"
+  "description": "エノキ電気 公式ホームページです。"
 }

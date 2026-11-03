@@ -147,7 +147,7 @@ export default {
       handler: async function () {
         await setTimeout(() => {}, 50)
         this.qrLoading = true
-        this.myLink = `https://capacitor-template.enoki.xyz/user/${this.myProfile.userId}?openExternalBrowser=1`
+        this.myLink = `https://enoki.xyz/user/${this.myProfile.userId}?openExternalBrowser=1`
 
         const canvas = document.querySelector('#qr-canvas') as any
         if (!canvas) {
@@ -240,7 +240,7 @@ export default {
     /** コンテンツの共有 */
     async copy(content: string) {
       await Share.share({
-        title: 'ENOKI Appcenterです',
+        title: 'エノキ電気 公式ホームページ',
         url: content,
       })
       this.searchResultDialog = false

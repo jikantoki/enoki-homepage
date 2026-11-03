@@ -21,7 +21,7 @@ define('SMTP_Server', 'SMTPサーバー');
 define('SMTP_Port', 587); // 基本は587を使えば大丈夫
 
 $mailHeader = "<p>
-いつも ENOKI Appcenter をご利用いただきありがとうございます。
+いつも エノキ電気 公式ホームページ をご利用いただきありがとうございます。
 <hr>
 </p>";
 $mailFooter = "<p>
@@ -30,5 +30,5 @@ $mailFooter = "<p>
 <br>
 また、このメールに身に覚えのない場合は、エノキ電気までお問い合わせください。
 <br>
-<a href=\"https://app.enoki.xyz\">ENOKI Appcenter</a> by <a href=\"https://enoki.xyz\">エノキ電気</a>
+<a href=\"https://enoki.xyz\">エノキ電気 公式ホームページ</a> by <a href=\"https://enoki.xyz\">エノキ電気</a>
 </p>";

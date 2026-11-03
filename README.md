@@ -1,9 +1,7 @@
-# ENOKI Appcenter
-
-エノキ電気公式アプリ（ENOKI Appcenter）
+# エノキ電気 公式ホームページ
 
 <p align="center">
-  <img src="./public/icon.png" alt="ENOKI Appcenter Icon" width="128" height="128">
+  <img src="./public/icon.png" alt="エノキ電気 アイコン" width="128" height="128">
 </p>
 
 <p align="center">
@@ -45,10 +43,10 @@
 
 ## 概要
 
-**ENOKI Appcenter** は、ときえのき（エノキ電気）が運営するソーシャルアプリケーションです。  
-ユーザー登録・プロフィール管理・友達申請・QRコードによる友達追加・リアルタイムプッシュ通知（WebPush）などの多彩なソーシャル機能を備えています。
+**エノキ電気 公式ホームページ** は、ときえのき（エノキ電気）が運営するエノキ電気のホームページです。  
+ユーザー登録・プロフィール管理・友達申請・QR コードによる友達追加・リアルタイムプッシュ通知（WebPush）などの多彩なソーシャル機能を備えています。
 
-**Nuxt 4**（`compatibilityVersion: 4`）と **Capacitor 8** を採用したワンソース・マルチプラットフォーム構成となっており、同一のコードベースから **Webブラウザ**、**PWA (Progressive Web Apps)**、および **Android / iOS ネイティブアプリ** を展開できます。
+**Nuxt 4**（`compatibilityVersion: 4`）と **Capacitor 8** を採用したワンソース・マルチプラットフォーム構成となっており、同一のコードベースから **Web ブラウザ**、**PWA (Progressive Web Apps)**、および **Android / iOS ネイティブアプリ** を展開できます。
 
 ---
 
@@ -82,47 +80,47 @@
 
 ## 技術スタック
 
-| 分類 | 技術 / ライブラリ | バージョン / 補足 |
-| :--- | :--- | :--- |
-| **フレームワーク** | [Nuxt 4](https://nuxt.com/) | `^4.3.1`（`compatibilityVersion: 4`, SSR / SSG） |
-| **フロントエンド基盤** | [Vue.js](https://vuejs.org/) | `^3.5` (Composition API & Options API) |
-| **言語** | [TypeScript](https://www.typescriptlang.org/) | 完全型定義対応 |
-| **UI コンポーネント** | [Vuetify 3](https://vuetifyjs.com/) | `vuetify-nuxt-module: ^0.19.5`, `@mdi/font` |
-| **テンプレート** | [Pug](https://pugjs.org/) | `^3.0.3` |
-| **スタイル** | [SCSS (sass-embedded)](https://sass-lang.com/) | `^1.97.3`（Dart Sass 高速版） |
-| **状態管理** | [Pinia](https://pinia.vuejs.org/) | `^3.0.4` + `@pinia-plugin-persistedstate/nuxt`（永続化） |
-| **国際化** | [@nuxtjs/i18n](https://i18n.nuxtjs.org/) | `^10.2.3`（日本語 / 英語） |
-| **コンテンツ管理** | [@nuxt/content](https://content.nuxt.com/) | `^3.11.2` (Content v3) + `better-sqlite3` |
-| **モバイル / ネイティブ** | [Capacitor](https://capacitorjs.com/) | `^8.1.0` (Core, CLI, App, Camera, Device, StatusBar, Toast, etc.) |
-| **PWA** | Service Worker / Web App Manifest | オフライン対応、ホーム画面追加、プッシュ通知 |
-| **QR コード** | `vue-qrcode-reader`, `qrcode` | カメラ認識 (`^5.7.3`) & コード生成 (`^1.5.4`) |
-| **リンター / フォーマッタ** | [@nuxt/eslint](https://eslint.nuxt.com/) | `^1.15.1` (Flat Config: `eslint.config.mjs`) |
-| **バックエンド言語** | [PHP](https://www.php.net/) | 7.4 / 8.x + Composer |
-| **データベース** | [MySQL](https://www.mysql.com/) / MariaDB | PDO 接続、文字コード `utf8mb4` |
-| **メール送信** | [PHPMailer](https://github.com/PHPMailer/PHPMailer) | `^6.8` (SMTP 認証メール送信) |
-| **プッシュ通知送信** | [web-push-php](https://github.com/web-push-libs/web-push-php) | `^8.0` (VAPID 認証 WebPush 送信) |
+| 分類                        | 技術 / ライブラリ                                             | バージョン / 補足                                                 |
+| :-------------------------- | :------------------------------------------------------------ | :---------------------------------------------------------------- |
+| **フレームワーク**          | [Nuxt 4](https://nuxt.com/)                                   | `^4.3.1`（`compatibilityVersion: 4`, SSR / SSG）                  |
+| **フロントエンド基盤**      | [Vue.js](https://vuejs.org/)                                  | `^3.5` (Composition API & Options API)                            |
+| **言語**                    | [TypeScript](https://www.typescriptlang.org/)                 | 完全型定義対応                                                    |
+| **UI コンポーネント**       | [Vuetify 3](https://vuetifyjs.com/)                           | `vuetify-nuxt-module: ^0.19.5`, `@mdi/font`                       |
+| **テンプレート**            | [Pug](https://pugjs.org/)                                     | `^3.0.3`                                                          |
+| **スタイル**                | [SCSS (sass-embedded)](https://sass-lang.com/)                | `^1.97.3`（Dart Sass 高速版）                                     |
+| **状態管理**                | [Pinia](https://pinia.vuejs.org/)                             | `^3.0.4` + `@pinia-plugin-persistedstate/nuxt`（永続化）          |
+| **国際化**                  | [@nuxtjs/i18n](https://i18n.nuxtjs.org/)                      | `^10.2.3`（日本語 / 英語）                                        |
+| **コンテンツ管理**          | [@nuxt/content](https://content.nuxt.com/)                    | `^3.11.2` (Content v3) + `better-sqlite3`                         |
+| **モバイル / ネイティブ**   | [Capacitor](https://capacitorjs.com/)                         | `^8.1.0` (Core, CLI, App, Camera, Device, StatusBar, Toast, etc.) |
+| **PWA**                     | Service Worker / Web App Manifest                             | オフライン対応、ホーム画面追加、プッシュ通知                      |
+| **QR コード**               | `vue-qrcode-reader`, `qrcode`                                 | カメラ認識 (`^5.7.3`) & コード生成 (`^1.5.4`)                     |
+| **リンター / フォーマッタ** | [@nuxt/eslint](https://eslint.nuxt.com/)                      | `^1.15.1` (Flat Config: `eslint.config.mjs`)                      |
+| **バックエンド言語**        | [PHP](https://www.php.net/)                                   | 7.4 / 8.x + Composer                                              |
+| **データベース**            | [MySQL](https://www.mysql.com/) / MariaDB                     | PDO 接続、文字コード `utf8mb4`                                    |
+| **メール送信**              | [PHPMailer](https://github.com/PHPMailer/PHPMailer)           | `^6.8` (SMTP 認証メール送信)                                      |
+| **プッシュ通知送信**        | [web-push-php](https://github.com/web-push-libs/web-push-php) | `^8.0` (VAPID 認証 WebPush 送信)                                  |
 
 ---
 
 ## ページ・ルーティング一覧
 
-| パス | ファイルパス | 内容・概要 |
-| :--- | :--- | :--- |
-| `/` | `app/pages/index.vue` | トップページ（タイムライン・アプリ紹介・各種導線） |
-| `/login` | `app/pages/login.vue` | ログイン画面 |
-| `/registar` | `app/pages/registar.vue` | 新規アカウント登録画面（ワンタイム認証） |
-| `/password_reset` | `app/pages/password_reset.vue` | パスワード再設定画面 |
-| `/user/[userId]` | `app/pages/user/[userId].vue` | ユーザープロフィール画面（動的ルーティング） |
-| `/friendlist` | `app/pages/friendlist.vue` | 友達リスト（申請中・承認済み一覧） |
-| `/qrcode` | `app/pages/qrcode.vue` | QR コード友達検索 & 自分の QR コード表示 |
-| `/settings` | `app/pages/settings/index.vue` | 設定トップメニュー |
-| `/settings/profile` | `app/pages/settings/profile.vue` | プロフィール編集画面（名前・自己紹介・アイコン等） |
-| `/settings/display` | `app/pages/settings/display.vue` | 表示・言語設定（テーマ切替・言語選択） |
+| パス                          | ファイルパス                               | 内容・概要                                              |
+| :---------------------------- | :----------------------------------------- | :------------------------------------------------------ |
+| `/`                           | `app/pages/index.vue`                      | トップページ（タイムライン・アプリ紹介・各種導線）      |
+| `/login`                      | `app/pages/login.vue`                      | ログイン画面                                            |
+| `/registar`                   | `app/pages/registar.vue`                   | 新規アカウント登録画面（ワンタイム認証）                |
+| `/password_reset`             | `app/pages/password_reset.vue`             | パスワード再設定画面                                    |
+| `/user/[userId]`              | `app/pages/user/[userId].vue`              | ユーザープロフィール画面（動的ルーティング）            |
+| `/friendlist`                 | `app/pages/friendlist.vue`                 | 友達リスト（申請中・承認済み一覧）                      |
+| `/qrcode`                     | `app/pages/qrcode.vue`                     | QR コード友達検索 & 自分の QR コード表示                |
+| `/settings`                   | `app/pages/settings/index.vue`             | 設定トップメニュー                                      |
+| `/settings/profile`           | `app/pages/settings/profile.vue`           | プロフィール編集画面（名前・自己紹介・アイコン等）      |
+| `/settings/display`           | `app/pages/settings/display.vue`           | 表示・言語設定（テーマ切替・言語選択）                  |
 | `/settings/developer-options` | `app/pages/settings/developer-options.vue` | 開発者向けオプション（Android 15 ノッチ切り欠き検証等） |
-| `/terms` | `app/pages/terms.vue` | 利用規約 |
-| `/about` | `app/pages/about.vue` | 運営情報・エノキ電気について |
-| `/tutorial` | `app/pages/tutorial.vue` | アプリの使い方チュートリアル |
-| `/[ready]` | `app/pages/[ready].vue` | 準備中画面（フォールバック用動的ルート） |
+| `/terms`                      | `app/pages/terms.vue`                      | 利用規約                                                |
+| `/about`                      | `app/pages/about.vue`                      | 運営情報・エノキ電気について                            |
+| `/tutorial`                   | `app/pages/tutorial.vue`                   | アプリの使い方チュートリアル                            |
+| `/[ready]`                    | `app/pages/[ready].vue`                    | 準備中画面（フォールバック用動的ルート）                |
 
 ---
 
@@ -243,8 +241,8 @@ enoki-homepage/
 
 ```bash
 # リポジトリのクローン
-git clone https://github.com/jikantoki/jikantoki-appcenter.git
-cd jikantoki-appcenter
+git clone https://github.com/jikantoki/enoki-homepage.git
+cd enoki-homepage
 
 # Node パッケージのインストール
 yarn install
@@ -253,8 +251,7 @@ yarn install
 composer install
 ```
 
-> [!NOTE]
-> `yarn install` 完了時に `nuxt prepare`（postinstall スクリプト）が自動実行され、`.nuxt` 内部の型定義が初期化されます。
+> [!NOTE] > `yarn install` 完了時に `nuxt prepare`（postinstall スクリプト）が自動実行され、`.nuxt` 内部の型定義が初期化されます。
 
 ---
 
@@ -284,8 +281,7 @@ NUXT_API_ACCESSKEY=後述の手順5で生成されたアクセスキー
 NUXT_API_HOST=https://api.yourdomain.com
 ```
 
-> [!TIP]
-> **WebPush 用の鍵ペアの生成方法**  
+> [!TIP] > **WebPush 用の鍵ペアの生成方法**  
 > 公開鍵・秘密鍵（VAPID キー）は [Web Push Codelab (Glitch)](https://web-push-codelab.glitch.me/) などのツールで即座に生成できます。
 
 ---
@@ -320,7 +316,7 @@ define('MySQL_User', 'your_database_user');
 define('MySQL_Password', 'your_database_password');
 
 // SMTP 送信設定（アカウント認証メール・パスワード再設定で使用）
-define('SMTP_Name', 'ENOKI Appcenter');
+define('SMTP_Name', 'エノキ電気');
 define('SMTP_Username', 'smtp_user');
 define('SMTP_Mailaddress', 'info@example.com');
 define('SMTP_Password', 'smtp_password');
@@ -328,8 +324,8 @@ define('SMTP_Server', 'smtp.example.com');
 define('SMTP_Port', 587);
 
 // メールヘッダー・フッター
-$mailHeader = "<p>いつも ENOKI Appcenter をご利用いただきありがとうございます。<hr></p>";
-$mailFooter = "<p><hr>このメールに返信することはできません。<br><a href=\"https://app.enoki.xyz\">ENOKI Appcenter</a></p>";
+$mailHeader = "<p>いつも エノキ電気 公式ホームページ をご利用いただきありがとうございます。<hr></p>";
+$mailFooter = "<p><hr>このメールに返信することはできません。<br><a href=\"https://app.enoki.xyz\">エノキ電気</a></p>";
 ```
 
 #### PHP サーバーの Apache / .htaccess 設定例:
@@ -365,6 +361,7 @@ mysql -u your_user -p your_database_name < database.sql
 > phpMyAdmin をご利用の場合は、作成したデータベースを選択して「インポート」タブから `database.sql` をアップロードするだけで完了します。
 >
 > **作成される主要テーブル:**
+>
 > - `accounts` / `user_list` / `user_profile_list`: ユーザー基本情報・プロフィール
 > - `follow_list`: 友達申請・登録ステータス
 > - `push_token_list`: プッシュ通知送信用トークン一覧
@@ -391,18 +388,18 @@ mysql -u your_user -p your_database_name < database.sql
 
 `package.json` に定義されている開発・ビルドコマンド一覧です。
 
-| コマンド | 説明 |
-| :--- | :--- |
-| `yarn dev` | ローカル開発サーバーを起動（`http://localhost:10000`） |
-| `yarn build` | 本番用 Nuxt アプリケーションをビルド（SSR モード） |
-| `yarn generate` | 静的プリレンダリングを行い、`dist/` ディレクトリを生成（SPA / SSG） |
-| `yarn preview` | `yarn build` または `yarn generate` で生成した成果物をローカルでプレビュー |
-| `yarn lint` | ESLint によるコード静的解析・構文チェックを実行 |
-| `yarn typecheck` | `nuxt typecheck` による TypeScript 型整合性チェックを実行 |
-| `yarn cap:sync` | `nuxt generate` を実行後、成果物を Capacitor ネイティブプロジェクトに同期 |
-| `yarn cap:open:android` | Android Studio を起動してネイティブプロジェクトを開く |
-| `yarn cap:open:ios` | Xcode を起動してネイティブプロジェクトを開く |
-| `yarn postinstall` | `nuxt prepare` を実行し、Nuxt の型マッピングを生成（インストール時自動実行） |
+| コマンド                | 説明                                                                         |
+| :---------------------- | :--------------------------------------------------------------------------- |
+| `yarn dev`              | ローカル開発サーバーを起動（`http://localhost:10000`）                       |
+| `yarn build`            | 本番用 Nuxt アプリケーションをビルド（SSR モード）                           |
+| `yarn generate`         | 静的プリレンダリングを行い、`dist/` ディレクトリを生成（SPA / SSG）          |
+| `yarn preview`          | `yarn build` または `yarn generate` で生成した成果物をローカルでプレビュー   |
+| `yarn lint`             | ESLint によるコード静的解析・構文チェックを実行                              |
+| `yarn typecheck`        | `nuxt typecheck` による TypeScript 型整合性チェックを実行                    |
+| `yarn cap:sync`         | `nuxt generate` を実行後、成果物を Capacitor ネイティブプロジェクトに同期    |
+| `yarn cap:open:android` | Android Studio を起動してネイティブプロジェクトを開く                        |
+| `yarn cap:open:ios`     | Xcode を起動してネイティブプロジェクトを開く                                 |
+| `yarn postinstall`      | `nuxt prepare` を実行し、Nuxt の型マッピングを生成（インストール時自動実行） |
 
 ---
 
@@ -475,42 +472,42 @@ npx @capacitor/assets generate
 
 PHP バックエンド（`php/`）に用意されている主なエンドポイントです。フロントエンドからは `app/js/ajaxFunctions.ts` を経由してリクエストが行われます。
 
-| カテゴリ | エンドポイント | 説明 |
-| :--- | :--- | :--- |
-| **認証・アカウント** | `loginAccount.php` | ユーザーログイン認証（トークン発行） |
-| | `logoutAccount.php` | ログアウト処理 |
-| | `authAccount.php` | アクセストークンの妥当性検証 |
-| | `createAccount.php` | 新規アカウントの本登録 |
-| | `requestToken.php` | 新規登録時のメール認証コード送信 |
-| **パスワード** | `requestTokenForgotAccount.php` | パスワードリセット用認証コード送信 |
-| | `resetPassword.php` | パスワードの再設定実行 |
-| **プロフィール** | `getProfile.php` | ユーザープロフィールの取得 |
-| | `updateProfile.php` | プロフィール情報の更新（名前・自己紹介等） |
-| **ソーシャル・友達** | `friendRequest.php` | 友達申請の送信 |
-| | `acceptFriend.php` | 友達申請の承認 |
-| | `getMyFriendList.php` | 友達一覧・申請中リストの取得 |
-| **プッシュ通知** | `insertPushToken.php` | WebPush 購読トークンの登録・更新 |
-| | `deletePushToken.php` | WebPush 購読トークンの解除 |
-| | `sendPushForAccount.php` | 特定のユーザーへのプッシュ通知送信 |
-| | `sendPushForMe.php` | 自分宛てのテスト通知送信 |
-| **位置情報** | `updateGeoLocation.php` | ユーザーの位置情報（緯度・経度）更新 |
-| **システム・管理** | `makeApiForAdmin.php` | 管理者用 API トークンの初期生成 |
-| | `createTable.php` | DB テーブル自動初期化 |
+| カテゴリ             | エンドポイント                  | 説明                                       |
+| :------------------- | :------------------------------ | :----------------------------------------- |
+| **認証・アカウント** | `loginAccount.php`              | ユーザーログイン認証（トークン発行）       |
+|                      | `logoutAccount.php`             | ログアウト処理                             |
+|                      | `authAccount.php`               | アクセストークンの妥当性検証               |
+|                      | `createAccount.php`             | 新規アカウントの本登録                     |
+|                      | `requestToken.php`              | 新規登録時のメール認証コード送信           |
+| **パスワード**       | `requestTokenForgotAccount.php` | パスワードリセット用認証コード送信         |
+|                      | `resetPassword.php`             | パスワードの再設定実行                     |
+| **プロフィール**     | `getProfile.php`                | ユーザープロフィールの取得                 |
+|                      | `updateProfile.php`             | プロフィール情報の更新（名前・自己紹介等） |
+| **ソーシャル・友達** | `friendRequest.php`             | 友達申請の送信                             |
+|                      | `acceptFriend.php`              | 友達申請の承認                             |
+|                      | `getMyFriendList.php`           | 友達一覧・申請中リストの取得               |
+| **プッシュ通知**     | `insertPushToken.php`           | WebPush 購読トークンの登録・更新           |
+|                      | `deletePushToken.php`           | WebPush 購読トークンの解除                 |
+|                      | `sendPushForAccount.php`        | 特定のユーザーへのプッシュ通知送信         |
+|                      | `sendPushForMe.php`             | 自分宛てのテスト通知送信                   |
+| **位置情報**         | `updateGeoLocation.php`         | ユーザーの位置情報（緯度・経度）更新       |
+| **システム・管理**   | `makeApiForAdmin.php`           | 管理者用 API トークンの初期生成            |
+|                      | `createTable.php`               | DB テーブル自動初期化                      |
 
 ---
 
 ## 主要な設定箇所
 
-| 設定項目 | 設定対象ファイル | 内容 |
-| :--- | :--- | :--- |
-| **Nuxt 全般・モジュール** | `nuxt.config.ts` | Nuxt 4 モード設定、i18n 言語設定、Vuetify 設定、OGP・メタタグ |
-| **Capacitor モバイル設定** | `capacitor.config.ts` | App ID (`xyz.enoki.appcenter`)、アプリ表示名、Web 出力先 (`dist`) |
-| **コンテンツ管理設定** | `content.config.ts` | `@nuxt/content` (v3) のコレクション定義 |
-| **コード規約・ESLint** | `eslint.config.mjs` | `@nuxt/eslint` のフラットコンフィグ設定 |
-| **テーマカラー・フォント** | `app/app.vue` | `--v-theme-primary: 225, 35, 120`、Zen Maru Gothic |
-| **環境変数 (フロント)** | `.env` / `nuxt.config.ts` | WebPush キー、API ホスト、API トークン |
-| **環境変数 (バックエンド)** | `env.php` | DB 接続情報、SMTP メールサーバー情報、WebPush 秘密鍵 |
-| **PWA マニフェスト** | `public/manifest.json` | アプリ名称、テーマカラー、アイコン定義 |
+| 設定項目                    | 設定対象ファイル          | 内容                                                          |
+| :-------------------------- | :------------------------ | :------------------------------------------------------------ |
+| **Nuxt 全般・モジュール**   | `nuxt.config.ts`          | Nuxt 4 モード設定、i18n 言語設定、Vuetify 設定、OGP・メタタグ |
+| **Capacitor モバイル設定**  | `capacitor.config.ts`     | App ID (`xyz.enoki.home`)、アプリ表示名、Web 出力先 (`dist`)  |
+| **コンテンツ管理設定**      | `content.config.ts`       | `@nuxt/content` (v3) のコレクション定義                       |
+| **コード規約・ESLint**      | `eslint.config.mjs`       | `@nuxt/eslint` のフラットコンフィグ設定                       |
+| **テーマカラー・フォント**  | `app/app.vue`             | `--v-theme-primary: 225, 35, 120`、Zen Maru Gothic            |
+| **環境変数 (フロント)**     | `.env` / `nuxt.config.ts` | WebPush キー、API ホスト、API トークン                        |
+| **環境変数 (バックエンド)** | `env.php`                 | DB 接続情報、SMTP メールサーバー情報、WebPush 秘密鍵          |
+| **PWA マニフェスト**        | `public/manifest.json`    | アプリ名称、テーマカラー、アイコン定義                        |
 
 ---
 
