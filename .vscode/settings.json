@@ -1,0 +1,28 @@
+{
+  "files.eol": "\n",
+  "editor.tabSize": 2,
+  "editor.formatOnSave": true,
+
+  // 全体のデフォルトフォーマッタ
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // Vueファイルに対する設定
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // ESLint 関連
+  "eslint.validate": ["vue", "javascript", "javascriptreact", "typescript"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  "extensions.ignoreRecommendations": false,
+  "files.associations": {
+    "iostream": "cpp"
+  },
+  "[php]": {
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+  },
+  "java.configuration.updateBuildConfiguration": "interactive"
+}

@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # 実在するファイルやディレクトリへのアクセスはそのまま配信
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # それ以外のリクエストをすべて index.html に書き換える
+  RewriteRule ^.*$ /index.html [L]
+</IfModule>

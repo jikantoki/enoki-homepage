@@ -1,0 +1,28 @@
+{
+  "recommendations": [
+    // --- Vue / Nuxt 公式推奨 ---
+    "vue.volar",
+    "nuxt.nuxt-vscode-extentions",
+
+    // --- フォーマッタ / リンター / エディタ補助 ---
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "editorconfig.editorconfig",
+    "shardulm94.trailing-spaces",
+    "mosapride.zenkaku",
+
+    // --- Git ---
+    "mhutchie.git-graph",
+    "eamodio.gitlens",
+
+    // --- PHP / その他言語環境 ---
+    "xdebug.php-debug",
+    "neilbrayfield.php-docblocker",
+    "bmewburn.vscode-intelephense-client",
+    "brapifra.phpserver",
+
+    // --- UI / ローカライズ ---
+    "ms-ceintl.vscode-language-pack-ja",
+    "pkief.material-icon-theme"
+  ]
+}
