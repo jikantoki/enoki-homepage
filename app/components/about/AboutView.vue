@@ -5,70 +5,24 @@
       img.app-icon(src="/icon.png" alt="ENOKI Appcenter")
     h2.app-name ENOKI Appcenter
     p.app-subtitle エノキ電気公式プラットフォーム
-    .hero-links
-      v-btn(
-        prepend-icon="mdi-github"
-        variant="tonal"
-        size="small"
-        rounded="pill"
-        @click="openURL('https://github.com/jikantoki/capacitor-template')"
-      ) GitHub
-      v-btn(
-        prepend-icon="mdi-web"
-        variant="tonal"
-        size="small"
-        rounded="pill"
-        @click="openURL('https://capacitor-template.enoki.xyz')"
-      ) 公式サイト
 
   .about-content-section
     .section-card
-      h3.card-section-title アプリケーション情報
+      h3.card-section-title 開発者情報
       .settings-list
         .setting-item(
           v-ripple
-          @click="openURL('https://capacitor-template.enoki.xyz')"
-        )
-          .icon
-            v-icon mdi-application-outline
-          .text
-            p.title ENOKI Appcenter
-            p.description &copy; 2019 エノキ電気
-
-        .setting-item(
-          v-ripple
-          @click="developerOptionToggle"
-        )
-          .icon
-            v-icon mdi-information-outline
-          .text
-            p.title バージョン情報
-            p.description v1.0.0 (タップで開発者オプション解放)
-
-        .setting-item(
-          v-if="settings.developerOptions.enabled"
-          v-ripple
-          @click="$router.push('/settings/developer-options')"
-        )
-          .icon.highlight-icon
-            v-icon mdi-bug-outline
-          .text
-            p.title 開発者オプション
-            p.description 特定のモバイル向けの機能を強制有効
-
-    .section-card
-      h3.card-section-title 製作者情報
-      .settings-list
-        .setting-item(
-          v-ripple
-          @click="openURL('https://enoki.xyz')"
         )
           .icon
             img.author-avatar(src="/jikantoki.jpg" width="36" height="36" alt="ときえのき")
           .text
             p.title ときえのき
             p.description jikantoki / エノキ電気 代表
-
+        p
+          | 2003年爆誕。
+    .section-card
+      h3.card-section-title リンク
+      .settings-list
         .setting-item(
           v-ripple
           @click="openURL('https://enoki.xyz')"
@@ -108,6 +62,38 @@
           .text
             p.title GitHub
             p.description https://github.com/jikantoki
+    .section-card
+      h3.card-section-title アプリケーション情報
+      .settings-list
+        .setting-item(
+          v-ripple
+        )
+          .icon
+            v-icon mdi-application-outline
+          .text
+            p.title ENOKI Appcenter
+            p.description &copy; 2019 エノキ電気
+
+        .setting-item(
+          v-ripple
+          @click="developerOptionToggle"
+        )
+          .icon
+            v-icon mdi-information-outline
+          .text
+            p.title バージョン情報
+            p.description v1.0.0 (タップで開発者オプション解放)
+
+        .setting-item(
+          v-if="settings.developerOptions.enabled"
+          v-ripple
+          @click="$router.push('/settings/developer-options')"
+        )
+          .icon.highlight-icon
+            v-icon mdi-bug-outline
+          .text
+            p.title 開発者オプション
+            p.description 特定のモバイル向けの機能を強制有効
 </template>
 
 <script lang="ts">
@@ -144,7 +130,9 @@ export default {
         })
       } else {
         await Toast.show({
-          text: `開発者オプションを有効にするまであと ${8 - this.developerOptionClickCount} 回タップ`,
+          text: `開発者オプションを有効にするまであと ${
+            8 - this.developerOptionClickCount
+          } 回タップ`,
         })
       }
     },
@@ -195,7 +183,7 @@ export default {
     .app-subtitle {
       font-size: 13px;
       color: rgba(var(--v-theme-on-surface), 0.6);
-      margin: 4px 0 16px 0;
+      margin: 4px 0;
     }
 
     .hero-links {
