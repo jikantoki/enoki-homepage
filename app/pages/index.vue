@@ -175,18 +175,18 @@ v-card(
               style="background-color: rgb(var(--v-theme-primary)); color: white;"
             ) ログイン
         v-list.options-list
-          v-list-item.item( @click="searchFriendDialog = true" )
+          //v-list-item.item( @click="searchFriendDialog = true" )
             .icon-and-text
               v-icon mdi-magnify
               v-list-item-title 友達を探す
           v-list-item.item( @click="$router.push('qrcode')" )
             .icon-and-text
               v-icon mdi-qrcode-scan
-              v-list-item-title QRコードで友達を探す
-          v-list-item.item(
+              v-list-item-title QRコードで探す
+          //v-list-item.item(
             @click="$router.push('/friendlist')"
             v-show="myProfile && myProfile.userId"
-          )
+            )
             .icon-and-text
               v-icon mdi-account-multiple
               v-list-item-title 友達リスト
@@ -198,7 +198,7 @@ v-card(
             .icon-and-text
               v-icon mdi-file-document-outline
               v-list-item-title 利用規約
-          v-list-item.item( @click="openURL('https://enoki.xyz/privacy')" )
+          v-list-item.item( @click="$router.push('/privacy')" )
             .icon-and-text
               v-icon mdi-shield-lock-outline
               v-list-item-title プライバシーポリシー
@@ -206,14 +206,14 @@ v-card(
             .icon-and-text
               v-icon mdi-information
               v-list-item-title 運営情報
-          v-list-item.item( @click="share('https://play.google.com/store/apps/dev?id=8940000495375956936', 'エノキ電気')" )
+          v-list-item.item( @click="share('https://enoki.xyz?openExternalBrowser=1', 'エノキ電気')" )
             .icon-and-text
               v-icon mdi-share-variant
-              v-list-item-title このアプリを共有する
-  v-dialog(
+              v-list-item-title 共有する
+  //v-dialog(
     v-model="acceptDialog"
     persistent
-  )
+    )
     v-card
       v-card-title 友達リクエストが来ています！
       v-card-text
