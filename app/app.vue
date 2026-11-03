@@ -350,4 +350,8 @@ $breakpoints: (
 .v-card-text {
   padding: 0.3em;
 }
+
+.v-responsive__sizer {
+  display: none;
+}
 </style>

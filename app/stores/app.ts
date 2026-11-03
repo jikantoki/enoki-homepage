@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import mockAppsData from '../data/apps.json'
 
 /**
  * アプリリンク情報
@@ -44,6 +45,18 @@ export interface AppInfo {
   images: string[]
   /** アプリかゲームか */
   type: string
+  /** カテゴリ・ジャンル */
+  category?: string
+  /** レーティング (例: 4.8) */
+  rating?: number
+  /** ダウンロード数 (例: '500万+') */
+  downloads?: string
+  /** 開発者名 */
+  developer?: string
+  /** 概要 */
+  summary?: string
+  /** ピックアップ/注目 */
+  featured?: boolean
 }
 
 /**
@@ -125,12 +138,41 @@ export const useAppStore = defineStore('app', {
   state: () => ({
     /**
      * アプリと楽曲が混在するリスト
-     * アプリ情報と楽曲情報は半分くらい一緒の仕様のため、
-     * 入力値次第でどちらとしても使えるオブジェクト形式
+     * 初期値として100個のモックデータを取り込み
      */
-    list: [] as AppOrMusicItem[],
+    list: [...(mockAppsData as AppOrMusicItem[])] as AppOrMusicItem[],
   }),
+  getters: {
+    /** ゲーム一覧 */
+    games: (state) => state.list.filter(item => item.type === 'game'),
+    /** アプリ一覧 */
+    regularApps: (state) => state.list.filter(item => item.type === 'app'),
+    /** ピックアップ/注目一覧 */
+    featuredApps: (state) => state.list.filter(item => item.featured),
+    /** 高評価ランキング一覧 */
+    topRanked: (state) => [...state.list].sort((a, b) => ((b.rating || 0) - (a.rating || 0))),
+    /** 新着順一覧 */
+    newReleases: (state) => [...state.list].sort((a, b) => (b.releaseDate - a.releaseDate)),
+    /** 人気急上昇（ダウンロード数順など） */
+    popularApps: (state) => state.list.slice(0, 30),
+    /** 登録されているカテゴリ一覧 */
+    allCategories: (state) => {
+      const cats = new Set<string>()
+      state.list.forEach(item => {
+        if (item.category) cats.add(item.category)
+      })
+      return Array.from(cats)
+    },
+  },
   actions: {
+    /**
+     * モックデータを強制再読み込み
+     */
+    loadMockData(force = false) {
+      if (force || !this.list || this.list.length === 0) {
+        this.list = [...(mockAppsData as AppOrMusicItem[])]
+      }
+    },
     /**
      * リストにアイテムを追加
      * @param item - 追加するアプリまたは楽曲情報
