@@ -41,7 +41,7 @@ v-card(
           p.title 利用規約
       .setting-item(
         v-ripple
-        @click="openURL('https://enoki.xyz/privacy')"
+        @click="$router.push('/privacy')"
         )
         .icon
           v-icon mdi-shield-lock-outline

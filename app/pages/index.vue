@@ -426,6 +426,9 @@ v-card.playstore-root(
               onerror="this.src='/account_default.jpg'"
             )
           .account-info(style="text-align: center;")
+            p(style="font-size: 1.2em; margin: 0; padding: 0;") エノキ電気
+            p(style="margin: 0; padding: 0;") ENOKI ELECTRONICS
+          //.account-info(style="text-align: center;")
             p(
               v-if="myProfile.userId && !myProfile.guest"
               style="font-size: 1.2em; margin: 0; padding: 0;"
@@ -469,7 +472,7 @@ v-card.playstore-root(
             .icon-and-text
               v-icon mdi-account-circle-outline
               v-list-item-title プロフィール・実績（ときえのき）
-          v-list-item.item(@click="share('https://enoki.xyz?openExternalBrowser=1', 'エノキ電気 公式ホームページ')") --- IGNORE ---
+          v-list-item.item(@click="share('https://enoki.xyz?openExternalBrowser=1', 'エノキ電気 公式ホームページ')")
             .icon-and-text
               v-icon mdi-share-variant
               v-list-item-title 共有する

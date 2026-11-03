@@ -35,7 +35,7 @@ v-card(
     h1.my-4 プライバシーポリシー
     p プライバシーポリシーについては、以下のリンクをご参照ください。
     v-btn.my-4(
-      @click="openURL('https://enoki.xyz/privacy')"
+      @click="$router.push('/privacy')"
       style="background-color: rgb(var(--v-theme-primary)); color: white;"
     ) プライバシーポリシー
     .my-16
