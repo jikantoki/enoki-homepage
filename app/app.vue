@@ -28,7 +28,26 @@ export default {
       settings: useSettingsStore(),
     }
   },
-  watch: {},
+  methods: {
+    applyTheme(theme: 'system' | 'light' | 'dark') {
+      const isDark =
+        theme === 'dark' ||
+        (theme === 'system' &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches)
+      const targetTheme = isDark ? 'dark' : 'light'
+
+      this.$vuetify.theme.change(targetTheme)
+
+      if (Capacitor.getPlatform() !== 'web') {
+        StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light })
+      }
+    },
+  },
+  watch: {
+    'settings.display.theme'(newTheme: 'system' | 'light' | 'dark') {
+      this.applyTheme(newTheme)
+    },
+  },
   async mounted() {
     // 開発者オプション
     if (this.settings.developerOptions.statusBarNotch !== 'default') {
@@ -54,38 +73,15 @@ export default {
       this.myProfile.$reset()
     }
 
-    // テーマに関する設定
-    const themeOptions = localStorage.getItem('themeOptions')
-    if (themeOptions && Capacitor.getPlatform() !== 'web') {
-      const options = JSON.parse(themeOptions)
-      switch (options.theme) {
-        case true: {
-          this.$vuetify.theme.change('light')
-          StatusBar.setStyle({ style: Style.Light })
-          break
-        }
-        case false: {
-          this.$vuetify.theme.change('dark')
-          StatusBar.setStyle({ style: Style.Dark })
+    // テーマの初期化と適用
+    this.applyTheme(this.settings.display.theme)
 
-          break
-        }
-        case undefined: {
-          const systemTheme = window.matchMedia(
-            '(prefers-color-scheme: dark)',
-          ).matches
-          if (systemTheme) {
-            StatusBar.setStyle({ style: Style.Dark })
-            this.$vuetify.theme.change('dark')
-          } else {
-            StatusBar.setStyle({ style: Style.Light })
-            this.$vuetify.theme.change('light')
-          }
-
-          break
-        }
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaQuery.addEventListener('change', () => {
+      if (this.settings.display.theme === 'system') {
+        this.applyTheme('system')
       }
-    }
+    })
 
     /**
      * mountedの最後に記述

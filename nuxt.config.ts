@@ -36,10 +36,25 @@ export default defineNuxtConfig({
     moduleOptions: {
       // useLayout 等の衝突を防ぐためコンポーザブルにプレフィックス (vUseLayout) を付与
       prefixComposables: true,
+      ssrClientHints: {
+        reloadOnFirstRequest: false,
+        prefersColorScheme: true,
+        prefersColorSchemeOptions: {
+          useBrowserThemeOnly: false,
+        },
+      },
     },
     vuetifyOptions: {
       theme: {
-        defaultTheme: 'system',
+        defaultTheme: 'light',
+        themes: {
+          light: {
+            dark: false,
+          },
+          dark: {
+            dark: true,
+          },
+        },
       },
     },
   },
