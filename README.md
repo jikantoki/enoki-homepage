@@ -118,6 +118,8 @@
 | `/settings/developer-options` | `app/pages/settings/developer-options.vue` | 開発者向けオプション（Android 15 ノッチ切り欠き検証等） |
 | `/terms`                      | `app/pages/terms.vue`                      | 利用規約                                                |
 | `/about`                      | `app/pages/about.vue`                      | 運営情報・エノキ電気について                            |
+| `/profile`                    | `app/pages/profile/index.vue`              | プロフィール画面へのリダイレクト（`/?tab=profile`）      |
+| `/info`                       | `app/pages/info.vue`                       | プロフィール画面へのリダイレクト（`/?tab=profile`）      |
 | `/tutorial`                   | `app/pages/tutorial.vue`                   | アプリの使い方チュートリアル                            |
 | `/[ready]`                    | `app/pages/[ready].vue`                    | 準備中画面（フォールバック用動的ルート）                |
 
@@ -143,6 +145,9 @@ enoki-homepage/
 │   │   ├── qrcode.vue                  # QR コード（スキャン・生成）
 │   │   ├── terms.vue                   # 利用規約
 │   │   ├── about.vue                   # 運営情報
+│   │   ├── info.vue                    # プロフィールへのリダイレクト
+│   │   ├── profile/                    # プロフィール
+│   │   │   └── index.vue               # プロフィール画面へのリダイレクト
 │   │   ├── tutorial.vue                # チュートリアル
 │   │   ├── [ready].vue                 # 準備中フォールバック
 │   │   ├── settings/                   # 設定サブルート

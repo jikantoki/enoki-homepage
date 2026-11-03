@@ -103,6 +103,59 @@
                 v-chip(size="x-small" variant="outlined" color="primary") {{ lic.category }}
               span.license-date 取得日: {{ lic.date }}
 
+      //- お問い合わせ
+      .content-card
+        .card-header
+          v-icon(color="primary") mdi-email-outline
+          h3 お問い合わせ
+        .contact-content
+          p.contact-desc
+            | お問い合わせは
+            a.contact-link(@click.prevent="openURL('mailto:info@enoki.xyz')") info@enoki.xyz
+            | もしくはTwitter
+            a.contact-link(@click.prevent="openURL('https://twitter.com/jikantoki')") @jikantoki
+            | にて受け付けております。
+          .contact-actions
+            v-btn(
+              size="small"
+              variant="tonal"
+              color="primary"
+              prepend-icon="mdi-email"
+              @click="openURL('mailto:info@enoki.xyz')"
+            ) メールで問い合わせる
+            v-btn(
+              size="small"
+              variant="tonal"
+              color="info"
+              prepend-icon="mdi-twitter"
+              @click="openURL('https://twitter.com/jikantoki')"
+            ) Twitterで問い合わせる
+
+      //- 特定商取引に関する表記
+      .content-card
+        .card-header
+          v-icon(color="primary") mdi-store-outline
+          h3 特定商取引に関する表記
+        .commerce-disclosure-table
+          .commerce-row
+            .commerce-th 販売事業者名
+            .commerce-td ENOKI ELECTRONICS
+          .commerce-row
+            .commerce-th メールアドレス
+            .commerce-td
+              a.contact-link(@click.prevent="openURL('mailto:info@enoki.xyz')") info@enoki.xyz
+          .commerce-row
+            .commerce-th 所在地
+            .commerce-td
+              | 1-10-8, DOGENZAKA<br>
+              | SHIBUYA DOGENZAKA TOKYU BLDG. 2F-C<br>
+              | SHIBUYA-KU, 東京都 150-0043<br>
+              | Japan
+          .commerce-row
+            .commerce-th 電話番号
+            .commerce-td
+              a.contact-link(@click.prevent="openURL('tel:+819038867986')") +81 90-3886-7986
+
     //- ---------------- 2. 主な実績 ----------------
     .tab-pane(v-else-if="currentTab === 'achievements'")
       .content-card
@@ -194,6 +247,7 @@
             img.app-logo(src="/icon.png" alt="エノキ電気")
             .app-info-text
               h4.app-title.mb-1 エノキ電気 公式ホームページ
+              p.app-copy ENOKI ELECTRONICS
               p.app-copyright &copy; 2019-{{ currentYear }} エノキ電気
           v-divider.my-3
 
@@ -584,6 +638,72 @@ export default {
           color: rgba(var(--v-theme-on-surface), 0.55);
         }
       }
+    }
+  }
+
+  // お問い合わせ
+  .contact-content {
+    .contact-desc {
+      font-size: 13.5px;
+      line-height: 1.7;
+      color: rgba(var(--v-theme-on-surface), 0.85);
+      margin: 0 0 12px;
+    }
+
+    .contact-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  }
+
+  // 特定商取引に関する表記
+  .commerce-disclosure-table {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .commerce-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(var(--v-theme-on-surface), 0.02);
+      border: 1px solid rgba(var(--v-theme-on-surface), 0.05);
+
+      @media (min-width: 600px) {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+
+      .commerce-th {
+        font-size: 12.5px;
+        font-weight: 700;
+        color: rgba(var(--v-theme-on-surface), 0.65);
+        min-width: 140px;
+        flex-shrink: 0;
+      }
+
+      .commerce-td {
+        font-size: 13px;
+        font-weight: 500;
+        color: rgb(var(--v-theme-on-surface));
+        line-height: 1.6;
+        word-break: break-word;
+      }
+    }
+  }
+
+  .contact-link {
+    color: rgb(var(--v-theme-primary));
+    text-decoration: underline;
+    cursor: pointer;
+    margin: 0 4px;
+    font-weight: 600;
+
+    &:hover {
+      opacity: 0.8;
     }
   }
 

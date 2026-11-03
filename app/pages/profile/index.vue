@@ -10,7 +10,7 @@ v-card.profile-page-root(
       variant="text"
       @click="handleBack"
     )
-    p.header-title ときえのき プロフィール
+    p.header-title プロフィール
     v-spacer
     v-btn(
       icon="mdi-share-variant"
@@ -22,6 +22,16 @@ v-card.profile-page-root(
   v-card-text.profile-page-content
     AboutView(initialTab="profile")
 </template>
+
+<script setup lang="ts">
+definePageMeta({
+  middleware: [
+    () => {
+      return navigateTo({ path: '/', query: { tab: 'profile' } }, { redirectCode: 301 })
+    },
+  ],
+})
+</script>
 
 <script lang="ts">
 import { Share } from '@capacitor/share'
@@ -43,19 +53,13 @@ export default {
     }
   },
   setup() {
-    Setup.setTitle('ときえのき プロフィール・経歴・実績')
+    Setup.setTitle('プロフィール')
     Setup.setDescription('エノキ電気代表・ときえのき（jikantoki）の経歴、実績、保有資格、スキル一覧です。')
+    return navigateTo({ path: '/', query: { tab: 'profile' } }, { redirectCode: 301 })
   },
   async mounted() {
-    this.setTitle('ときえのき プロフィール・経歴・実績')
-    // 開発者オプション
-    const developerOptions = localStorage.getItem('developerOptions')
-    if (developerOptions) {
-      const options = JSON.parse(developerOptions)
-      if (options.statusBarNotch !== undefined) {
-        this.settings.hidden.isAndroid15OrHigher = options.statusBarNotch
-      }
-    }
+    this.setTitle('プロフィール')
+    await this.$router.replace({ path: '/', query: { tab: 'profile' } })
   },
   methods: {
     handleBack() {

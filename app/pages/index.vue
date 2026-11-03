@@ -25,9 +25,9 @@ v-card.playstore-root(
         @click="optionsDialog = true"
       )
         img(
-          :src="myProfile && myProfile.icon ? myProfile.icon : '/account_default.jpg'"
+          :src="myProfile && myProfile.icon ? myProfile.icon : '/icon.png'"
           alt="Avatar"
-          onerror="this.src='/account_default.jpg'"
+          onerror="this.src='/icon.png'"
         )
 
   //- ================= サブナビバー（アプリ選択時のみ表示） =================
@@ -408,7 +408,7 @@ v-card.playstore-root(
     v-card
       .top-android-15-or-higher(v-if="settings.hidden.isAndroid15OrHigher")
       v-card-actions
-        p.ml-2(class="headline" style="font-size: 1.3em") ようこそ
+        p.ml-4(class="headline" style="font-size: 1.3em") ようこそ
         v-spacer
         v-btn(
           text
@@ -523,13 +523,19 @@ export default {
   },
   mixins: [mixins],
   data() {
+    const route = useRoute()
+    const isProfile =
+      route.query.tab === 'profile' ||
+      route.query.tab === 'about' ||
+      route.query.nav === 'about' ||
+      route.query.nav === 'profile'
     return {
       optionsDialog: false,
       myProfile: useMyProfileStore(),
       settings: useSettingsStore(),
       appStore: useAppStore(),
       musicStore: useMusicStore(),
-      currentNav: 'apps' as 'apps' | 'music' | 'about',
+      currentNav: (isProfile ? 'about' : 'apps') as 'apps' | 'music' | 'about',
       searchQuery: '',
       isSearchActive: false,
       searchFilter: 'all' as 'all' | 'game' | 'app' | 'free',
@@ -539,6 +545,21 @@ export default {
       selectedApp: null as AppOrMusicItem | null,
       selectedCategory: null as string | null,
     }
+  },
+  watch: {
+    currentNav() {
+      this.updatePageTitle()
+    },
+    '$route.query'(newQuery) {
+      if (
+        newQuery.tab === 'profile' ||
+        newQuery.tab === 'about' ||
+        newQuery.nav === 'about' ||
+        newQuery.nav === 'profile'
+      ) {
+        this.switchBottomNav('about')
+      }
+    },
   },
   computed: {
     searchPlaceholder(): string {
@@ -691,11 +712,32 @@ export default {
     },
   },
   setup() {
-    Setup.setTitle('トップ')
-    Setup.setDescription('エノキ電気公式アプリ＆音楽プラットフォーム。')
+    const route = useRoute()
+    const isProfile =
+      route.query.tab === 'profile' ||
+      route.query.tab === 'about' ||
+      route.query.nav === 'about' ||
+      route.query.nav === 'profile'
+    if (isProfile) {
+      Setup.setTitle('プロフィール')
+      Setup.setDescription(
+        'エノキ電気代表・ときえのき（jikantoki）の経歴、実績、保有資格、スキル一覧です。',
+      )
+    } else {
+      Setup.setTitle('トップ')
+      Setup.setDescription('エノキ電気公式アプリ＆音楽プラットフォーム。')
+    }
   },
   async mounted() {
-    this.setTitle('トップ')
+    if (
+      this.$route.query.tab === 'profile' ||
+      this.$route.query.tab === 'about' ||
+      this.$route.query.nav === 'about' ||
+      this.$route.query.nav === 'profile'
+    ) {
+      this.currentNav = 'about'
+    }
+    this.updatePageTitle()
 
     // アプリモックデータが存在しない場合は確実にロード
     if (!this.appStore.list || this.appStore.list.length === 0) {
@@ -740,9 +782,19 @@ export default {
     playMusic(item: MusicItem, queue?: MusicItem[]) {
       this.musicStore.play(item, queue)
     },
+    updatePageTitle() {
+      if (this.currentNav === 'about') {
+        this.setTitle('プロフィール')
+      } else if (this.currentNav === 'music') {
+        this.setTitle('音楽')
+      } else {
+        this.setTitle('トップ')
+      }
+    },
     switchBottomNav(nav: 'apps' | 'music' | 'about') {
       this.searchQuery = ''
       this.currentNav = nav
+      this.updatePageTitle()
       const container = this.$refs.scrollContainer as HTMLElement
       if (container) {
         container.scrollTop = 0
