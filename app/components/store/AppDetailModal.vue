@@ -208,6 +208,7 @@ const renderedDescription = computed(() => {
 <style lang="scss" scoped>
 .app-detail-card {
   height: 100vh;
+  width: 100%;
   display: flex;
   flex-direction: column;
   background-color: rgb(var(--v-theme-surface));
