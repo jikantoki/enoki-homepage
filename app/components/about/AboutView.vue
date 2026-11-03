@@ -3,7 +3,7 @@
   //- ================= ヒーローヘッダー =================
   .profile-hero-card
     .hero-cover
-      img.cover-img(src="/img/default_cover.jpg" alt="Cover" onerror="this.src='/img/thumbnail.jpg'")
+      img.cover-img(src="/jikantoki-background.jpg" alt="Cover" onerror="this.src='/img/thumbnail.jpg'")
       .cover-overlay
     .hero-body
       .avatar-wrapper
@@ -366,7 +366,7 @@ export default {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 
     .hero-cover {
-      height: 120px;
+      height: 220px;
       position: relative;
       overflow: hidden;
 
