@@ -47,7 +47,7 @@ v-card(
           v-icon mdi-shield-lock-outline
         .text
           p.title プライバシーポリシー
-          p.description 外部リンクが立ち上がります
+          p.description 個人情報の取り扱いについて
       .setting-item(
         v-ripple
         @click="$router.push('/about')"
