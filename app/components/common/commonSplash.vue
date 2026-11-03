@@ -2,7 +2,8 @@
 .wait
   .wait-wrap(style="background:rgb(var(--v-theme-background));")
     img.splash-img(src="/icon.png")
-    p.mt-4.text-h5.splash-text エノキ電気
+    p.mt-4.text-h6.splash-text エノキ電気
+    p.text-h7.splash-text ENOKI ELECTRONICS
     .ma-16
     .loading
       v-progress-linear(indeterminate)
@@ -27,6 +28,7 @@ export default {
   flex-direction: column;
   .splash-img {
     width: 128px;
+    border-radius: 9999px;
   }
   .loading {
     width: 100px;

@@ -421,7 +421,7 @@ v-card.playstore-root(
         )
           .account-img
             img(
-              :src="myProfile && myProfile.icon ? myProfile.icon : '/account_default.jpg'"
+              src="/icon.png"
               style="height: 8em; width: 8em; border-radius: 9999px;"
               onerror="this.src='/account_default.jpg'"
             )
