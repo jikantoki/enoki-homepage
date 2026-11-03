@@ -94,7 +94,7 @@ export default {
 </script>
 
 <style lang="scss">
-@use "sass:map";
+@use 'sass:map';
 // フォントをZen Maru Gothicに統一
 * {
   font-family: 'Zen Maru Gothic', sans-serif !important;
@@ -152,6 +152,7 @@ main {
 
 button {
   text-transform: none !important;
+  padding: 1em;
 }
 
 /** URLや日報をコピー用 */
@@ -344,5 +345,9 @@ $breakpoints: (
   @include mq('pwa') {
     display: none;
   }
+}
+
+.v-card-text {
+  padding: 0.3em;
 }
 </style>

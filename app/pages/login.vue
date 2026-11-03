@@ -209,6 +209,7 @@ export default {
     display: flex;
     flex-direction: column;
     max-width: 32em;
+    padding: 1em;
   }
 }
 .btns {
