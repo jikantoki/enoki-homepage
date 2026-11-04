@@ -26,7 +26,7 @@ define('Admin_Register_Max', 1); // 登録可能な管理者アカウントの�
 define('Admin_Allowed_Email', ''); // 特定のメールアドレスのみ許可する場合は指定（空欄ならキー検証のみ）
 
 $mailHeader = "<p>
-いつも エノキ電気 公式ホームページ をご利用いただきありがとうございます。
+いつも エノキ電気 をご利用いただきありがとうございます。
 <hr>
 </p>";
 $mailFooter = "<p>
@@ -35,5 +35,5 @@ $mailFooter = "<p>
 <br>
 また、このメールに身に覚えのない場合は、エノキ電気までお問い合わせください。
 <br>
-<a href=\"https://enoki.xyz\">エノキ電気 公式ホームページ</a> by <a href=\"https://enoki.xyz\">エノキ電気</a>
+<a href=\"https://enoki.xyz\">エノキ電気</a>
 </p>";
