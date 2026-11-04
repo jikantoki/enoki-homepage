@@ -42,7 +42,7 @@ v-card(
         )
           v-icon(size="x-large") mdi-close
           p 無効
-      .setting-item(
+      //.setting-item(
         v-ripple
         @click="$router.push('/tutorial')"
         )
