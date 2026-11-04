@@ -33,6 +33,7 @@ v-card.music-detail-page-root(
     variant="tonal"
     density="compact"
     rounded="lg"
+    style="max-height: 100px;"
   )
     .d-flex.align-center.justify-space-between.flex-wrap.gap-2
       .d-flex.align-center.gap-2
@@ -303,8 +304,8 @@ export default {
     isAdmin(): boolean {
       return Boolean(
         this.myProfile.isAdmin ||
-        this.myProfile.role === 'admin' ||
-        (!this.myProfile.guest && this.myProfile.canRegisterApp)
+          this.myProfile.role === 'admin' ||
+          (!this.myProfile.guest && this.myProfile.canRegisterApp),
       )
     },
     musicId(): string {
@@ -337,7 +338,9 @@ export default {
     const track = musicStore.list.find((i) => i.id === musicId)
     if (track) {
       Setup.setTitle(`${track.title} - エノキ電気 音楽`)
-      Setup.setDescription(track.description || `${track.title} - ${track.artist}`)
+      Setup.setDescription(
+        track.description || `${track.title} - ${track.artist}`,
+      )
     } else {
       Setup.setTitle('音楽詳細 - エノキ電気')
     }
@@ -393,7 +396,7 @@ export default {
       }
     },
     onScrubberEnd() {
-      this.musicStore.seekTo(this.sliderTime)
+      this.musicStore.seek(this.sliderTime)
       this.isScrubbing = false
     },
     formatTime(sec: number): string {
@@ -426,7 +429,8 @@ export default {
         'Content-Type': 'application/json',
       }
       if (this.myProfile.userId) authHeaders['id'] = this.myProfile.userId
-      if (this.myProfile.userToken) authHeaders['token'] = this.myProfile.userToken
+      if (this.myProfile.userToken)
+        authHeaders['token'] = this.myProfile.userToken
 
       const trackId = this.track.id
       const trackTitle = this.track.title
@@ -498,7 +502,11 @@ export default {
     left: 0;
     right: 0;
     height: 350px;
-    background: radial-gradient(circle at 50% 20%, var(--track-theme), transparent 70%);
+    background: radial-gradient(
+      circle at 50% 20%,
+      var(--track-theme),
+      transparent 70%
+    );
     opacity: 0.25;
     pointer-events: none;
     z-index: 1;

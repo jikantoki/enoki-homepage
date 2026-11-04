@@ -19,12 +19,13 @@ v-card.app-detail-page-root(
     v-btn(icon="mdi-share-variant" variant="text" @click="shareApp")
 
   //- 管理者向けアクションバナー
-  v-alert.admin-action-banner.ma-3(
+  v-alert.admin-action-banner.ma-3.pa-2(
     v-if="isAdmin && app"
     color="primary"
     variant="tonal"
     density="compact"
     rounded="lg"
+    style="max-height: fit-content;"
   )
     .d-flex.align-center.justify-space-between.flex-wrap.gap-2
       .d-flex.align-center.gap-2
@@ -217,8 +218,8 @@ export default {
     isAdmin(): boolean {
       return Boolean(
         this.myProfile.isAdmin ||
-        this.myProfile.role === 'admin' ||
-        (!this.myProfile.guest && this.myProfile.canRegisterApp)
+          this.myProfile.role === 'admin' ||
+          (!this.myProfile.guest && this.myProfile.canRegisterApp),
       )
     },
     appId(): string {
@@ -308,7 +309,8 @@ export default {
         'Content-Type': 'application/json',
       }
       if (this.myProfile.userId) authHeaders['id'] = this.myProfile.userId
-      if (this.myProfile.userToken) authHeaders['token'] = this.myProfile.userToken
+      if (this.myProfile.userToken)
+        authHeaders['token'] = this.myProfile.userToken
 
       const appId = this.app.id
       const appName = this.app.name
@@ -503,23 +505,37 @@ export default {
       line-height: 1.75;
       color: rgba(var(--v-theme-on-surface), 0.88);
 
-      :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
+      :deep(h1),
+      :deep(h2),
+      :deep(h3),
+      :deep(h4),
+      :deep(h5),
+      :deep(h6) {
         font-weight: 700;
         margin-top: 1.2em;
         margin-bottom: 0.6em;
         color: rgb(var(--v-theme-on-surface));
       }
 
-      :deep(h1) { font-size: 1.35rem; }
-      :deep(h2) { font-size: 1.2rem; }
-      :deep(h3) { font-size: 1.05rem; }
-      :deep(h4) { font-size: 0.98rem; }
+      :deep(h1) {
+        font-size: 1.35rem;
+      }
+      :deep(h2) {
+        font-size: 1.2rem;
+      }
+      :deep(h3) {
+        font-size: 1.05rem;
+      }
+      :deep(h4) {
+        font-size: 0.98rem;
+      }
 
       :deep(p) {
         margin-bottom: 0.8em;
       }
 
-      :deep(ul), :deep(ol) {
+      :deep(ul),
+      :deep(ol) {
         padding-left: 20px;
         margin-bottom: 0.8em;
       }
@@ -578,7 +594,8 @@ export default {
         border-collapse: collapse;
         margin: 12px 0;
 
-        th, td {
+        th,
+        td {
           border: 1px solid rgba(var(--v-theme-on-surface), 0.15);
           padding: 8px;
           text-align: left;

@@ -26,6 +26,7 @@ v-card.admin-manage-page(
     color="primary"
     grow
     density="comfortable"
+    style="max-height: fit-content;"
   )
     v-tab(value="apps")
       v-icon.mr-2 mdi-apps
@@ -44,280 +45,276 @@ v-card.admin-manage-page(
         inline
       )
 
-  //- メインコンテンツエリア
+  //- メインコンテンツエリア (直接タブ内容を描画し余計な余白・レイアウトシフトを排除)
   .manage-content-scroll
-    v-window(v-model="currentTab")
+    //- ==================== 1. アプリ管理タブ ====================
+    .tab-inner.pa-4(v-if="currentTab === 'apps'")
+      //- 検索 ＆ 絞り込みバー
+      v-row(dense align="center")
+        v-col(cols="12" sm="7" md="8")
+          v-text-field(
+            v-model="appSearch"
+            placeholder="アプリ名、ID、説明文で検索..."
+            variant="outlined"
+            density="compact"
+            prepend-inner-icon="mdi-magnify"
+            clearable
+            hide-details
+          )
+        v-col(cols="12" sm="5" md="4")
+          v-select(
+            v-model="appCategoryFilter"
+            :items="['すべて', ...appCategories]"
+            label="カテゴリ絞り込み"
+            variant="outlined"
+            density="compact"
+            hide-details
+          )
 
-      //- ==================== 1. アプリ管理タブ ====================
-      v-window-item(value="apps")
-        .tab-inner.pa-4
-          //- 検索 ＆ 絞り込みバー
-          v-row(dense align="center")
-            v-col(cols="12" sm="7" md="8")
-              v-text-field(
-                v-model="appSearch"
-                placeholder="アプリ名、ID、説明文で検索..."
-                variant="outlined"
-                density="compact"
-                prepend-inner-icon="mdi-magnify"
-                clearable
-                hide-details
-              )
-            v-col(cols="12" sm="5" md="4")
-              v-select(
-                v-model="appCategoryFilter"
-                :items="['すべて', ...appCategories]"
-                label="カテゴリ絞り込み"
-                variant="outlined"
-                density="compact"
-                hide-details
-              )
+      //- 件数表示
+      .d-flex.align-center.justify-space-between.mt-4.mb-2
+        .text-caption.text-grey
+          | 全 {{ appStore.list.length }} 件中 {{ filteredApps.length }} 件表示
+        v-btn(
+          variant="text"
+          density="compact"
+          size="small"
+          prepend-icon="mdi-plus-circle-outline"
+          color="primary"
+          @click="openCreateModal('app')"
+        ) アプリを追加
 
-          //- 件数表示
-          .d-flex.align-center.justify-space-between.mt-4.mb-2
-            .text-caption.text-grey
-              | 全 {{ appStore.list.length }} 件中 {{ filteredApps.length }} 件表示
-            v-btn(
-              variant="text"
-              density="compact"
-              size="small"
-              prepend-icon="mdi-plus-circle-outline"
-              color="primary"
-              @click="openCreateModal('app')"
-            ) アプリを追加
+      //- アプリリスト
+      .items-list.mt-2
+        v-alert(
+          v-if="filteredApps.length === 0"
+          type="info"
+          variant="tonal"
+          rounded="lg"
+        )
+          | 該当するソフトウェアが見つかりませんでした。
 
-          //- アプリリスト
-          .items-list.mt-2
-            v-alert(
-              v-if="filteredApps.length === 0"
-              type="info"
-              variant="tonal"
-              rounded="lg"
-            )
-              | 該当するソフトウェアが見つかりませんでした。
-
-            v-card.item-manage-card.mb-3.pa-3(
-              v-for="app in filteredApps"
-              :key="app.id"
-              variant="outlined"
-              rounded="xl"
-            )
-              .d-flex.align-start.gap-3
-                //- アイコン
-                .item-icon-box
-                  img.item-icon(
-                    :src="app.icon || '/icon.png'"
-                    :alt="app.name"
-                    onerror="this.src='/icon.png'"
-                  )
-
-                //- 詳細メタデータ
-                .flex-grow-1.overflow-hidden
-                  .d-flex.align-center.gap-2.flex-wrap
-                    .font-weight-bold.text-body-1.text-truncate {{ app.name }}
-                    v-chip(size="x-small" variant="flat" color="primary") {{ app.type === 'game' ? 'ゲーム' : 'アプリ' }}
-                    v-chip(size="x-small" variant="tonal") {{ app.category || 'ツール' }}
-                    v-chip(v-if="app.featured" size="x-small" color="warning" variant="flat")
-                      v-icon(size="10" start) mdi-star
-                      | 注目
-
-                  .text-caption.text-grey.mt-1
-                    span.font-weight-medium ID:
-                    code.mx-1 {{ app.id }}
-                    span.mx-1 •
-                    span {{ app.price ? `¥${app.price.toLocaleString()}` : '無料' }}
-                    span.mx-1 •
-                    span {{ app.developer || 'エノキ電気' }}
-
-                  p.text-caption.text-grey-darken-1.text-truncate.mt-1.mb-0(v-if="app.summary")
-                    | {{ app.summary }}
-
-                  //- プラットフォームタグ
-                  .platform-chips.mt-2(v-if="app.platforms && app.platforms.length")
-                    v-chip(
-                      v-for="p in app.platforms"
-                      :key="p"
-                      size="x-small"
-                      variant="outlined"
-                      class="mr-1"
-                    ) {{ p }}
-
-                //- アクションボタン群
-                .item-actions.d-flex.flex-column.gap-1.align-end
-                  v-btn(
-                    icon="mdi-open-in-new"
-                    size="small"
-                    variant="text"
-                    color="grey-darken-1"
-                    @click="$router.push(`/apps/${app.id}`)"
-                  )
-                    v-icon(size="18") mdi-open-in-new
-                    v-tooltip(activator="parent" location="left") ページを開く
-
-                  v-btn(
-                    icon="mdi-pencil-outline"
-                    size="small"
-                    variant="tonal"
-                    color="primary"
-                    @click="openEditModal(app, 'app')"
-                  )
-                    v-icon(size="18") mdi-pencil-outline
-                    v-tooltip(activator="parent" location="left") 編集
-
-                  v-btn(
-                    icon="mdi-delete-outline"
-                    size="small"
-                    variant="tonal"
-                    color="error"
-                    @click="confirmDelete(app, 'app')"
-                  )
-                    v-icon(size="18") mdi-delete-outline
-                    v-tooltip(activator="parent" location="left") 削除
-
-      //- ==================== 2. 音楽管理タブ ====================
-      v-window-item(value="music")
-        .tab-inner.pa-4
-          //- 検索 ＆ 絞り込みバー
-          v-row(dense align="center")
-            v-col(cols="12" sm="7" md="8")
-              v-text-field(
-                v-model="musicSearch"
-                placeholder="楽曲名、アーティスト、アルバムで検索..."
-                variant="outlined"
-                density="compact"
-                prepend-inner-icon="mdi-magnify"
-                clearable
-                hide-details
-              )
-            v-col(cols="12" sm="5" md="4")
-              v-select(
-                v-model="musicGenreFilter"
-                :items="['すべて', ...musicGenres]"
-                label="ジャンル絞り込み"
-                variant="outlined"
-                density="compact"
-                hide-details
+        v-card.item-manage-card.mb-3.pa-3(
+          v-for="app in filteredApps"
+          :key="app.id"
+          variant="outlined"
+          rounded="xl"
+        )
+          .d-flex.align-start.gap-3
+            //- アイコン
+            .item-icon-box
+              img.item-icon(
+                :src="app.icon || '/icon.png'"
+                :alt="app.name"
+                onerror="this.src='/icon.png'"
               )
 
-          //- 件数表示
-          .d-flex.align-center.justify-space-between.mt-4.mb-2
-            .text-caption.text-grey
-              | 全 {{ musicStore.list.length }} 件中 {{ filteredMusic.length }} 件表示
-            v-btn(
-              variant="text"
-              density="compact"
-              size="small"
-              prepend-icon="mdi-plus-circle-outline"
-              color="secondary"
-              @click="openCreateModal('music')"
-            ) 楽曲を追加
+            //- 詳細メタデータ
+            .flex-grow-1.overflow-hidden
+              .d-flex.align-center.gap-2.flex-wrap
+                .font-weight-bold.text-body-1.text-truncate {{ app.name }}
+                v-chip(size="x-small" variant="flat" color="primary") {{ app.type === 'game' ? 'ゲーム' : 'アプリ' }}
+                v-chip(size="x-small" variant="tonal") {{ app.category || 'ツール' }}
+                v-chip(v-if="app.featured" size="x-small" color="warning" variant="flat")
+                  v-icon(size="10" start) mdi-star
+                  | 注目
 
-          //- 音楽リスト
-          .items-list.mt-2
-            v-alert(
-              v-if="filteredMusic.length === 0"
-              type="info"
-              variant="tonal"
-              rounded="lg"
-            )
-              | 該当する楽曲が見つかりませんでした。
+              .text-caption.text-grey.mt-1
+                span.font-weight-medium ID:
+                code.mx-1 {{ app.id }}
+                span.mx-1 •
+                span {{ app.price ? `¥${app.price.toLocaleString()}` : '無料' }}
+                span.mx-1 •
+                span {{ app.developer || 'エノキ電気' }}
 
-            v-card.item-manage-card.mb-3.pa-3(
-              v-for="track in filteredMusic"
-              :key="track.id"
-              variant="outlined"
-              rounded="xl"
-            )
-              .d-flex.align-start.gap-3
-                //- カバー画像 ＆ 再生ボタン
-                .item-cover-box
-                  img.item-cover(
-                    :src="track.cover || track.icon || '/icon.png'"
-                    :alt="track.title"
-                    onerror="this.src='/icon.png'"
-                  )
-                  v-btn.cover-play-btn(
-                    :icon="isCurrentPlaying(track) ? 'mdi-pause' : 'mdi-play'"
-                    size="x-small"
-                    color="primary"
-                    variant="flat"
-                    @click="handleTrackPlayToggle(track)"
-                  )
+              p.text-caption.text-grey-darken-1.text-truncate.mt-1.mb-0(v-if="app.summary")
+                | {{ app.summary }}
 
-                //- 詳細メタデータ
-                .flex-grow-1.overflow-hidden
-                  .d-flex.align-center.gap-2.flex-wrap
-                    .font-weight-bold.text-body-1.text-truncate {{ track.title }}
-                    v-chip(size="x-small" variant="flat" color="secondary") {{ track.genre || 'J-Pop' }}
-                    v-chip(
-                      v-if="track.audioUrl"
-                      size="x-small"
-                      color="success"
-                      variant="tonal"
-                    )
-                      v-icon(size="10" start) mdi-volume-high
-                      | 音声ファイル連携済
-                    v-chip(
-                      v-else
-                      size="x-small"
-                      color="grey"
-                      variant="tonal"
-                    )
-                      v-icon(size="10" start) mdi-volume-off
-                      | 音声未登録
-                    v-chip(v-if="track.featured" size="x-small" color="warning" variant="flat")
-                      v-icon(size="10" start) mdi-star
-                      | 注目
+              //- プラットフォームタグ
+              .platform-chips.mt-2(v-if="app.platforms && app.platforms.length")
+                v-chip(
+                  v-for="p in app.platforms"
+                  :key="p"
+                  size="x-small"
+                  variant="outlined"
+                  class="mr-1"
+                ) {{ p }}
 
-                  .text-caption.text-grey.mt-1
-                    span.font-weight-medium ID:
-                    code.mx-1 {{ track.id }}
-                    span.mx-1 •
-                    span {{ track.artist || 'エノキ電気' }}
-                    span.mx-1 •
-                    span {{ track.album || track.title }}
-                    span.mx-1 •
-                    span ⏱ {{ track.durationFormatted || formatTime(track.duration) }}
+            //- アクションボタン群
+            .item-actions.d-flex.flex-column.gap-1.align-end
+              v-btn(
+                icon="mdi-open-in-new"
+                size="small"
+                variant="text"
+                color="grey-darken-1"
+                @click="$router.push(`/apps/${app.id}`)"
+              )
+                v-icon(size="18") mdi-open-in-new
+                v-tooltip(activator="parent" location="left") ページを開く
 
-                  p.text-caption.text-grey-darken-1.text-truncate.mt-1.mb-0(v-if="track.description")
-                    | {{ track.description }}
+              v-btn(
+                icon="mdi-pencil-outline"
+                size="small"
+                variant="tonal"
+                color="primary"
+                @click="openEditModal(app, 'app')"
+              )
+                v-icon(size="18") mdi-pencil-outline
+                v-tooltip(activator="parent" location="left") 編集
 
-                  //- 音声URLプレビュー
-                  .text-caption.text-grey.text-truncate.mt-1(v-if="track.audioUrl")
-                    v-icon(size="12" color="success") mdi-link-variant
-                    span.ml-1 {{ track.audioUrl }}
+              v-btn(
+                icon="mdi-delete-outline"
+                size="small"
+                variant="tonal"
+                color="error"
+                @click="confirmDelete(app, 'app')"
+              )
+                v-icon(size="18") mdi-delete-outline
+                v-tooltip(activator="parent" location="left") 削除
 
-                //- アクションボタン群
-                .item-actions.d-flex.flex-column.gap-1.align-end
-                  v-btn(
-                    icon="mdi-open-in-new"
-                    size="small"
-                    variant="text"
-                    color="grey-darken-1"
-                    @click="$router.push(`/music/${track.id}`)"
-                  )
-                    v-icon(size="18") mdi-open-in-new
-                    v-tooltip(activator="parent" location="left") ページを開く
+    //- ==================== 2. 音楽管理タブ ====================
+    .tab-inner.pa-4(v-if="currentTab === 'music'")
+      //- 検索 ＆ 絞り込みバー
+      v-row(dense align="center")
+        v-col(cols="12" sm="7" md="8")
+          v-text-field(
+            v-model="musicSearch"
+            placeholder="楽曲名、アーティスト、アルバムで検索..."
+            variant="outlined"
+            density="compact"
+            prepend-inner-icon="mdi-magnify"
+            clearable
+            hide-details
+          )
+        v-col(cols="12" sm="5" md="4")
+          v-select(
+            v-model="musicGenreFilter"
+            :items="['すべて', ...musicGenres]"
+            label="ジャンル絞り込み"
+            variant="outlined"
+            density="compact"
+            hide-details
+          )
 
-                  v-btn(
-                    icon="mdi-pencil-outline"
-                    size="small"
-                    variant="tonal"
-                    color="primary"
-                    @click="openEditModal(track, 'music')"
-                  )
-                    v-icon(size="18") mdi-pencil-outline
-                    v-tooltip(activator="parent" location="left") 編集
+      //- 件数表示
+      .d-flex.align-center.justify-space-between.mt-4.mb-2
+        .text-caption.text-grey
+          | 全 {{ musicStore.list.length }} 件中 {{ filteredMusic.length }} 件表示
+        v-btn(
+          variant="text"
+          density="compact"
+          size="small"
+          prepend-icon="mdi-plus-circle-outline"
+          color="secondary"
+          @click="openCreateModal('music')"
+        ) 楽曲を追加
 
-                  v-btn(
-                    icon="mdi-delete-outline"
-                    size="small"
-                    variant="tonal"
-                    color="error"
-                    @click="confirmDelete(track, 'music')"
-                  )
-                    v-icon(size="18") mdi-delete-outline
-                    v-tooltip(activator="parent" location="left") 削除
+      //- 音楽リスト
+      .items-list.mt-2
+        v-alert(
+          v-if="filteredMusic.length === 0"
+          type="info"
+          variant="tonal"
+          rounded="lg"
+        )
+          | 該当する楽曲が見つかりませんでした。
+
+        v-card.item-manage-card.mb-3.pa-3(
+          v-for="track in filteredMusic"
+          :key="track.id"
+          variant="outlined"
+          rounded="xl"
+        )
+          .d-flex.align-start.gap-3
+            //- カバー画像 ＆ 再生ボタン
+            .item-cover-box
+              img.item-cover(
+                :src="track.cover || track.icon || '/icon.png'"
+                :alt="track.title"
+                onerror="this.src='/icon.png'"
+              )
+              v-btn.cover-play-btn(
+                :icon="isCurrentPlaying(track) ? 'mdi-pause' : 'mdi-play'"
+                size="x-small"
+                color="primary"
+                variant="flat"
+                @click="handleTrackPlayToggle(track)"
+              )
+
+            //- 詳細メタデータ
+            .flex-grow-1.overflow-hidden
+              .d-flex.align-center.gap-2.flex-wrap
+                .font-weight-bold.text-body-1.text-truncate {{ track.title }}
+                v-chip(size="x-small" variant="flat" color="secondary") {{ track.genre || 'J-Pop' }}
+                v-chip(
+                  v-if="track.audioUrl"
+                  size="x-small"
+                  color="success"
+                  variant="tonal"
+                )
+                  v-icon(size="10" start) mdi-volume-high
+                  | 音声ファイル連携済
+                v-chip(
+                  v-else
+                  size="x-small"
+                  color="grey"
+                  variant="tonal"
+                )
+                  v-icon(size="10" start) mdi-volume-off
+                  | 音声未登録
+                v-chip(v-if="track.featured" size="x-small" color="warning" variant="flat")
+                  v-icon(size="10" start) mdi-star
+                  | 注目
+
+              .text-caption.text-grey.mt-1
+                span.font-weight-medium ID:
+                code.mx-1 {{ track.id }}
+                span.mx-1 •
+                span {{ track.artist || 'エノキ電気' }}
+                span.mx-1 •
+                span {{ track.album || track.title }}
+                span.mx-1 •
+                span ⏱ {{ track.durationFormatted || formatTime(track.duration) }}
+
+              p.text-caption.text-grey-darken-1.text-truncate.mt-1.mb-0(v-if="track.description")
+                | {{ track.description }}
+
+              //- 音声URLプレビュー
+              .text-caption.text-grey.text-truncate.mt-1(v-if="track.audioUrl")
+                v-icon(size="12" color="success") mdi-link-variant
+                span.ml-1 {{ track.audioUrl }}
+
+            //- アクションボタン群
+            .item-actions.d-flex.flex-column.gap-1.align-end
+              v-btn(
+                icon="mdi-open-in-new"
+                size="small"
+                variant="text"
+                color="grey-darken-1"
+                @click="$router.push(`/music/${track.id}`)"
+              )
+                v-icon(size="18") mdi-open-in-new
+                v-tooltip(activator="parent" location="left") ページを開く
+
+              v-btn(
+                icon="mdi-pencil-outline"
+                size="small"
+                variant="tonal"
+                color="primary"
+                @click="openEditModal(track, 'music')"
+              )
+                v-icon(size="18") mdi-pencil-outline
+                v-tooltip(activator="parent" location="left") 編集
+
+              v-btn(
+                icon="mdi-delete-outline"
+                size="small"
+                variant="tonal"
+                color="error"
+                @click="confirmDelete(track, 'music')"
+              )
+                v-icon(size="18") mdi-delete-outline
+                v-tooltip(activator="parent" location="left") 削除
 
     .bottom-spacer(style="height: 80px;")
 
@@ -435,8 +432,8 @@ export default defineComponent({
     isAdmin(): boolean {
       return Boolean(
         this.myProfile.isAdmin ||
-        this.myProfile.role === 'admin' ||
-        (!this.myProfile.guest && this.myProfile.canRegisterApp)
+          this.myProfile.role === 'admin' ||
+          (!this.myProfile.guest && this.myProfile.canRegisterApp),
       )
     },
     appCategories(): string[] {
@@ -501,7 +498,7 @@ export default defineComponent({
       return
     }
 
-    // クエリパラメータによるタブ初期化 (?tab=music または ?tab=apps)
+    // クエリパラメータによるタブ初期化 (?tab=music または ?tab=app)
     const tabParam = this.$route.query.tab as string
     if (tabParam === 'music') {
       this.currentTab = 'music'
@@ -517,7 +514,10 @@ export default defineComponent({
         this.$router.push('/')
       }
     },
-    showToast(message: string, color: 'success' | 'error' | 'info' = 'success') {
+    showToast(
+      message: string,
+      color: 'success' | 'error' | 'info' = 'success',
+    ) {
       this.snackbar.message = message
       this.snackbar.color = color
       this.snackbar.show = true
@@ -531,7 +531,10 @@ export default defineComponent({
 
     // 音楽再生トグル
     isCurrentPlaying(track: MusicItem): boolean {
-      return this.musicStore.currentTrack?.id === track.id && this.musicStore.isPlaying
+      return (
+        this.musicStore.currentTrack?.id === track.id &&
+        this.musicStore.isPlaying
+      )
     },
     handleTrackPlayToggle(track: MusicItem) {
       if (this.musicStore.currentTrack?.id === track.id) {
@@ -544,7 +547,12 @@ export default defineComponent({
     // モーダルオープン操作
     openCreateModal(type: 'app' | 'music' = 'app') {
       this.editingItem = null
-      this.modalTab = type === 'music' ? 'music' : (this.currentTab === 'music' ? 'music' : 'app')
+      this.modalTab =
+        type === 'music'
+          ? 'music'
+          : this.currentTab === 'music'
+          ? 'music'
+          : 'app'
       this.modalOpen = true
     },
     openEditModal(item: any, type: 'app' | 'music') {
@@ -558,7 +566,7 @@ export default defineComponent({
         payload.type === 'app'
           ? `アプリ「${payload.item.name}」を新しく登録しました！`
           : `楽曲「${payload.item.title}」を新しく登録しました！`,
-        'success'
+        'success',
       )
     },
     handleUpdated(payload: { type: string; item: any }) {
@@ -566,7 +574,7 @@ export default defineComponent({
         payload.type === 'app'
           ? `アプリ「${payload.item.name}」の情報を更新しました！`
           : `楽曲「${payload.item.title}」の情報を更新しました！`,
-        'success'
+        'success',
       )
     },
 
@@ -586,7 +594,8 @@ export default defineComponent({
         'Content-Type': 'application/json',
       }
       if (this.myProfile.userId) authHeaders['id'] = this.myProfile.userId
-      if (this.myProfile.userToken) authHeaders['token'] = this.myProfile.userToken
+      if (this.myProfile.userToken)
+        authHeaders['token'] = this.myProfile.userToken
 
       try {
         if (type === 'app') {
@@ -614,7 +623,10 @@ export default defineComponent({
 
           // 3. Pinia ストアから削除
           this.appStore.removeById(item.id)
-          this.showToast(`アプリ「${item.name || item.id}」を削除しました`, 'success')
+          this.showToast(
+            `アプリ「${item.name || item.id}」を削除しました`,
+            'success',
+          )
         } else {
           // 1. PHP バックエンド (MySQL) から削除
           try {
@@ -640,7 +652,10 @@ export default defineComponent({
 
           // 3. Pinia ストアから削除
           this.musicStore.removeTrack(item.id)
-          this.showToast(`楽曲「${item.title || item.name || item.id}」を削除しました`, 'success')
+          this.showToast(
+            `楽曲「${item.title || item.name || item.id}」を削除しました`,
+            'success',
+          )
         }
 
         this.deleteDialog.open = false
@@ -659,15 +674,20 @@ export default defineComponent({
 .admin-manage-page {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  height: 100dvh;
   overflow: hidden;
+  position: relative;
   background-color: rgb(var(--v-theme-background));
 }
 
 .manage-toolbar {
+  flex-shrink: 0;
   border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 }
 
 .manage-tabs {
+  flex-shrink: 0;
   border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   background-color: rgb(var(--v-theme-surface));
 }
@@ -676,6 +696,10 @@ export default defineComponent({
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+.tab-inner {
+  width: 100%;
 }
 
 .item-manage-card {

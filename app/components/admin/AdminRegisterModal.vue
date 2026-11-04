@@ -8,7 +8,10 @@ v-dialog(
   scrollable
   persistent
 )
-  v-card.register-modal-card(:class="{ 'is-mobile': isMobile }")
+  v-card.register-modal-card(
+    :class="{ 'is-mobile': isMobile }"
+    style="max-height: 90dvh; overflow-y: auto; max-width: 90vw; overflow-x: hidden;"
+    )
     //- ヘッダー
     v-card-title.d-flex.align-center.modal-header.py-3.px-4
       v-icon.mr-2(color="primary") {{ isEditMode ? 'mdi-pencil-box-outline' : 'mdi-shield-plus-outline' }}
@@ -1146,7 +1149,10 @@ export default defineComponent({
         }
 
         if (isEdit) {
-          this.showToast(`アプリ「${newApp.name}」の情報を更新しました！`, 'success')
+          this.showToast(
+            `アプリ「${newApp.name}」の情報を更新しました！`,
+            'success',
+          )
           this.$emit('updated', { type: 'app', item: newApp })
         } else {
           this.showToast(`アプリ「${newApp.name}」を登録しました！`, 'success')
@@ -1161,7 +1167,12 @@ export default defineComponent({
         }, 800)
       } catch (err: any) {
         console.error('App registration error:', err)
-        this.showToast(isEdit ? 'アプリ更新中にエラーが発生しました' : 'アプリ登録中にエラーが発生しました', 'error')
+        this.showToast(
+          isEdit
+            ? 'アプリ更新中にエラーが発生しました'
+            : 'アプリ登録中にエラーが発生しました',
+          'error',
+        )
       } finally {
         this.submittingApp = false
       }
@@ -1258,7 +1269,10 @@ export default defineComponent({
         }
 
         if (isEdit) {
-          this.showToast(`楽曲「${newTrack.title}」の情報を更新しました！`, 'success')
+          this.showToast(
+            `楽曲「${newTrack.title}」の情報を更新しました！`,
+            'success',
+          )
           this.$emit('updated', { type: 'music', item: newTrack })
         } else {
           this.showToast(`楽曲「${newTrack.title}」を登録しました！`, 'success')
@@ -1273,7 +1287,12 @@ export default defineComponent({
         }, 800)
       } catch (err: any) {
         console.error('Music registration error:', err)
-        this.showToast(isEdit ? '音楽更新中にエラーが発生しました' : '音楽登録中にエラーが発生しました', 'error')
+        this.showToast(
+          isEdit
+            ? '音楽更新中にエラーが発生しました'
+            : '音楽登録中にエラーが発生しました',
+          'error',
+        )
       } finally {
         this.submittingMusic = false
       }
