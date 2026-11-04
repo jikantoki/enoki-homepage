@@ -25,7 +25,7 @@ v-card.privacy-page-root(
 
       //- 目次カード
       v-card.toc-card.my-4(variant="outlined")
-        v-card-item.toc-header.mx-4.mt-2(@click="isTocOpen = !isTocOpen")
+        v-card-item.toc-header.mx-4.my-2(@click="isTocOpen = !isTocOpen")
           template(#prepend)
             v-icon(color="primary") mdi-format-list-bulleted
           v-card-title.toc-title 目次

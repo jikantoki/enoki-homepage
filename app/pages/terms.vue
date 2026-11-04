@@ -21,7 +21,7 @@ v-card.terms-page-root(
   //- メインスクロールエリア
   v-card-text.terms-page-content(ref="contentContainer")
     .content-wrapper
-      h1.main-title 利用規約
+      h1.main-title エノキ電機サービス 統一利用規約
 
       //- イントロカード
       v-card.intro-card.mb-6(variant="tonal" color="primary")
@@ -35,7 +35,7 @@ v-card.terms-page-root(
 
       //- 目次カード
       v-card.toc-card.my-4(variant="outlined")
-        v-card-item.toc-header.mx-4.mt-2(@click="isTocOpen = !isTocOpen")
+        v-card-item.toc-header.mx-4.my-2(@click="isTocOpen = !isTocOpen")
           template(#prepend)
             v-icon(color="primary") mdi-format-list-bulleted
           v-card-title.toc-title 目次
@@ -69,7 +69,7 @@ v-card.terms-page-root(
         h2.section-title 1. ざっくり、こういうのはやめてね！
         p.section-p
           | 本サービスのご利用にあたり、以下のような他の方への迷惑となる行為や法律・公序良俗に反する行為は禁止とさせていただきます。
-        
+
         v-card.rule-card.my-3(variant="outlined" style="border: 1px solid rgba(var(--v-theme-on-surface), 0.3)")
           v-list.rule-list(density="comfortable")
             v-list-item
@@ -105,7 +105,7 @@ v-card.terms-page-root(
           | サービス利用中にトラブルやご不明点が発生した際、または問題が生じた場合の対応について定めています。
 
         .card-grid.my-3
-          v-card.action-card(variant="outlined" style="border: 1px solid rgba(var(--v-theme-on-surface), 0.3)")
+          v-card.action-card.pa-2(variant="outlined" style="border: 1px solid rgba(var(--v-theme-on-surface), 0.3)")
             v-card-item
               template(#prepend)
                 v-avatar(color="primary" variant="tonal" size="36")
@@ -114,7 +114,7 @@ v-card.terms-page-root(
             v-card-text
               | なにか不具合やトラブル、気になる点があれば一人で抱え込まずにお問い合わせ窓口からご連絡ください。迅速な状況把握と対応に努めます。
 
-          v-card.action-card.mt-3(variant="outlined" style="border: 1px solid rgba(var(--v-theme-on-surface), 0.3)")
+          v-card.action-card.mt-3.pa-2(variant="outlined" style="border: 1px solid rgba(var(--v-theme-on-surface), 0.3)")
             v-card-item
               template(#prepend)
                 v-avatar(color="info" variant="tonal" size="36")
@@ -123,7 +123,7 @@ v-card.terms-page-root(
             v-card-text
               | 法令に基づき警察・裁判所・捜査機関等の公的機関から正当な手続きによる要請があった場合、法令の範囲内でIPアドレス等の情報開示に最大限協力します。
 
-          v-card.action-card.mt-3(variant="outlined" style="border: 1px solid rgba(var(--v-theme-on-surface), 0.3)")
+          v-card.action-card.mt-3.pa-2(variant="outlined" style="border: 1px solid rgba(var(--v-theme-on-surface), 0.3)")
             v-card-item
               template(#prepend)
                 v-avatar(color="warning" variant="tonal" size="36")
