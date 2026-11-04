@@ -317,6 +317,7 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
+  height: 100dvh;
   background-color: #0b0b12;
   color: #ffffff;
   display: flex;

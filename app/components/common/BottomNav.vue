@@ -265,6 +265,7 @@ export default {
   &.is-pc {
     border-radius: 24px !important;
     max-height: 85vh;
+    max-height: 85dvh;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25) !important;
     border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 
@@ -281,7 +282,9 @@ export default {
 
   &:not(.is-pc) {
     min-height: 100vh;
+    min-height: 100dvh;
     height: 100%;
+    height: 100dvh;
     border-radius: 0 !important;
 
     .dialog-header {

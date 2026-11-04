@@ -257,10 +257,12 @@ export default {
 <style lang="scss" scoped>
 .top-android-15-or-higher {
   height: calc(100vh - 40px - 16px) !important;
+  height: calc(100dvh - 40px - 16px) !important;
 }
 .qrcode-stream {
   width: 95%;
   height: calc(60vh - 40px - 16px);
+  height: calc(60dvh - 40px - 16px);
   border-radius: 32px;
   overflow: hidden;
   justify-self: center;

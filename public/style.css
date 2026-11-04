@@ -7256,6 +7256,7 @@ html.overflow-y-hidden {
 
 .h-screen {
   height: 100vh !important;
+  height: 100dvh !important;
 }
 
 .h-0 {
@@ -9968,6 +9969,7 @@ html.overflow-y-hidden {
 
   .h-sm-screen {
     height: 100vh !important;
+    height: 100dvh !important;
   }
 
   .h-sm-0 {
@@ -12677,6 +12679,7 @@ html.overflow-y-hidden {
 
   .h-md-screen {
     height: 100vh !important;
+    height: 100dvh !important;
   }
 
   .h-md-0 {
@@ -15386,6 +15389,7 @@ html.overflow-y-hidden {
 
   .h-lg-screen {
     height: 100vh !important;
+    height: 100dvh !important;
   }
 
   .h-lg-0 {
@@ -18095,6 +18099,7 @@ html.overflow-y-hidden {
 
   .h-xl-screen {
     height: 100vh !important;
+    height: 100dvh !important;
   }
 
   .h-xl-0 {
@@ -20804,6 +20809,7 @@ html.overflow-y-hidden {
 
   .h-xxl-screen {
     height: 100vh !important;
+    height: 100dvh !important;
   }
 
   .h-xxl-0 {
@@ -51157,6 +51163,7 @@ hr {
 
 main {
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 

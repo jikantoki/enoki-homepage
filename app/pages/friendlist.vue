@@ -397,6 +397,7 @@ export default {
 
 .top-android-15-or-higher {
   height: calc(100vh - 40px - 16px) !important;
+  height: calc(100dvh - 40px - 16px) !important;
 }
 
 .detail-card-target {

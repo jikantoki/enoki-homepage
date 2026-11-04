@@ -1,9 +1,9 @@
 <template lang="pug">
 v-app
   common-splash-vue(v-show="splashScreen")
-  main(style="height: 100vh;")
+  main(style="height: 100vh; height: 100dvh;")
     .status-bar-padding(:class="settings.hidden.isAndroid15OrHigher ? 'android-15-or-higher' : ''")
-    NuxtPage(:style="settings.hidden.isAndroid15OrHigher ? 'height: calc(100vh - 40px - 16px);' : ''")
+    NuxtPage(:style="settings.hidden.isAndroid15OrHigher ? 'height: calc(100vh - 40px - 16px); height: calc(100dvh - 40px - 16px);' : ''")
     MiniPlayer(
       v-if="shouldShowMiniPlayer"
       :bottomOffset="miniPlayerBottomOffset"
@@ -139,6 +139,14 @@ export default {
   width: 100vw;
 }
 
+html,
+body,
+#__nuxt,
+.v-application {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
 body {
   user-select: none;
 }
@@ -150,6 +158,7 @@ hr {
 
 main {
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -246,6 +255,12 @@ $breakpoints: (
 
 .wrap100vh {
   min-height: 100vh !important;
+  min-height: 100dvh !important;
+}
+
+.top-android-15-or-higher {
+  height: calc(100vh - 40px - 16px) !important;
+  height: calc(100dvh - 40px - 16px) !important;
 }
 
 .big-img {

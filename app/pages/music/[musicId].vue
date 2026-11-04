@@ -358,6 +358,7 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
+  height: 100dvh;
   overflow: hidden;
   position: relative;
   background-color: rgb(var(--v-theme-surface));

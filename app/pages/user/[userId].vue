@@ -1,5 +1,5 @@
 <template lang="pug">
-.user-page(v-if="param" style="height: 85vh;")
+.user-page(v-if="param" style="height: 85vh; height: 85dvh;")
   v-card-actions
     p.ml-2(style="font-size: 1.3em") アカウント詳細
     v-spacer
@@ -406,6 +406,8 @@ export default {
 
 <style lang="scss" scoped>
 .user-page {
+  height: 85vh;
+  height: 85dvh;
   .profile-zone {
     .cover {
       .cover-img {
