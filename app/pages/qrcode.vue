@@ -24,14 +24,14 @@ v-card(
       .scan-wrap(
         style="width: 100%; height: 100%;z-index: 999;position: absolute;"
       )
-    .btns.my-8(
+    //.btns.my-8(
       style="display: flex; justify-content: center;"
-    )
+      )
       v-btn(
         @click="myQrDialog = true"
         prepend-icon="mdi-qrcode"
         style="color: white; background-color: rgb(var(--v-theme-primary));"
-      ) 自分のQRコードを表示
+        ) 自分のQRコードを表示
       .my-16
 v-dialog(
   v-model="searchFriendLoading"
