@@ -1,7 +1,7 @@
 <template lang="pug">
 .login(v-if="isShow")
   v-card-actions
-    p.ml-2(style="font-size: 1.3em") ログイン
+    p.ml-2(style="font-size: 1.3em") 管理者ログイン
     v-spacer
     v-btn(
       text
@@ -11,19 +11,20 @@
   v-form.center(@submit.prevent)
     img.ma-8(src="/icon.png")
     p.form-p.text-h6 {{ pageTitle }}
+    p.form-sub.text-caption.text-center.mb-4.opacity-70(v-if="page === 0") エノキ電気 管理システムへログインします
     v-container
       .error.pa-4.mb-4.relative(v-if="errorMessage")
         v-icon mdi-alert-circle-outline
         p.px-4 {{ errorMessage }}
         v-icon.v-ripple.absolute.close-error(
           v-ripple
-          @click="errorMessage=false"
+          @click="errorMessage=''"
           ) mdi-close-circle-outline
       v-text-field(
         v-if="page === 0"
         v-model="userName"
-        label="ID"
-        prepend-inner-icon="mdi-account-outline"
+        label="管理者ID"
+        prepend-inner-icon="mdi-shield-account-outline"
         required
         clearable
         ref="userName"
@@ -43,13 +44,13 @@
         autocomplete="current-password"
         @keydown.enter="requestToken()"
         )
-      a.forgot-password(v-if="page === 0" href="/password_reset") パスワードを忘れました
+      a.forgot-password(v-if="page === 0" href="/password_reset") パスワードをお忘れですか？
       v-text-field(
         v-if="page === 1"
         v-model="token"
         type="phone"
         placeholder="XXX-XXX"
-        label="アクセストークン"
+        label="管理者アクセストークン"
         prepend-inner-icon="mdi-key-outline"
         required
         clearable
@@ -62,12 +63,12 @@
           :disabled="!userName || !password"
           :loading="loading"
           ref="submit"
-          ) ログイン
+          ) 認証コード送信
         v-btn.round.mr-2(
           v-if="page === 0"
           @click="a('/registar')"
           v-show="!loading"
-          ) アカウント作成
+          ) 管理者登録
         v-btn.round.submit(
           v-if="page === 1"
           @click="login()"
@@ -96,7 +97,7 @@ export default {
       loadingToken: false,
       errorMessage: '',
       page: 0,
-      pageTitle: 'ログインして、世界とつながろう',
+      pageTitle: '管理者ログイン',
       myProfile: useMyProfileStore(),
       settings: useSettingsStore(),
     }
@@ -111,11 +112,11 @@ export default {
   },
   setup() {
     //サーバーサイドで仮のタイトルを設定、mountedで言語ごとに再設定する
-    Setup.setTitle('ログイン')
-    Setup.setDescription('ログインして、世界とつながろう')
+    Setup.setTitle('管理者ログイン')
+    Setup.setDescription('エノキ電気 管理者用ログインページ')
   },
   mounted() {
-    this.setTitle('ログイン')
+    this.setTitle('管理者ログイン')
     if (localStorage.userIdForLogin) {
       this.userName = localStorage.userIdForLogin
     }
@@ -127,6 +128,7 @@ export default {
     /** ログイン前の二段階認証をリクエスト */
     async requestToken() {
       this.loading = true
+      this.errorMessage = ''
       // @ts-ignore
       this.sendAjaxWithAuth('/requestToken.php', {
         id: this.userName,
@@ -136,7 +138,9 @@ export default {
           if (e.body.status === 'ok') {
             this.page = 1
             this.errorMessage = ''
-            this.pageTitle = 'メールに送信したトークンを入力'
+            this.pageTitle = 'メールに送信された管理者コードを入力'
+          } else if (e.body.reason) {
+            this.errorMessage = e.body.reason
           } else {
             console.error(e)
             this.errorMessage = 'ユーザー名またはパスワードが間違っています'
@@ -145,13 +149,14 @@ export default {
         })
         .catch((error: any) => {
           console.error(error)
-          this.errorMessage = 'ネットワークエラー'
+          this.errorMessage = '通信エラーが発生しました。接続を確認してください。'
           this.loading = false
         })
     },
     async login() {
       console.log('login start')
       this.loadingToken = true
+      this.errorMessage = ''
       this.token = this.token.replace('-', '')
       // @ts-ignore
       this.sendAjaxWithAuth('/loginAccount.php', {
@@ -159,7 +164,7 @@ export default {
         password: this.password,
         token: this.token,
       })
-        .then(async (e) => {
+        .then(async (e: any) => {
           console.log(e)
           if (e.body.status === 'ok') {
             const now = new URL(window.location.href)
@@ -169,6 +174,9 @@ export default {
             }
             profile.userToken = e.body.token
             profile.guest = false
+            profile.role = 'admin'
+            profile.isAdmin = true
+            profile.canRegisterApp = true
             this.myProfile.$state = profile
             const redirect = now.searchParams.get('redirect')
             if (redirect && redirect !== '') {
@@ -176,6 +184,9 @@ export default {
             } else {
               this.a('/')
             }
+          } else if (e.body.reason) {
+            this.errorMessage = e.body.reason
+            this.token = ''
           } else {
             console.error(e.body)
             this.errorMessage = 'ワンタイムトークンが違います'
@@ -185,7 +196,7 @@ export default {
         })
         .catch((error: any) => {
           console.error(error)
-          this.errorMessage = 'ネットワークエラー'
+          this.errorMessage = '通信エラーが発生しました。接続を確認してください。'
           this.loadingToken = false
         })
     },
@@ -215,6 +226,7 @@ export default {
 .btns {
   display: flex;
   flex-direction: row-reverse;
+  gap: 0.5em;
   .round {
     border-radius: 9999px;
   }
@@ -228,6 +240,9 @@ img {
   object-fit: contain;
 }
 .form-p {
+  text-align: center;
+}
+.form-sub {
   text-align: center;
 }
 .v-btn:disabled {

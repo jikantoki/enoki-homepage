@@ -20,6 +20,11 @@ define('SMTP_Password', 'SMTPパスワード');
 define('SMTP_Server', 'SMTPサーバー');
 define('SMTP_Port', 587); // 基本は587を使えば大丈夫
 
+// 管理者登録設定（管理者専用アカウント作成用セキュリティ）
+define('Admin_Register_Key', '管理者登録用の秘密キー（半角英数記号）');
+define('Admin_Register_Max', 1); // 登録可能な管理者アカウントの最大数（1で管理者本人のみ）
+define('Admin_Allowed_Email', ''); // 特定のメールアドレスのみ許可する場合は指定（空欄ならキー検証のみ）
+
 $mailHeader = "<p>
 いつも エノキ電気 公式ホームページ をご利用いただきありがとうございます。
 <hr>

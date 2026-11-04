@@ -1,7 +1,7 @@
 <template lang="pug">
 .login(v-if="isShow")
   v-card-actions
-    p.ml-2(style="font-size: 1.3em") パスワードリセット
+    p.ml-2(style="font-size: 1.3em") 管理者パスワード再設定
     v-spacer
     v-btn(
       text
@@ -11,19 +11,20 @@
   v-form.center(@submit.prevent)
     img.ma-8(src="/icon.png")
     p.form-p.text-h6 {{ pageTitle }}
+    p.form-sub.text-caption.text-center.mb-4.opacity-70(v-if="page === 0") 管理者アカウントのパスワード再設定用コードをメールに送信します
     v-container
       .error.pa-4.mb-4.relative(v-if="errorMessage")
         v-icon mdi-alert-circle-outline
         p.px-4 {{ errorMessage }}
         v-icon.v-ripple.absolute.close-error(
           v-ripple
-          @click="errorMessage=false"
+          @click="errorMessage=''"
           ) mdi-close-circle-outline
       v-text-field(
         v-if="page === 0"
         v-model="userName"
-        label="ID"
-        prepend-inner-icon="mdi-account-outline"
+        label="管理者ID"
+        prepend-inner-icon="mdi-shield-account-outline"
         required
         clearable
         ref="userName"
@@ -33,22 +34,22 @@
       v-text-field(
         v-if="page === 0"
         v-model="mailAddress"
-        label="メールアドレス"
+        label="登録メールアドレス"
         placeholder="mail@example.com"
-        :rules="rules"
+        :rules="mailRules"
         prepend-inner-icon="mdi-email-outline"
         type="email"
         clearable
         required
-        ref="maillAddress"
+        ref="mailAddress"
         autocomplete="email"
         @keydown.enter="requestToken()"
         )
-      a.forgot-password(v-if="page === 0" href="/login") パスワードを思い出した
+      a.forgot-password(v-if="page === 0" href="/login") パスワードを思い出した（ログインへ戻る）
       v-text-field(
         v-if="page === 1"
         v-model="token"
-        label="アクセストークン"
+        label="管理者アクセストークン"
         prepend-inner-icon="mdi-key-outline"
         required
         clearable
@@ -82,26 +83,26 @@
         @keydown.enter="login()"
         autocomplete="new-password"
         )
-      .btns
+      .btns.mt-4
         v-btn.round.submit(
           v-if="page === 0"
           @click="requestToken()"
           :disabled="!userName || !mailAddress"
           :loading="loading"
           ref="submit"
-          ) リクエストを送信
+          ) 再設定コード送信
         v-btn.round.submit(
           v-if="page === 1"
           @click="login()"
-          :disabled="!token"
+          :disabled="!token || !newPassword || !newRePassword"
           :loading="loadingToken"
           ref="submitToken"
-          ) パスワードをリセット
+          ) パスワードを変更
         v-btn.round.submit(
           v-if="page === 2"
           @click="a('/login')"
           ref="jumpToLogin"
-          ) ログイン
+          ) 管理者ログインへ
 </template>
 
 <script lang="ts">
@@ -120,28 +121,28 @@ export default {
       loading: false,
       loadingToken: false,
       errorMessage: '',
-      newPassword: null,
-      newRePassword: null,
+      newPassword: '',
+      newRePassword: '',
       showPassword: false,
       showRePassword: false,
       page: 0,
-      pageTitle: 'パスワードをリセットする',
+      pageTitle: '管理者パスワード再設定',
       /** メアド検証用 */
       mailRules: [
-        (v: string) => !!v || '',
-        (v: string) => /.+@.+\..+/.test(v) || '',
+        (v: string) => !!v || 'メールアドレスを入力してください',
+        (v: string) => /.+@.+\..+/.test(v) || 'メールアドレスの形式が正しくありません',
       ],
     }
   },
   setup() {
     //サーバーサイドで仮のタイトルを設定、mountedで言語ごとに再設定する
-    Setup.setTitle('パスワードリセット')
+    Setup.setTitle('管理者パスワード再設定')
     Setup.setDescription(
-      'パスワードをリセットして、アカウントに再度アクセスしましょう',
+      'エノキ電気 管理者パスワード再設定ページ',
     )
   },
   mounted() {
-    this.setTitle('パスワードリセット')
+    this.setTitle('管理者パスワード再設定')
     if (localStorage.userIdForLogin) {
       this.userName = localStorage.userIdForLogin
     }
@@ -153,16 +154,19 @@ export default {
     /** ログイン前の二段階認証をリクエスト */
     async requestToken() {
       this.loading = true
+      this.errorMessage = ''
       // @ts-ignore
       this.sendAjaxWithAuth('/requestTokenForgotAccount.php', {
         id: this.userName,
         mailAddress: this.mailAddress,
       })
-        .then((e) => {
+        .then((e: any) => {
           if (e.body.status === 'ok') {
             this.page = 1
             this.errorMessage = ''
-            this.pageTitle = 'メールに送信したトークンと新規パスワードを入力'
+            this.pageTitle = 'メールに送信されたコードと新しいパスワードを入力'
+          } else if (e.body.reason) {
+            this.errorMessage = e.body.reason
           } else {
             this.errorMessage = 'ユーザー名またはメールアドレスが間違っています'
           }
@@ -170,14 +174,21 @@ export default {
         })
         .catch((error: any) => {
           console.error(error)
-          this.errorMessage = 'ネットワークエラー'
+          this.errorMessage = '通信エラーが発生しました。接続を確認してください。'
           this.loading = false
         })
     },
     async login() {
       this.loadingToken = true
+      this.errorMessage = ''
       if (this.newPassword !== this.newRePassword) {
-        this.errorMessage = 'パスワードが一致しません'
+        this.errorMessage = '新しいパスワードが一致しません'
+        this.loadingToken = false
+        return false
+      }
+      if (this.newPassword.length < 8 || this.newPassword.length > 64) {
+        this.errorMessage = 'パスワードは8～64文字で入力してください'
+        this.loadingToken = false
         return false
       }
       // @ts-ignore
@@ -187,10 +198,13 @@ export default {
         token: this.token,
         newPassword: this.newPassword,
       })
-        .then(async (e) => {
+        .then(async (e: any) => {
           if (e.body.status === 'ok') {
-            this.pageTitle = 'パスワードをリセットしました！'
+            this.pageTitle = 'パスワードを再設定しました！'
             this.page = 2
+            this.errorMessage = ''
+          } else if (e.body.reason) {
+            this.errorMessage = e.body.reason
           } else {
             this.errorMessage =
               'ワンタイムトークンが違うか、無効なパスワードです'
@@ -199,7 +213,7 @@ export default {
         })
         .catch((error: any) => {
           console.error(error)
-          this.errorMessage = 'ネットワークエラー'
+          this.errorMessage = '通信エラーが発生しました。接続を確認してください。'
           this.loadingToken = false
         })
     },
@@ -229,6 +243,7 @@ export default {
 .btns {
   display: flex;
   flex-direction: row-reverse;
+  gap: 0.5em;
   .round {
     border-radius: 9999px;
   }
@@ -242,6 +257,9 @@ img {
   object-fit: contain;
 }
 .form-p {
+  text-align: center;
+}
+.form-sub {
   text-align: center;
 }
 .v-btn:disabled {

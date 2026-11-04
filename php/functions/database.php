@@ -474,9 +474,10 @@ function SQLdeleteSome($table, $array, $limit = 1)
  * @param string $userId ユーザー名
  * @param string $password パスワード
  * @param string $mailAddress メアド
+ * @param string $role 権限（デフォルトはadmin）
  * @return string 既にアカウントがある場合はAlready、問題なく作れたら0
  */
-function makeAccount($userId, $password, $mailAddress)
+function makeAccount($userId, $password, $mailAddress, $role = 'admin')
 {
   $already = SQLfind('user_list', 'userId', $userId);
   if ($already) {
@@ -492,19 +493,27 @@ function makeAccount($userId, $password, $mailAddress)
   $secretId = SQLmakeRandomId('user_list', 'secretId');
   /** 現在のunixtime */
   $createdAt = time();
-  /** アカウントステータス:未認証 */
-  $status = 'uncertified';
+  /** アカウントステータス: 管理者ならadmin、それ以外ならuncertified */
+  $status = ($role === 'admin') ? 'admin' : 'uncertified';
   /** パスワード */
   $password = password_hash($password, PASSWORD_DEFAULT);
   /** メールアドレス */
   $mail = $mailAddress;
 
-  SQLinsert('user_list', [
+  $userData = [
     'secretId' => $secretId,
     'userId' => $userId,
     'createdAt' => $createdAt,
     'status' => $status
-  ]);
+  ];
+  try {
+    $userData['role'] = $role;
+    SQLinsert('user_list', $userData);
+  } catch (\Throwable $th) {
+    // role カラムが未追加の環境では role なしで挿入
+    unset($userData['role']);
+    SQLinsert('user_list', $userData);
+  }
 
   SQLinsert('user_secret_list', [
     'secretId' => $secretId,
@@ -526,6 +535,53 @@ function makeAccount($userId, $password, $mailAddress)
     'token' => '' . rand(0, 9) . rand(0, 9) . rand(0, 9) . rand(0, 9) . rand(0, 9) . rand(0, 9)
   ]);
   return 0;
+}
+
+/**
+ * ユーザーが管理者かどうか判定
+ *
+ * @param string $secretId
+ * @return bool 管理者ならtrue
+ */
+function isUserAdmin($secretId)
+{
+  if (!$secretId) {
+    return false;
+  }
+  $user = SQLfind('user_list', 'secretId', $secretId);
+  if (!$user) {
+    return false;
+  }
+  if (isset($user['role']) && $user['role'] === 'admin') {
+    return true;
+  }
+  if (isset($user['status']) && $user['status'] === 'admin') {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * 登録済み管理者アカウントの数を取得
+ *
+ * @return int
+ */
+function getAdminCount()
+{
+  try {
+    $admins = SQLfindExAll('user_list', 'role', 'admin', '=');
+    if ($admins && is_array($admins) && count($admins) > 0) {
+      return count($admins);
+    }
+  } catch (\Throwable $th) {
+    // roleカラムが存在しない場合
+  }
+  try {
+    $statusAdmins = SQLfindExAll('user_list', 'status', 'admin', '=');
+    return ($statusAdmins && is_array($statusAdmins)) ? count($statusAdmins) : 0;
+  } catch (\Throwable $th) {
+    return 0;
+  }
 }
 
 /**

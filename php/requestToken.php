@@ -18,6 +18,27 @@ if (
 
 $id = $_SERVER['HTTP_ID'];
 $password = $_SERVER['HTTP_PASSWORD'];
+
+$secretId = idToSecretId($id);
+if (!$secretId) {
+  echo json_encode([
+    'status' => 'ng',
+    'reason' => 'ユーザー名またはパスワードが間違っています',
+    'errCode' => 20
+  ]);
+  exit;
+}
+
+// 管理者以外はログインさせない制限チェック
+if (!isUserAdmin($secretId)) {
+  echo json_encode([
+    'status' => 'forbidden',
+    'reason' => '管理者アカウントのみログイン可能です。',
+    'errCode' => 403
+  ]);
+  exit;
+}
+
 $otp = requestOnetimeToken($id, $password);
 if ($otp) {
   $otpString = (string) $otp;
@@ -29,10 +50,9 @@ if ($otp) {
     'reason' => 'Send mail to your mailaddress!',
     'id' => $id
   ]);
-  $secretId = idToSecretId($id);
   $mailAddress = secretIdToMailAddress($secretId);
-  sendMail($mailAddress, 'アクセストークンのお知らせ', "
-  <p>アクセストークンはこちら！</p>
+  sendMail($mailAddress, '【エノキ電気】管理者アクセストークンのお知らせ', "
+  <p>管理者ログイン用のアクセストークンはこちら！</p>
   <h1>{$otpForMail}</h1>
   <p>このコードは一回のみ有効です。</p>
   <br>
@@ -41,7 +61,7 @@ if ($otp) {
 } else {
   echo json_encode([
     'status' => 'ng',
-    'reason' => 'Unknown user',
+    'reason' => 'ユーザー名またはパスワードが間違っています',
     'errCode' => 20
   ]);
 }

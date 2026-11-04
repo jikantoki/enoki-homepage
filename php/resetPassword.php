@@ -23,6 +23,17 @@ $id = $_SERVER['HTTP_ID'];
 $mailAddress = $_SERVER['HTTP_MAILADDRESS'];
 $otp = $_SERVER['HTTP_TOKEN'];
 $newPassword = $_SERVER['HTTP_NEWPASSWORD'];
+
+$secretId = idToSecretId($id);
+if (!$secretId || !isUserAdmin($secretId)) {
+  echo json_encode([
+    'status' => 'forbidden',
+    'reason' => '管理者アカウントのみパスワードリセット可能です。',
+    'errCode' => 403
+  ]);
+  exit;
+}
+
 if (mb_strlen($newPassword) < 8 || mb_strlen($newPassword) > 64) {
   echo json_encode([
     'status' => 'invalid',

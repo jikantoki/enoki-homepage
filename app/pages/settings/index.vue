@@ -70,24 +70,48 @@ v-card(
           p.title 開発者オプション
           p.description 特定のモバイル向けの機能を強制有効
       .setting-item(
+        v-if="myProfile.guest"
+        v-ripple
+        @click="$router.push('/login')"
+        )
+        .icon(
+          style="background-color: rgba(var(--v-theme-primary), 0.15); color: rgb(var(--v-theme-primary));"
+        )
+          v-icon mdi-shield-account-outline
+        .text
+          p.title 管理者ログイン
+          p.description 管理者アカウントでログイン
+      .setting-item(
+        v-else
+        v-ripple
+        @click="$router.push('/settings/profile')"
+        )
+        .icon(
+          style="background-color: rgba(var(--v-theme-primary), 0.15); color: rgb(var(--v-theme-primary));"
+        )
+          v-icon mdi-shield-check-outline
+        .text
+          p.title 管理者プロファイル ({{ myProfile.userId }})
+          p.description 管理者プロフィールの確認・編集
+      .setting-item(
         v-ripple
         @click="logoutRequest()"
         v-if="!myProfile.guest"
         )
-        .icon(style="background: rgba(var(--v-theme-error), 1);")
+        .icon(style="background: rgba(var(--v-theme-error), 1); color: white;")
           v-icon mdi-logout
         .text
-          p.title ログアウト
-          p.description またお会いしましょう！
+          p.title 管理者ログアウト
+          p.description ログアウトしてゲスト状態に戻ります
       .my-16
 v-dialog(
   v-model="logoutDialog"
   max-width="400"
   )
   v-card
-    v-card-title(class="headline") ログアウトしますか？
+    v-card-title(class="headline") 管理者ログアウトしますか？
     v-card-text
-      | ログアウトすると、再度ログインするまでデータの同期が行われません。
+      | ログアウトすると管理者セッションが解除されます。
     v-card-actions
       v-spacer
       v-btn(

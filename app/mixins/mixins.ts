@@ -252,6 +252,8 @@ export default defineComponent({
           userId: res.userId === '' ? null : res.userId,
           createdAt: res.createdAt === '' ? null : res.createdAt,
           status: res.status === '' ? null : res.status,
+          role: res.role || (res.status === 'admin' ? 'admin' : 'user'),
+          isAdmin: res.role === 'admin' || res.status === 'admin',
           icon: res.icon === '' ? null : res.icon,
           coverImg: res.coverImg === '' ? null : res.coverImg,
           name: res.name === '' ? null : res.name,
@@ -263,7 +265,11 @@ export default defineComponent({
           battery: null as any,
           guest: null as any,
           canRegisterApp:
-            res.canRegisterApp === '' ? false : res.canRegisterApp,
+            res.role === 'admin' || res.status === 'admin'
+              ? true
+              : res.canRegisterApp === ''
+                ? false
+                : res.canRegisterApp,
           profileInfo: res.profileInfo === '' ? null : res.profileInfo,
           educationHistory: res.educationHistory || [],
           careerHistory: res.careerHistory || [],

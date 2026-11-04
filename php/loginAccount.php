@@ -21,18 +21,30 @@ if (
 $id = $_SERVER['HTTP_ID'];
 $password = $_SERVER['HTTP_PASSWORD'];
 $otp = $_SERVER['HTTP_TOKEN'];
+
+$secretId = idToSecretId($id);
+if (!$secretId || !isUserAdmin($secretId)) {
+  echo json_encode([
+    'status' => 'forbidden',
+    'reason' => '管理者アカウントのみログイン可能です。',
+    'errCode' => 403
+  ]);
+  exit;
+}
+
 $token = createUserToken($id, $password, $otp);
 if ($token) {
   echo json_encode([
     'status' => 'ok',
-    'reason' => 'Thank you!',
+    'reason' => '管理者ログインに成功しました。',
     'token' => $token,
-    'id' => $id
+    'id' => $id,
+    'role' => 'admin',
+    'isAdmin' => true
   ]);
-  $secretId = idToSecretId($id);
   $mailAddress = secretIdToMailAddress($secretId);
-  sendMail($mailAddress, 'ログインがあったよ！', "
-  <p>ご利用のアカウントで新規のログインを検知しました。</p>
+  sendMail($mailAddress, '【エノキ電気】管理者ログイン検知のお知らせ', "
+  <p>管理者アカウントで新規のログインを検知しました。</p>
   <br>
   <p>もし身に覚えがない場合は、今すぐパスワードを変更してください。</p>
   ");
@@ -40,7 +52,7 @@ if ($token) {
 } else {
   echo json_encode([
     'status' => 'ng',
-    'reason' => 'Unknown user',
+    'reason' => '認証情報またはワンタイムトークンが正しくありません',
     'errCode' => 20
   ]);
 }

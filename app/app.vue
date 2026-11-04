@@ -147,9 +147,9 @@ body,
   min-height: 100dvh;
 }
 
-body {
-  user-select: none;
-}
+// body {
+//   user-select: none;
+// }
 
 hr {
   border-color: rgba(var(--v-theme-on-surface), 0.3);

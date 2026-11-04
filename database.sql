@@ -126,7 +126,8 @@ CREATE TABLE `user_list` (
   `secretId` varchar(64) NOT NULL COMMENT '内部処理用ID',
   `userId` varchar(64) NOT NULL COMMENT '表示用ID',
   `createdAt` int(11) NOT NULL COMMENT '登録時間のunixtime',
-  `status` text COMMENT 'ユーザーステータス'
+  `status` text COMMENT 'ユーザーステータス',
+  `role` varchar(32) NOT NULL DEFAULT 'user' COMMENT 'ユーザー権限 (admin / user)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -153,6 +154,7 @@ CREATE TABLE `USER_MAIL_VIEW` (
 ,`userId` varchar(64)
 ,`createdAt` int(11)
 ,`status` text
+,`role` varchar(32)
 ,`mailAddress` text
 ,`mailStatus` text
 ,`mailToken` text
@@ -183,6 +185,7 @@ CREATE TABLE `USER_PROFILE_VIEW` (
 ,`userId` varchar(64)
 ,`createdAt` int(11)
 ,`status` text
+,`role` varchar(32)
 ,`icon` text
 ,`coverImg` text
 ,`name` text
@@ -212,6 +215,7 @@ CREATE TABLE `USER_TOKEN_VIEW` (
 ,`userId` varchar(64)
 ,`userCreatedAt` int(11)
 ,`status` text
+,`role` varchar(32)
 ,`token` text
 ,`tokenCreatedAt` int(11)
 );
@@ -223,7 +227,7 @@ CREATE TABLE `USER_TOKEN_VIEW` (
 --
 DROP TABLE IF EXISTS `USER_MAIL_VIEW`;
 
-CREATE VIEW `USER_MAIL_VIEW`  AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `createdAt`, `user_list`.`status` AS `status`, `user_mail_list`.`mailAddress` AS `mailAddress`, `user_mail_list`.`status` AS `mailStatus`, `user_mail_list`.`token` AS `mailToken` FROM (`user_mail_list` join `user_list`) WHERE (`user_mail_list`.`secretId` = `user_list`.`secretId`) ;
+CREATE VIEW `USER_MAIL_VIEW`  AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `createdAt`, `user_list`.`status` AS `status`, `user_list`.`role` AS `role`, `user_mail_list`.`mailAddress` AS `mailAddress`, `user_mail_list`.`status` AS `mailStatus`, `user_mail_list`.`token` AS `mailToken` FROM (`user_mail_list` join `user_list`) WHERE (`user_mail_list`.`secretId` = `user_list`.`secretId`) ;
 
 -- --------------------------------------------------------
 
@@ -232,7 +236,7 @@ CREATE VIEW `USER_MAIL_VIEW`  AS SELECT `user_list`.`secretId` AS `secretId`, `u
 --
 DROP TABLE IF EXISTS `USER_PROFILE_VIEW`;
 
-CREATE VIEW `USER_PROFILE_VIEW`  AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `createdAt`, `user_list`.`status` AS `status`, `user_profile_list`.`icon` AS `icon`, `user_profile_list`.`coverImg` AS `coverImg`, `user_profile_list`.`name` AS `name`, `user_profile_list`.`message` AS `message` FROM (`user_list` join `user_profile_list`) WHERE (`user_list`.`secretId` = `user_profile_list`.`secretId`) ;
+CREATE VIEW `USER_PROFILE_VIEW`  AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `createdAt`, `user_list`.`status` AS `status`, `user_list`.`role` AS `role`, `user_profile_list`.`icon` AS `icon`, `user_profile_list`.`coverImg` AS `coverImg`, `user_profile_list`.`name` AS `name`, `user_profile_list`.`message` AS `message` FROM (`user_list` join `user_profile_list`) WHERE (`user_list`.`secretId` = `user_profile_list`.`secretId`) ;
 
 -- --------------------------------------------------------
 
@@ -241,7 +245,7 @@ CREATE VIEW `USER_PROFILE_VIEW`  AS SELECT `user_list`.`secretId` AS `secretId`,
 --
 DROP TABLE IF EXISTS `USER_TOKEN_VIEW`;
 
-CREATE VIEW `USER_TOKEN_VIEW`  AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `userCreatedAt`, `user_list`.`status` AS `status`, `user_accesstoken_list`.`token` AS `token`, `user_accesstoken_list`.`createdAt` AS `tokenCreatedAt` FROM (`user_list` join `user_accesstoken_list`) WHERE (`user_list`.`secretId` = `user_accesstoken_list`.`secretId`) ;
+CREATE VIEW `USER_TOKEN_VIEW`  AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `userCreatedAt`, `user_list`.`status` AS `status`, `user_list`.`role` AS `role`, `user_accesstoken_list`.`token` AS `token`, `user_accesstoken_list`.`createdAt` AS `tokenCreatedAt` FROM (`user_list` join `user_accesstoken_list`) WHERE (`user_list`.`secretId` = `user_accesstoken_list`.`secretId`) ;
 
 --
 -- ダンプしたテーブルのインデックス
@@ -313,6 +317,17 @@ ALTER TABLE `user_profile_list`
 --
 ALTER TABLE `user_secret_list`
   ADD PRIMARY KEY (`secretId`);
+
+-- --------------------------------------------------------
+--
+-- 管理者権限対応のマイグレーション（既存データベース更新用）
+--
+-- --------------------------------------------------------
+-- ALTER TABLE `user_list` ADD COLUMN `role` varchar(32) NOT NULL DEFAULT 'user' COMMENT 'ユーザー権限 (admin / user)';
+-- CREATE OR REPLACE VIEW `USER_PROFILE_VIEW` AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `createdAt`, `user_list`.`status` AS `status`, `user_list`.`role` AS `role`, `user_profile_list`.`icon` AS `icon`, `user_profile_list`.`coverImg` AS `coverImg`, `user_profile_list`.`name` AS `name`, `user_profile_list`.`message` AS `message` FROM (`user_list` join `user_profile_list`) WHERE (`user_list`.`secretId` = `user_profile_list`.`secretId`);
+-- CREATE OR REPLACE VIEW `USER_TOKEN_VIEW` AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `userCreatedAt`, `user_list`.`status` AS `status`, `user_list`.`role` AS `role`, `user_accesstoken_list`.`token` AS `token`, `user_accesstoken_list`.`createdAt` AS `tokenCreatedAt` FROM (`user_list` join `user_accesstoken_list`) WHERE (`user_list`.`secretId` = `user_accesstoken_list`.`secretId`);
+-- CREATE OR REPLACE VIEW `USER_MAIL_VIEW` AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `createdAt`, `user_list`.`status` AS `status`, `user_list`.`role` AS `role`, `user_mail_list`.`mailAddress` AS `mailAddress`, `user_mail_list`.`status` AS `mailStatus`, `user_mail_list`.`token` AS `mailToken` FROM (`user_mail_list` join `user_list`) WHERE (`user_mail_list`.`secretId` = `user_list`.`secretId`);
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

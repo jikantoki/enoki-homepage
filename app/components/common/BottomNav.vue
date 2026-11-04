@@ -1,4 +1,4 @@
-﻿<template lang="pug">
+<template lang="pug">
 .bottom-nav-container
   .store-bottom-nav
     .nav-buttons

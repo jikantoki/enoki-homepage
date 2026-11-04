@@ -46,13 +46,17 @@ export const useMyProfileStore = defineStore('myProfile', {
     name: 'ゲスト' as string | null,
     /** ステータス */
     status: null as string | null,
+    /** ユーザー権限 ('admin' | 'user') */
+    role: 'user' as string | null,
+    /** 管理者フラグ */
+    isAdmin: false,
     /** ユーザーID（nullを許可していないため、空文字列などで初期化する） */
     userId: 'guest',
     /** ユーザートークン */
     userToken: undefined as string | null | undefined,
     /** ゲストユーザーかどうか */
     guest: true,
-    /** アプリ登録権限（デフォルトはfalseで、DBから自分だけ手動でtrueにする） */
+    /** アプリ登録権限（管理者または手動付与） */
     canRegisterApp: false,
     /** プロフィール情報（マークダウン対応） */
     profileInfo: null as string | null,
@@ -74,6 +78,8 @@ export const useMyProfileStore = defineStore('myProfile', {
       this.message = null
       this.name = 'ゲスト'
       this.status = null
+      this.role = 'user'
+      this.isAdmin = false
       this.userId = 'guest'
       this.userToken = null
       this.guest = true
