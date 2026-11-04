@@ -214,6 +214,13 @@ v-card.home-page-root(
               variant="flat"
               rounded="pill"
             ) ニコニコ動画
+            v-btn.sns-btn(
+              @click="$router.push('/sponsors')"
+              color="amber-darken-2"
+              prepend-icon="mdi-handshake-outline"
+              variant="flat"
+              rounded="pill"
+            ) スポンサー・友人
 
         //- フッター著作権
         footer.site-footer

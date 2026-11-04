@@ -96,6 +96,10 @@
             .icon-and-text
               v-icon mdi-account-circle-outline
               v-list-item-title プロフィール
+          v-list-item.item(@click="optionsDialog = false; $router.push('/sponsors')")
+            .icon-and-text
+              v-icon mdi-handshake-outline
+              v-list-item-title スポンサー・友人
           v-list-item.item(@click="optionsDialog = false; $router.push('/terms')")
             .icon-and-text
               v-icon mdi-file-document-outline

@@ -58,6 +58,15 @@ v-card(
           p.title 運営情報
           p.description エノキ電気について
       .setting-item(
+        v-ripple
+        @click="$router.push('/sponsors')"
+        )
+        .icon
+          v-icon mdi-handshake-outline
+        .text
+          p.title スポンサー・友人紹介
+          p.description 支援者およびクリエイター仲間
+      .setting-item(
         v-if="settings.developerOptions.enabled"
         v-ripple
         @click="$router.push('/settings/developer-options')"

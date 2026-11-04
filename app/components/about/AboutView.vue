@@ -33,6 +33,14 @@
           :prepend-icon="social.icon"
           @click="openURL(social.url)"
         ) {{ social.title }}
+        v-btn(
+          size="small"
+          rounded="pill"
+          variant="flat"
+          style="background: #f59e0b; color: #ffffff;"
+          prepend-icon="mdi-handshake-outline"
+          @click="$router.push('/sponsors')"
+        ) スポンサー・友人
 
   //- ================= セクション切り替えタブ =================
   .profile-tabs-wrapper
@@ -102,6 +110,22 @@
                 span.license-name {{ lic.name }}
                 v-chip(size="x-small" variant="outlined" color="primary") {{ lic.category }}
               span.license-date 取得日: {{ lic.date }}
+
+      //- スポンサー・友人紹介カード
+      .content-card
+        .card-header
+          v-icon(color="amber-darken-2") mdi-handshake-outline
+          h3 スポンサー ＆ 友人
+        .sponsors-intro-body
+          p.intro-desc(style="font-size: 0.9rem; line-height: 1.7; opacity: 0.88; margin-bottom: 12px;")
+            | エノキ電気（ときえのき）の活動や創作を支援してくださっているスポンサーの皆様、および親交の深いクリエイター・エンジニア仲間をご紹介しています。
+          v-btn(
+            size="small"
+            color="primary"
+            variant="tonal"
+            prepend-icon="mdi-account-group"
+            @click="$router.push('/sponsors')"
+          ) スポンサー・友人一覧を見る
 
       //- お問い合わせ
       .content-card
