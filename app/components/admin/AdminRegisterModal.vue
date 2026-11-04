@@ -11,8 +11,8 @@ v-dialog(
   v-card.register-modal-card(:class="{ 'is-mobile': isMobile }")
     //- ヘッダー
     v-card-title.d-flex.align-center.modal-header.py-3.px-4
-      v-icon.mr-2(color="primary") mdi-shield-plus-outline
-      span.font-weight-bold 管理者コンテンツ登録
+      v-icon.mr-2(color="primary") {{ isEditMode ? 'mdi-pencil-box-outline' : 'mdi-shield-plus-outline' }}
+      span.font-weight-bold {{ isEditMode ? (currentTab === 'app' ? `アプリの編集 (${appData.name || appData.id})` : `音楽の編集 (${musicData.title || musicData.id})`) : '管理者コンテンツ登録' }}
       v-spacer
       v-btn(
         icon="mdi-close"
@@ -21,8 +21,9 @@ v-dialog(
         @click="closeModal"
       )
 
-    //- タブ選択 (アプリ / 音楽)
+    //- タブ選択 (新規登録時のみ表示、または編集時も切り替え可)
     v-tabs.register-tabs(
+      v-if="!isEditMode"
       v-model="currentTab"
       color="primary"
       grow
@@ -78,7 +79,9 @@ v-dialog(
                   placeholder="例: cyberblade-2088"
                   variant="outlined"
                   density="comfortable"
-                  hint="英数字とハイフンのみ"
+                  :disabled="isEditMode"
+                  :hint="isEditMode ? '編集時はIDを変更できません' : '英数字とハイフンのみ'"
+                  persistent-hint
                   :rules="[v => !!v || 'アプリIDは必須です']"
                 )
 
@@ -265,8 +268,8 @@ v-dialog(
                 :loading="submittingApp"
                 size="large"
                 rounded="pill"
-                prepend-icon="mdi-check"
-              ) アプリを登録
+                :prepend-icon="isEditMode ? 'mdi-content-save' : 'mdi-check'"
+              ) {{ isEditMode ? 'アプリ情報を更新' : 'アプリを登録' }}
 
         //- ==================== 2. 音楽登録フォーム ====================
         v-window-item(value="music")
@@ -380,7 +383,9 @@ v-dialog(
                   placeholder="例: midnight-blue"
                   variant="outlined"
                   density="comfortable"
-                  hint="半角英数ハイフン"
+                  :disabled="isEditMode"
+                  :hint="isEditMode ? '編集時はIDを変更できません' : '半角英数ハイフン'"
+                  persistent-hint
                   :rules="[v => !!v || '楽曲IDは必須です']"
                 )
 
@@ -519,8 +524,8 @@ v-dialog(
                 :loading="submittingMusic"
                 size="large"
                 rounded="pill"
-                prepend-icon="mdi-check"
-              ) 音楽を登録
+                :prepend-icon="isEditMode ? 'mdi-content-save' : 'mdi-check'"
+              ) {{ isEditMode ? '楽曲情報を更新' : '音楽を登録' }}
 
     //- 成功・エラー用スナックバー
     v-snackbar(v-model="snackbar.show" :color="snackbar.color" :timeout="4000")
@@ -544,8 +549,12 @@ export default defineComponent({
       type: String,
       default: 'app', // 'app' | 'music'
     },
+    editItem: {
+      type: Object as () => any | null,
+      default: null,
+    },
   },
-  emits: ['update:modelValue', 'registered'],
+  emits: ['update:modelValue', 'registered', 'updated'],
   data() {
     return {
       isOpen: this.modelValue,
@@ -641,8 +650,12 @@ export default defineComponent({
     modelValue(val) {
       this.isOpen = val
       if (val) {
-        this.currentTab = this.initialTab
-        this.initDefaultValues()
+        if (this.editItem) {
+          this.loadEditItem(this.editItem)
+        } else {
+          this.currentTab = this.initialTab
+          this.initDefaultValues()
+        }
       } else {
         this.stopPreviewAudio()
       }
@@ -654,21 +667,110 @@ export default defineComponent({
       }
     },
     initialTab(tab) {
-      this.currentTab = tab
+      if (!this.isEditMode) {
+        this.currentTab = tab
+      }
+    },
+    editItem: {
+      immediate: true,
+      handler(val) {
+        if (val) {
+          this.loadEditItem(val)
+        }
+      },
     },
   },
   computed: {
     isMobile(): boolean {
       return Boolean(this.$vuetify?.display?.xs)
     },
+    isEditMode(): boolean {
+      return Boolean(this.editItem)
+    },
   },
   mounted() {
-    this.initDefaultValues()
+    if (this.editItem) {
+      this.loadEditItem(this.editItem)
+    } else {
+      this.initDefaultValues()
+    }
   },
   beforeUnmount() {
     this.stopPreviewAudio()
   },
   methods: {
+    loadEditItem(item: any) {
+      if (!item) return
+      const isMusic =
+        item.type === 'music' ||
+        'audioUrl' in item ||
+        'composer' in item ||
+        'lyricist' in item ||
+        'album' in item
+
+      if (isMusic) {
+        this.currentTab = 'music'
+        this.musicData.title = item.title || item.name || ''
+        this.musicData.id = item.id || ''
+        this.musicData.artist = item.artist || ''
+        this.musicData.album = item.album || item.title || ''
+        this.musicData.albumType = item.albumType || 'single'
+        this.musicData.genre = item.genre || 'J-Pop'
+        this.musicData.bpm = item.bpm ?? 120
+        this.musicData.price = item.price ?? 0
+        this.musicData.audioUrl = item.audioUrl || ''
+        this.musicData.cover = item.cover || item.thumbnail || item.icon || ''
+        this.musicData.duration = item.duration ?? 180
+        this.musicData.durationFormatted = item.durationFormatted || '3:00'
+        this.musicData.lyricist = item.lyricist || ''
+        this.musicData.composer = item.composer || ''
+        this.musicData.description = item.description || ''
+        this.musicData.lyrics = item.lyrics || ''
+        this.musicData.featured = Boolean(item.featured)
+        this.musicData.isTrending = Boolean(item.isTrending)
+
+        if (this.musicData.audioUrl) {
+          this.initPreviewAudio(this.musicData.audioUrl)
+        }
+      } else {
+        this.currentTab = 'app'
+        this.appData.type = item.type === 'game' ? 'game' : 'app'
+        this.appData.name = item.name || ''
+        this.appData.id = item.id || ''
+        this.appData.category = item.category || 'ツール'
+        this.appData.price = item.price ?? 0
+        this.appData.summary = item.summary || ''
+        this.appData.icon = item.icon || ''
+        this.appData.thumbnail =
+          item.thumbnail || (item.images && item.images[0]) || ''
+        this.appData.platforms =
+          Array.isArray(item.platforms) && item.platforms.length > 0
+            ? [...item.platforms]
+            : ['Windows']
+        this.appData.languages =
+          Array.isArray(item.languages) && item.languages.length > 0
+            ? [...item.languages]
+            : ['日本語']
+        this.appData.description = item.description || ''
+        this.appData.githubUrl = item.githubUrl || ''
+        this.appData.featured = Boolean(item.featured)
+
+        this.appLinks.googlePlay = ''
+        this.appLinks.appStore = ''
+        this.appLinks.webUrl = ''
+        if (Array.isArray(item.links)) {
+          for (const l of item.links) {
+            const text = (l.text || '').toLowerCase()
+            const url = l.url || ''
+            if (text.includes('google') || text.includes('play'))
+              this.appLinks.googlePlay = url
+            else if (text.includes('apple') || text.includes('app store'))
+              this.appLinks.appStore = url
+            else if (text.includes('web')) this.appLinks.webUrl = url
+          }
+        }
+      }
+    },
     initDefaultValues() {
       // ログイン中の管理者名をアーティスト・作詞・作曲のデフォルトに反映
       const adminName = 'ときえのき' // ここは必要に応じて動的に取得することも可能
@@ -689,6 +791,7 @@ export default defineComponent({
       this.snackbar.show = true
     },
     autoGenerateAppId() {
+      if (this.isEditMode) return
       if (!this.appData.id || this.appData.id.startsWith('app-')) {
         const slug = this.appData.name
           .toLowerCase()
@@ -701,6 +804,7 @@ export default defineComponent({
       }
     },
     autoGenerateMusicId() {
+      if (this.isEditMode) return
       if (!this.musicData.id || this.musicData.id.startsWith('music-')) {
         const slug = this.musicData.title
           .toLowerCase()
@@ -980,10 +1084,13 @@ export default defineComponent({
           this.appData.name,
         )}</text></svg>`
 
+      const isEdit = this.isEditMode
+      const existing = isEdit ? this.editItem : null
+
       const newApp: AppInfo = {
         name: this.appData.name,
         id: this.appData.id,
-        releaseDate: Date.now(),
+        releaseDate: existing?.releaseDate || Date.now(),
         icon: fallbackIcon,
         thumbnail: fallbackThumbnail,
         description: this.appData.description || `${this.appData.name} の紹介`,
@@ -992,12 +1099,15 @@ export default defineComponent({
         languages: [...this.appData.languages],
         links,
         githubUrl: this.appData.githubUrl || undefined,
-        images: [fallbackThumbnail],
+        images:
+          existing?.images && existing.images.length > 0
+            ? existing.images
+            : [fallbackThumbnail],
         type: this.appData.type,
         category: this.appData.category,
-        rating: 5.0,
-        downloads: 'NEW',
-        developer: this.myProfile.name || 'エノキ電気',
+        rating: existing?.rating ?? 5.0,
+        downloads: existing?.downloads || 'NEW',
+        developer: existing?.developer || this.myProfile.name || 'エノキ電気',
         summary: this.appData.summary || `${this.appData.name} を体験しよう`,
         featured: this.appData.featured,
       }
@@ -1035,16 +1145,23 @@ export default defineComponent({
           console.warn('Server persist api error (app):', serverErr)
         }
 
-        this.showToast(`アプリ「${newApp.name}」を登録しました！`, 'success')
-        this.$emit('registered', { type: 'app', item: newApp })
+        if (isEdit) {
+          this.showToast(`アプリ「${newApp.name}」の情報を更新しました！`, 'success')
+          this.$emit('updated', { type: 'app', item: newApp })
+        } else {
+          this.showToast(`アプリ「${newApp.name}」を登録しました！`, 'success')
+          this.$emit('registered', { type: 'app', item: newApp })
+        }
 
         setTimeout(() => {
           this.closeModal()
-          this.$router.push(`/apps/${newApp.id}`)
+          if (!isEdit) {
+            this.$router.push(`/apps/${newApp.id}`)
+          }
         }, 800)
       } catch (err: any) {
         console.error('App registration error:', err)
-        this.showToast('アプリ登録中にエラーが発生しました', 'error')
+        this.showToast(isEdit ? 'アプリ更新中にエラーが発生しました' : 'アプリ登録中にエラーが発生しました', 'error')
       } finally {
         this.submittingApp = false
       }
@@ -1070,6 +1187,9 @@ export default defineComponent({
         .toString()
         .padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')}`
 
+      const isEdit = this.isEditMode
+      const existing = isEdit ? this.editItem : null
+
       const newTrack: MusicItem = {
         id: this.musicData.id,
         name: this.musicData.title,
@@ -1083,15 +1203,15 @@ export default defineComponent({
         thumbnail: fallbackCover,
         duration: Number(this.musicData.duration) || 180,
         durationFormatted: this.musicData.durationFormatted || '3:00',
-        releaseDate: Date.now(),
-        releaseDateFormatted: dateFormatted,
-        plays: 'NEW',
-        rating: 5.0,
+        releaseDate: existing?.releaseDate || Date.now(),
+        releaseDateFormatted: existing?.releaseDateFormatted || dateFormatted,
+        plays: existing?.plays || 'NEW',
+        rating: existing?.rating ?? 5.0,
         featured: this.musicData.featured,
         isTrending: this.musicData.isTrending,
-        themeColor: '#4F46E5',
-        accentColor: '#38BDF8',
-        audioPreset: 'citypop',
+        themeColor: existing?.themeColor || '#4F46E5',
+        accentColor: existing?.accentColor || '#38BDF8',
+        audioPreset: existing?.audioPreset || 'citypop',
         bpm: Number(this.musicData.bpm) || 120,
         description:
           this.musicData.description ||
@@ -1106,7 +1226,7 @@ export default defineComponent({
 
       try {
         // 1. フロントエンドストアに即時反映
-        this.musicStore.addTrack(newTrack)
+        this.musicStore.updateTrack(newTrack)
 
         // 2. PHP バックエンド (MySQL) への保存（音声ファイルURL含む）
         try {
@@ -1137,16 +1257,23 @@ export default defineComponent({
           console.warn('Server persist api error (music):', serverErr)
         }
 
-        this.showToast(`楽曲「${newTrack.title}」を登録しました！`, 'success')
-        this.$emit('registered', { type: 'music', item: newTrack })
+        if (isEdit) {
+          this.showToast(`楽曲「${newTrack.title}」の情報を更新しました！`, 'success')
+          this.$emit('updated', { type: 'music', item: newTrack })
+        } else {
+          this.showToast(`楽曲「${newTrack.title}」を登録しました！`, 'success')
+          this.$emit('registered', { type: 'music', item: newTrack })
+        }
 
         setTimeout(() => {
           this.closeModal()
-          this.$router.push(`/music/${newTrack.id}`)
+          if (!isEdit) {
+            this.$router.push(`/music/${newTrack.id}`)
+          }
         }, 800)
       } catch (err: any) {
         console.error('Music registration error:', err)
-        this.showToast('音楽登録中にエラーが発生しました', 'error')
+        this.showToast(isEdit ? '音楽更新中にエラーが発生しました' : '音楽登録中にエラーが発生しました', 'error')
       } finally {
         this.submittingMusic = false
       }

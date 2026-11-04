@@ -105,14 +105,26 @@ v-card(
       .setting-item(
         v-if="!myProfile.guest"
         v-ripple
-        @click="$router.push('/admin/register')"
+        @click="$router.push('/admin/manage')"
         )
         .icon(
           style="background-color: rgba(var(--v-theme-primary), 1); color: white;"
         )
+          v-icon mdi-format-list-checks
+        .text
+          p.title コンテンツ管理 (編集・削除)
+          p.description 既存アプリ・楽曲の一覧確認、編集、削除
+      .setting-item(
+        v-if="!myProfile.guest"
+        v-ripple
+        @click="$router.push('/admin/register')"
+        )
+        .icon(
+          style="background-color: rgba(var(--v-theme-primary), 0.85); color: white;"
+        )
           v-icon mdi-shield-plus-outline
         .text
-          p.title コンテンツ登録 (アプリ・音楽)
+          p.title コンテンツ新規登録 (アプリ・音楽)
           p.description 管理者権限で新規アプリや楽曲、音声を登録
       .setting-item(
         v-ripple

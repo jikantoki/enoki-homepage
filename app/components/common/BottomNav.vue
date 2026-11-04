@@ -110,8 +110,16 @@
               v-list-item-title プライバシーポリシー
           v-list-item.item(
             v-if="isAdmin"
-            @click="optionsDialog = false; $router.push('/admin/register')"
+            @click="optionsDialog = false; $router.push('/admin/manage')"
             style="background: rgba(var(--v-theme-primary), 0.08); border-radius: 8px;"
+          )
+            .icon-and-text
+              v-icon(color="primary") mdi-format-list-checks
+              v-list-item-title.font-weight-bold(style="color: rgb(var(--v-theme-primary));") コンテンツ管理 (編集・削除)
+          v-list-item.item(
+            v-if="isAdmin"
+            @click="optionsDialog = false; $router.push('/admin/register')"
+            style="background: rgba(var(--v-theme-primary), 0.04); border-radius: 8px; margin-top: 4px;"
           )
             .icon-and-text
               v-icon(color="primary") mdi-shield-plus-outline

@@ -9,6 +9,13 @@ v-card.music-detail-page-root(
     v-btn(icon="mdi-arrow-left" variant="text" @click="handleBack")
     v-toolbar-title.text-subtitle-1 {{ track ? track.title : '楽曲詳細' }}
     v-spacer
+    template(v-if="isAdmin && track")
+      v-btn(icon="mdi-pencil-outline" color="primary" variant="text" @click="editModalOpen = true")
+        v-icon mdi-pencil-outline
+        v-tooltip(activator="parent" location="bottom") 編集 (管理者)
+      v-btn(icon="mdi-delete-outline" color="error" variant="text" @click="deleteDialogOpen = true")
+        v-icon mdi-delete-outline
+        v-tooltip(activator="parent" location="bottom") 削除 (管理者)
     v-btn(
       v-if="track"
       icon
@@ -18,6 +25,23 @@ v-card.music-detail-page-root(
     )
       v-icon(:icon="isLiked ? 'mdi-heart' : 'mdi-heart-outline'")
     v-btn(icon="mdi-share-variant" variant="text" @click="shareTrack")
+
+  //- 管理者向けアクションバナー
+  v-alert.admin-action-banner.ma-3(
+    v-if="isAdmin && track"
+    color="primary"
+    variant="tonal"
+    density="compact"
+    rounded="lg"
+  )
+    .d-flex.align-center.justify-space-between.flex-wrap.gap-2
+      .d-flex.align-center.gap-2
+        v-icon(size="18") mdi-shield-check
+        span.font-weight-medium.text-caption 管理者権限: この楽曲の編集・削除が可能です
+      .d-flex.gap-2
+        v-btn(size="x-small" variant="text" prepend-icon="mdi-format-list-checks" @click="$router.push('/admin/manage?tab=music')") 管理一覧
+        v-btn(size="x-small" color="primary" variant="flat" prepend-icon="mdi-pencil" @click="editModalOpen = true") 編集
+        v-btn(size="x-small" color="error" variant="tonal" prepend-icon="mdi-delete" @click="deleteDialogOpen = true") 削除
 
   //- ================= メインスクロールエリア =================
   .music-scroll-content(v-if="track")
@@ -209,6 +233,39 @@ v-card.music-detail-page-root(
       prepend-icon="mdi-arrow-left"
       @click="$router.push('/music')"
     ) 音楽一覧へ戻る
+
+  //- 削除確認モーダル
+  v-dialog(v-model="deleteDialogOpen" max-width="480")
+    v-card(rounded="xl")
+      v-card-title.d-flex.align-center.gap-2.pt-4.px-4
+        v-icon(color="error" size="26") mdi-alert-circle-outline
+        span.font-weight-bold 楽曲の削除
+      v-card-text.px-4.py-2
+        p.mb-2
+          | 「
+          strong.text-primary {{ track?.title }}
+          | 」(ID: 
+          code {{ track?.id }}
+          | ) を完全に削除しますか？
+        v-alert(
+          type="error"
+          variant="tonal"
+          density="compact"
+          rounded="lg"
+          class="mt-3"
+        )
+          | MySQLデータベース (music_list) および永続化ファイルから完全に削除されます。元に戻すことはできません。
+      v-card-actions.pa-4.d-flex.justify-end.gap-2
+        v-btn(variant="text" :disabled="deleteDialogLoading" @click="deleteDialogOpen = false") キャンセル
+        v-btn(color="error" variant="flat" rounded="pill" :loading="deleteDialogLoading" @click="handleDeleteTrack") 削除する
+
+  //- 編集モーダル
+  AdminRegisterModal(
+    v-model="editModalOpen"
+    initialTab="music"
+    :editItem="track"
+    @updated="onTrackUpdated"
+  )
 </template>
 
 <script lang="ts">
@@ -217,6 +274,8 @@ import { Toast } from '@capacitor/toast'
 import { useMusicStore, type MusicItem } from '@/stores/music'
 import { useSettingsStore } from '@/stores/settings'
 import MusicCard from '@/components/music/MusicCard.vue'
+import AdminRegisterModal from '@/components/admin/AdminRegisterModal.vue'
+import { useMyProfileStore } from '@/stores/myProfile'
 import Setup from '@/js/setup'
 import mixins from '@/mixins/mixins'
 
@@ -224,18 +283,30 @@ export default {
   name: 'MusicDetailPage',
   components: {
     MusicCard,
+    AdminRegisterModal,
   },
   mixins: [mixins],
   data() {
     return {
       musicStore: useMusicStore(),
       settings: useSettingsStore(),
+      myProfile: useMyProfileStore(),
+      editModalOpen: false,
+      deleteDialogOpen: false,
+      deleteDialogLoading: false,
       viewMode: 'player' as 'player' | 'lyrics' | 'info',
       sliderTime: 0,
       isScrubbing: false,
     }
   },
   computed: {
+    isAdmin(): boolean {
+      return Boolean(
+        this.myProfile.isAdmin ||
+        this.myProfile.role === 'admin' ||
+        (!this.myProfile.guest && this.myProfile.canRegisterApp)
+      )
+    },
     musicId(): string {
       return (this.$route.params.musicId as string) || ''
     },
@@ -346,6 +417,59 @@ export default {
           await navigator.clipboard.writeText(url)
           await Toast.show({ text: '楽曲URLをコピーしました' })
         }
+      }
+    },
+    async handleDeleteTrack() {
+      if (!this.track || !this.track.id) return
+      this.deleteDialogLoading = true
+      const authHeaders: Record<string, string> = {
+        'Content-Type': 'application/json',
+      }
+      if (this.myProfile.userId) authHeaders['id'] = this.myProfile.userId
+      if (this.myProfile.userToken) authHeaders['token'] = this.myProfile.userToken
+
+      const trackId = this.track.id
+      const trackTitle = this.track.title
+      try {
+        // 1. PHP MySQL 削除
+        try {
+          await fetch('/php/deleteMusic.php', {
+            method: 'POST',
+            headers: authHeaders,
+            body: JSON.stringify({ musicId: trackId, id: trackId }),
+          })
+        } catch (phpErr) {
+          console.warn('PHP deleteMusic error:', phpErr)
+        }
+
+        // 2. Nitro JSON 永続化ファイル削除
+        try {
+          await fetch('/api/delete-music', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ musicId: trackId, id: trackId }),
+          })
+        } catch (nitroErr) {
+          console.warn('Nitro delete-music error:', nitroErr)
+        }
+
+        // 3. Pinia Store から削除
+        this.musicStore.removeTrack(trackId)
+        try {
+          await Toast.show({ text: `「${trackTitle}」を削除しました` })
+        } catch (_) {}
+
+        this.deleteDialogOpen = false
+        this.$router.push('/music')
+      } catch (err: any) {
+        console.error('Delete track error:', err)
+      } finally {
+        this.deleteDialogLoading = false
+      }
+    },
+    onTrackUpdated(payload: any) {
+      if (payload?.item) {
+        this.setTitle(payload.item.title)
       }
     },
   },

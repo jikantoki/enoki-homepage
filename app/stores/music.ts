@@ -264,7 +264,7 @@ export const useMusicStore = defineStore('music', {
     },
 
     /**
-     * 新しい楽曲を登録してリストの先頭に追加
+     * 新しい楽曲を登録してリストの先頭に追加（既存IDなら更新）
      */
     addTrack(track: MusicItem) {
       const existingIdx = this.list.findIndex(t => t.id === track.id)
@@ -273,6 +273,31 @@ export const useMusicStore = defineStore('music', {
       } else {
         this.list.unshift(track)
       }
+    },
+
+    /**
+     * 楽曲を更新
+     */
+    updateTrack(track: MusicItem) {
+      this.addTrack(track)
+      if (this.currentTrack && this.currentTrack.id === track.id) {
+        this.currentTrack = track
+      }
+    },
+
+    /**
+     * 楽曲を削除
+     */
+    removeTrack(id: string) {
+      if (this.currentTrack && this.currentTrack.id === id) {
+        this.stopAudio()
+        this.currentTrack = null
+      }
+      const idx = this.list.findIndex(t => t.id === id)
+      if (idx !== -1) {
+        this.list.splice(idx, 1)
+      }
+      this.queue = this.queue.filter(t => t.id !== id)
     },
 
     /**

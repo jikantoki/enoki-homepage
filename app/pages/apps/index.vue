@@ -214,6 +214,18 @@ v-card.playstore-root(
     //- 下部ナビゲーションバー用の余白
     .bottom-nav-spacer
 
+  //- 管理者用 コンテンツ管理FABボタン
+  v-btn.admin-manage-fab(
+    v-if="isAdmin"
+    color="surface"
+    icon="mdi-format-list-checks"
+    size="large"
+    elevation="4"
+    @click="$router.push('/admin/manage?tab=apps')"
+  )
+    v-icon(size="24" color="primary") mdi-format-list-checks
+    v-tooltip(activator="parent" location="left") アプリ管理・編集・削除
+
   //- 管理者用 アプリ登録FABボタン
   v-btn.admin-register-fab(
     v-if="isAdmin"
@@ -748,6 +760,15 @@ export default {
 
   .bottom-nav-spacer {
     height: 72px;
+  }
+
+  .admin-manage-fab {
+    position: fixed;
+    right: 20px;
+    bottom: 144px;
+    z-index: 95;
+    border-radius: 50%;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
 
   .admin-register-fab {

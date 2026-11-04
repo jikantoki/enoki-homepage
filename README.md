@@ -127,6 +127,8 @@
 | `/settings/profile`           | `app/pages/settings/profile.vue`           | プロフィール編集画面（名前・自己紹介・アイコン等）      |
 | `/settings/display`           | `app/pages/settings/display.vue`           | 表示・言語設定（テーマ切替・言語選択）                  |
 | `/settings/developer-options` | `app/pages/settings/developer-options.vue` | 開発者向けオプション（Android 15 ノッチ切り欠き検証等） |
+| `/admin/manage`               | `app/pages/admin/manage.vue`               | コンテンツ管理（アプリ・音楽の一覧・編集・削除）        |
+| `/admin/register`             | `app/pages/admin/register.vue`             | コンテンツ新規登録（アプリ・音楽登録・音声アップロード）|
 | `/terms`                      | `app/pages/terms.vue`                      | 利用規約                                                |
 | `/privacy`                    | `app/pages/privacy.vue`                    | プライバシーポリシー                                    |
 | `/about`                      | `app/pages/about.vue`                      | 運営情報・プロフィール                                  |
@@ -155,6 +157,9 @@ enoki-homepage/
 │   │   ├── qrcode.vue                  # QR コード（スキャン・生成）
 │   │   ├── terms.vue                   # 利用規約
 │   │   ├── about.vue                   # 運営情報
+│   │   ├── admin/                      # 管理者機能
+│   │   │   ├── manage.vue              # コンテンツ管理（一覧・編集・削除）
+│   │   │   └── register.vue            # コンテンツ新規登録（アプリ・音楽・音声アップロード）
 │   │   ├── info.vue                    # プロフィールへのリダイレクト
 │   │   ├── profile/                    # プロフィール
 │   │   │   └── index.vue               # プロフィール画面へのリダイレクト
@@ -195,6 +200,8 @@ enoki-homepage/
 │   ├── authAccount.php                 # アカウント認証チェック
 │   ├── createAccount.php               # 新規アカウント作成
 │   ├── createTable.php                 # テーブル自動生成スクリプト
+│   ├── deleteApp.php                   # アプリ情報 MySQL & JSON 削除 API
+│   ├── deleteMusic.php                 # 音楽情報 MySQL & JSON 削除 API
 │   ├── deletePushToken.php             # プッシュ通知トークン削除
 │   ├── friendRequest.php               # 友達申請送信
 │   ├── getMyFriendList.php             # 友達リスト取得
@@ -224,7 +231,9 @@ enoki-homepage/
 │       ├── upload-audio.post.ts        # 音声ファイル (mp3/wav) アップロード API
 │       ├── upload-image.post.ts        # 画像ファイル アップロード API
 │       ├── register-app.post.ts        # アプリ登録 API
-│       └── register-music.post.ts      # 音楽登録 API
+│       ├── register-music.post.ts      # 音楽登録 API
+│       ├── delete-app.post.ts          # アプリ削除 API
+│       └── delete-music.post.ts        # 音楽削除 API
 ├── capacitor.config.ts                 # Capacitor 8 設定ファイル
 ├── content.config.ts                   # @nuxt/content (v3) コレクション定義
 ├── eslint.config.mjs                   # ESLint Flat Config 設定
@@ -424,6 +433,36 @@ mysql -u your_user -p your_database_name < migration_app_music.sql
 
 ---
 
+## コンテンツ管理機能 (CMS: アプリ・音楽の一覧・編集・削除)
+
+管理者アカウント（`role === 'admin'` または `canRegisterApp === true`）でログインしている場合、専用のコンテンツ管理機能が利用可能です。
+
+### 1. 管理ページ (`/admin/manage`)
+- **一覧表示**: 登録済みアプリ・ゲームおよび楽曲をタブ形式で素早く閲覧・検索・カテゴリ/ジャンル絞り込み。
+- **インライン試聴**: 音楽一覧では、サーバーにアップロードされた音声ファイルの有無をバッジ表示し、その場ですぐに試聴可能。
+- **クイックアクション**: 各アイテムの「詳細ページを開く」「編集」「削除」をワンクリックで実行可能。
+- **新規登録への導線**: ヘッダーおよびリスト上部からワンクリックで登録モーダルを開くことが可能。
+
+### 2. 編集機能
+- 管理ページ（`/admin/manage`）の「編集」ボタン、または各詳細画面（`/apps/[appId]`, `/music/[musicId]`）の管理者バー「編集」ボタンからモーダルを呼び出せます。
+- 既存のすべての情報（名前、ID、価格、画像、リンク、音声URL、作詞・作曲、歌詞など）がフォームに自動展開されます。
+- 保存を実行すると、MySQL データベースのレコードが `ON DUPLICATE KEY UPDATE` により更新され、サーバー側 JSON ファイルおよび Pinia ストアへ即座に反映されます。
+
+### 3. 安全な削除機能
+- 管理ページ（`/admin/manage`）または詳細画面（`/apps/[appId]`, `/music/[musicId]`）の「削除」ボタンをクリックすると、確認ダイアログが表示されます。
+- 削除を確定すると、以下の処理が安全に実行されます:
+  1. **MySQL データベース**: `app_list` / `music_list` テーブルから該当レコードを物理削除 (`deleteApp.php` / `deleteMusic.php`)
+  2. **サーバー JSON ファイル**: `app/data/apps.json`、`app/data/music.json`（および `public/data/`）から除外して保存 (`/api/delete-app` / `/api/delete-music`)
+  3. **Pinia 状態管理**: クライアントキャッシュから即座に削除（再生中楽曲の場合は安全に再生停止）
+
+### 4. 管理者向けナビゲーション導線
+- **ボトムナビ（メニュー）**: 「コンテンツ管理 (編集・削除)」および「アプリ・音楽を登録」
+- **設定画面 (`/settings`)**: 管理者ログイン時に「コンテンツ管理」項目を表示
+- **一覧画面 (`/apps`, `/music`)**: 画面右下に管理者用 FAB ボタン（登録 `+` および 管理リストアイコン）を常時表示
+- **詳細画面 (`/apps/[appId]`, `/music/[musicId]`)**: 管理者限定のアクションバナーおよびツールバー編集・削除ボタンを表示
+
+---
+
 ## 開発・コマンドリファレンス
 
 `package.json` に定義されている開発・ビルドコマンド一覧です。
@@ -536,6 +575,8 @@ PHP バックエンド（`php/`）に用意されている主なエンドポイ�
 | **コンテンツ管理**   | `uploadAudio.php`               | 音声ファイル (mp3/wav) アップロード API    |
 |                      | `registerApp.php`               | アプリ情報 MySQL 登録・更新 API            |
 |                      | `registerMusic.php`             | 楽曲・音声ファイルURL MySQL 登録・更新 API |
+|                      | `deleteApp.php`                 | アプリ情報 MySQL & JSON 削除 API           |
+|                      | `deleteMusic.php`               | 楽曲情報 MySQL & JSON 削除 API             |
 |                      | `getApps.php`                   | アプリ一覧 MySQL 取得 API                  |
 |                      | `getMusic.php`                  | 楽曲一覧 MySQL 取得 API                  |
 
