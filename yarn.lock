@@ -924,6 +924,11 @@
     debug "^4.0.0"
     tslib "^2.0.1"
 
+"@ionic/pwa-elements@^3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@ionic/pwa-elements/-/pwa-elements-3.4.0.tgz#e1e2d715fdf41d6b4d2660fca941caafa1ff5383"
+  integrity sha512-WmL7An4NOsvJvct4V/A8hudr+yXgLBHYmxzqWGsetZmzN7C6suLRS/KIh2P1t8cSYCYL7HRrbv8NrIChPkh6Ow==
+
 "@ionic/utils-array@2.1.6":
   version "2.1.6"
   resolved "https://registry.yarnpkg.com/@ionic/utils-array/-/utils-array-2.1.6.tgz#eee863be945ee1a28b9a10ff16fdea776fa18c22"

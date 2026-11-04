@@ -24,6 +24,7 @@
     "@capacitor/share": "^8.0.1",
     "@capacitor/status-bar": "^8.0.1",
     "@capacitor/toast": "^8.0.1",
+    "@ionic/pwa-elements": "^3.4.0",
     "@mdi/font": "^7.4.47",
     "@nuxt/content": "^3.11.2",
     "@nuxtjs/i18n": "^10.2.3",
