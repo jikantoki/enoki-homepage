@@ -54,7 +54,7 @@
         | 経歴年表
       v-tab(value="app")
         v-icon(start) mdi-application
-        | アプリ
+        | アプリ情報
 
   //- ================= タブコンテンツ =================
   .tab-content-area
