@@ -4,6 +4,11 @@ v-app
   main(style="height: 100vh;")
     .status-bar-padding(:class="settings.hidden.isAndroid15OrHigher ? 'android-15-or-higher' : ''")
     NuxtPage(:style="settings.hidden.isAndroid15OrHigher ? 'height: calc(100vh - 40px - 16px);' : ''")
+    MiniPlayer(
+      v-if="shouldShowMiniPlayer"
+      :bottomOffset="miniPlayerBottomOffset"
+    )
+    NowPlayingModal
     .nav-bar-padding(:class="settings.hidden.isAndroid15OrHigher ? 'android-15-or-higher' : ''")
 </template>
 
@@ -11,6 +16,8 @@ v-app
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import commonSplashVue from '@/components/common/commonSplash.vue'
+import MiniPlayer from '@/components/music/MiniPlayer.vue'
+import NowPlayingModal from '@/components/music/NowPlayingModal.vue'
 import mixins from '@/mixins/mixins'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
@@ -19,6 +26,8 @@ export default {
   name: 'App',
   components: {
     commonSplashVue,
+    MiniPlayer,
+    NowPlayingModal,
   },
   mixins: [mixins],
   data() {
@@ -27,6 +36,26 @@ export default {
       myProfile: useMyProfileStore(),
       settings: useSettingsStore(),
     }
+  },
+  computed: {
+    hasBottomNav(): boolean {
+      const p = this.$route.path
+      return p === '/' || p === '/music' || p === '/profile'
+    },
+    miniPlayerBottomOffset(): number {
+      const isA15 = this.settings.hidden.isAndroid15OrHigher
+      if (this.hasBottomNav) {
+        return isA15 ? 72 : 56
+      }
+      return isA15 ? 16 : 0
+    },
+    shouldShowMiniPlayer(): boolean {
+      const p = this.$route.path
+      if (p.startsWith('/music/') && p !== '/music') {
+        return false
+      }
+      return true
+    },
   },
   methods: {
     applyTheme(theme: 'system' | 'light' | 'dark') {
@@ -348,7 +377,7 @@ $breakpoints: (
 }
 
 .v-card-text {
-  padding: 0.3em;
+  padding: 1em;
 }
 
 .v-responsive__sizer {

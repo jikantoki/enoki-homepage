@@ -3,14 +3,14 @@ v-card.profile-page-root(
   style="width: 100%; height: 100%;"
   :class="settings.hidden.isAndroid15OrHigher ? 'top-android-15-or-higher' : ''"
 )
-  //- トップバー
+  //- トップヘッダーバー
   v-card-actions.profile-page-header
     v-btn(
       icon="mdi-arrow-left"
       variant="text"
       @click="handleBack"
     )
-    p.header-title プロフィール
+    p.header-title プロフィール・実績
     v-spacer
     v-btn(
       icon="mdi-share-variant"
@@ -19,24 +19,19 @@ v-card.profile-page-root(
     )
 
   //- メインスクロールエリア
-  v-card-text.profile-page-content
+  v-card-text.profile-page-content(ref="scrollContainer")
     AboutView(initialTab="profile")
-</template>
+    .bottom-nav-spacer
 
-<script setup lang="ts">
-definePageMeta({
-  middleware: [
-    () => {
-      return navigateTo({ path: '/', query: { tab: 'profile' } }, { redirectCode: 301 })
-    },
-  ],
-})
-</script>
+  //- ボトムナビゲーション
+  BottomNav
+</template>
 
 <script lang="ts">
 import { Share } from '@capacitor/share'
 import { Toast } from '@capacitor/toast'
 import AboutView from '@/components/about/AboutView.vue'
+import BottomNav from '@/components/common/BottomNav.vue'
 import { useSettingsStore } from '@/stores/settings'
 import Setup from '@/js/setup'
 import mixins from '@/mixins/mixins'
@@ -45,6 +40,7 @@ export default {
   name: 'ProfilePage',
   components: {
     AboutView,
+    BottomNav,
   },
   mixins: [mixins],
   data() {
@@ -54,12 +50,12 @@ export default {
   },
   setup() {
     Setup.setTitle('プロフィール')
-    Setup.setDescription('エノキ電気代表・ときえのき（jikantoki）の経歴、実績、保有資格、スキル一覧です。')
-    return navigateTo({ path: '/', query: { tab: 'profile' } }, { redirectCode: 301 })
+    Setup.setDescription(
+      'エノキ電気代表・ときえのき（jikantoki）の経歴、実績、保有資格、スキル一覧です。',
+    )
   },
-  async mounted() {
+  mounted() {
     this.setTitle('プロフィール')
-    await this.$router.replace({ path: '/', query: { tab: 'profile' } })
   },
   methods: {
     handleBack() {
@@ -74,12 +70,12 @@ export default {
         await Share.share({
           title: 'ときえのき プロフィール・経歴・実績 - エノキ電気',
           text: 'エノキ電気代表 ときえのきのプロフィール、経歴年表、実績まとめです。',
-          url: 'https://enoki.xyz/profile/',
+          url: 'https://enoki.xyz/profile',
           dialogTitle: 'プロフィールを共有',
         })
       } catch {
         if (navigator.clipboard) {
-          await navigator.clipboard.writeText('https://enoki.xyz/profile/')
+          await navigator.clipboard.writeText('https://enoki.xyz/profile')
           await Toast.show({ text: 'プロフィールURLをコピーしました' })
         }
       }
@@ -92,6 +88,10 @@ export default {
 .profile-page-root {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  background-color: rgb(var(--v-theme-surface));
 
   .profile-page-header {
     height: 56px;
@@ -102,20 +102,19 @@ export default {
     .header-title {
       font-size: 1.15em;
       font-weight: 800;
-      margin: 0 0 0 8px;
-      color: rgb(var(--v-theme-on-surface));
+      margin-left: 8px;
     }
   }
 
   .profile-page-content {
     flex: 1;
     overflow-y: auto;
-    padding: 8px 4px 60px;
+    padding: 0;
     -webkit-overflow-scrolling: touch;
   }
-}
 
-.top-android-15-or-higher {
-  height: calc(100vh - 40px - 16px) !important;
+  .bottom-nav-spacer {
+    height: 72px;
+  }
 }
 </style>

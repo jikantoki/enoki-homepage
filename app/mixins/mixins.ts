@@ -219,11 +219,13 @@ export default defineComponent({
         returnCode = 1
       }
       //まずリアルタイムで更新
-      document.title = pageTitle
-      //何故かこうしないと無効になる場合がある
-      setTimeout(() => {
+      if (typeof document !== 'undefined') {
         document.title = pageTitle
-      }, 1500)
+        //何故かこうしないと無効になる場合がある
+        setTimeout(() => {
+          document.title = pageTitle
+        }, 1500)
+      }
       useMetaStore().setTitle(newTitle)
       return returnCode
     },

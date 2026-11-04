@@ -126,6 +126,10 @@ export default {
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   z-index: 45;
+  width: 600px;
+  max-width: calc(100% - 16px);
+  justify-self: center;
+  transform: translateY(-16px);
   cursor: pointer;
   overflow: hidden;
   transition: transform 0.2s, background-color 0.2s;
@@ -221,6 +225,12 @@ export default {
       height: 36px;
       border-radius: 50%;
     }
+  }
+}
+
+@media (max-width: 600px) {
+  .mini-player-wrapper {
+    transform: translateY(-4px);
   }
 }
 </style>

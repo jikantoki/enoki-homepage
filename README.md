@@ -105,7 +105,13 @@
 
 | パス                          | ファイルパス                               | 内容・概要                                              |
 | :---------------------------- | :----------------------------------------- | :------------------------------------------------------ |
-| `/`                           | `app/pages/index.vue`                      | トップページ（タイムライン・アプリ紹介・各種導線）      |
+| `/`                           | `app/pages/index.vue`                      | トップページ（ソフトウェア・アプリ＆ゲーム一覧）        |
+| `/music`                      | `app/pages/music/index.vue`                | 音楽一覧ページ（楽曲・アルバム・ジャンル探索）          |
+| `/profile`                    | `app/pages/profile/index.vue`              | プロフィールページ（ときえのき経歴・実績・運営情報）    |
+| `/product`                    | `app/pages/product.vue`                    | トップページ（`/`）へのリダイレクト                     |
+| `/info`                       | `app/pages/info.vue`                       | プロフィール（`/profile`）へのリダイレクト              |
+| `/apps/[appId]`               | `app/pages/apps/[appId].vue`               | ソフトウェア詳細画面（動的ルーティング）                |
+| `/music/[musicId]`            | `app/pages/music/[musicId].vue`            | 音楽詳細画面（動的ルーティング・シンセ試聴・歌詞）      |
 | `/login`                      | `app/pages/login.vue`                      | ログイン画面                                            |
 | `/registar`                   | `app/pages/registar.vue`                   | 新規アカウント登録画面（ワンタイム認証）                |
 | `/password_reset`             | `app/pages/password_reset.vue`             | パスワード再設定画面                                    |
@@ -117,9 +123,8 @@
 | `/settings/display`           | `app/pages/settings/display.vue`           | 表示・言語設定（テーマ切替・言語選択）                  |
 | `/settings/developer-options` | `app/pages/settings/developer-options.vue` | 開発者向けオプション（Android 15 ノッチ切り欠き検証等） |
 | `/terms`                      | `app/pages/terms.vue`                      | 利用規約                                                |
-| `/about`                      | `app/pages/about.vue`                      | 運営情報・エノキ電気について                            |
-| `/profile`                    | `app/pages/profile/index.vue`              | プロフィール画面へのリダイレクト（`/?tab=profile`）      |
-| `/info`                       | `app/pages/info.vue`                       | プロフィール画面へのリダイレクト（`/?tab=profile`）      |
+| `/privacy`                    | `app/pages/privacy.vue`                    | プライバシーポリシー                                    |
+| `/about`                      | `app/pages/about.vue`                      | 運営情報・プロフィール                                  |
 | `/tutorial`                   | `app/pages/tutorial.vue`                   | アプリの使い方チュートリアル                            |
 | `/[ready]`                    | `app/pages/[ready].vue`                    | 準備中画面（フォールバック用動的ルート）                |
 

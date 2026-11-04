@@ -182,10 +182,11 @@ export default {
     .text {
       .title {
         font-weight: bold;
-        font-size: 1.1em;
+        font-size: 0.7em;
+        margin-bottom: 0.5em;
       }
       .description {
-        font-size: 0.9em;
+        font-size: 0.5em;
         color: #666;
       }
     }

@@ -43,11 +43,13 @@ export default {
     }
   },
   setup() {
-    Setup.setTitle('運営情報・プロフィール')
-    Setup.setDescription('エノキ電気の運営情報、および代表ときえのきの経歴・実績一覧です。')
+    Setup.setTitle('プロフィール')
+    Setup.setDescription(
+      'エノキ電気のプロフィールや運営情報、および代表ときえのきの経歴・実績一覧です。',
+    )
   },
   async mounted() {
-    this.setTitle('運営情報・プロフィール')
+    this.setTitle('プロフィール')
     // 開発者オプション
     const developerOptions = localStorage.getItem('developerOptions')
     if (developerOptions) {

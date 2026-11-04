@@ -282,7 +282,7 @@ export default {
       if (this.currentTrackId !== track.id) {
         this.musicStore.play(track)
       }
-      this.musicStore.openNowPlaying()
+      this.$router.push(`/music/${track.id}`)
     },
   },
 }

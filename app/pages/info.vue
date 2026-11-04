@@ -11,12 +11,12 @@ Setup.setDescription('エノキ電気代表・ときえのき（jikantoki）の�
 definePageMeta({
   middleware: [
     () => {
-      return navigateTo({ path: '/', query: { tab: 'profile' } }, { redirectCode: 301 })
+      return navigateTo('/profile', { redirectCode: 301 })
     },
   ],
 })
 
 onMounted(() => {
-  navigateTo({ path: '/', query: { tab: 'profile' } }, { replace: true })
+  navigateTo('/profile', { replace: true })
 })
 </script>

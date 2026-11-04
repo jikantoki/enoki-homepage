@@ -9,8 +9,7 @@ v-card.playstore-root(
       v-icon.search-icon mdi-magnify
       input.search-input(
         v-model="searchQuery"
-        :placeholder="searchPlaceholder"
-        @focus="isSearchActive = true"
+        placeholder="アプリやゲームを検索"
       )
       v-btn(
         v-if="searchQuery"
@@ -30,77 +29,11 @@ v-card.playstore-root(
           onerror="this.src='/icon.png'"
         )
 
-  //- ================= 全ページ共通 ヒーロー自己紹介エリア =================
-  .hero-profile(
-    v-ripple
-    role="button"
-    tabindex="0"
-    @click="goToProfile"
-    @keydown.enter="goToProfile"
-  )
-    //- 背景スライドショー (3秒間隔でランダム切り替え & クロスフェード)
-    .hero-bg-container
-      .hero-bg-slide(
-        v-for="(bg, idx) in heroBackgrounds"
-        :key="bg"
-        :style="{ backgroundImage: `url('${bg}')` }"
-        :class="{ active: currentHeroBgIndex === idx }"
-      )
-      //- 視認性を保つダークグラスオーバーレイ
-      .hero-bg-overlay
+  //- ================= ヒーロー自己紹介エリア =================
+  HeroProfile
 
-    //- コンテンツ本体
-    .hero-profile-inner
-      //- 左側: アイコン & テキスト群
-      .hero-main-group
-        .hero-avatar-wrapper
-          img.hero-avatar(
-            src="/icon.png"
-            alt="エノキ電気"
-            onerror="this.src='/account_default.jpg'"
-          )
-          .hero-status-badge
-            span.status-dot
-            span.status-text OFFICIAL
-
-        .hero-text-block
-          .hero-title-row
-            h1.hero-brand-name エノキ電気
-            span.hero-brand-en ENOKI ELECTRONICS
-            span.hero-representative-badge 代表 ときえのき
-
-          p.hero-catchphrase
-            span.hero-quote 「自由」をデザインする
-            span.hero-divider ──
-            span.hero-subcatch 音楽も、プログラミングも、それ以外も。
-
-          .hero-tag-chips
-            span.hero-chip
-              v-icon(size="11" color="#38bdf8") mdi-music
-              span 音楽・ボカロP
-            span.hero-chip
-              v-icon(size="11" color="#818cf8") mdi-code-braces
-              span ソフトウェア開発
-            span.hero-chip
-              v-icon(size="11" color="#34d399") mdi-wrench
-              span ハード・弱電
-
-      //- 右側: プロフィール誘導ボタン
-      .hero-action-group
-        .hero-cta-btn
-          span.cta-text プロフィール・実績
-          v-icon.cta-arrow(size="16") mdi-arrow-right
-
-    //- 3秒タイマーの進捗インジケーター（視覚的フィードバック）
-    .hero-slide-indicators
-      span.indicator-bar(
-        v-for="(bg, idx) in heroBackgrounds"
-        :key="'ind-' + idx"
-        :class="{ active: currentHeroBgIndex === idx }"
-      )
-
-  //- ================= サブナビバー（アプリ選択時のみ表示） =================
-  .store-sub-nav(v-if="!searchQuery && currentNav === 'apps'")
+  //- ================= サブナビバー（ソフトウェア選択時） =================
+  .store-sub-nav(v-if="!searchQuery")
     v-tabs(
       v-model="activeTab"
       color="primary"
@@ -119,88 +52,55 @@ v-card.playstore-root(
 
     //- ---------------- 1. 検索結果表示モード ----------------
     .search-results-view(v-if="searchQuery")
-      //- 1-A. 音楽検索モード
-      template(v-if="currentNav === 'music'")
-        .search-header
-          .search-title 「{{ searchQuery }}」の楽曲検索結果 ({{ musicSearchResults.length }}件)
-        .results-list(v-if="musicSearchResults.length > 0")
-          MusicTrackRow(
-            v-for="(item, idx) in musicSearchResults"
-            :key="item.id"
-            :item="item"
-            :rank="idx + 1"
-            :isPlaying="musicStore.isPlaying"
-            :currentTrackId="musicStore.currentTrack?.id || ''"
-            :isLiked="musicStore.isLiked(item.id)"
-            @click="playMusic(item)"
-            @play="playMusic(item, musicSearchResults)"
-            @like="musicStore.toggleLike($event)"
-          )
-        .no-results(v-else)
-          v-icon(size="48" color="grey") mdi-music-note-off
-          p 一致する楽曲やアーティストが見つかりませんでした
+      .search-header
+        .search-title 「{{ searchQuery }}」の検索結果 ({{ searchResults.length }}件)
+        .filter-chips
+          v-chip(
+            :color="searchFilter === 'all' ? 'primary' : undefined"
+            :variant="searchFilter === 'all' ? 'flat' : 'outlined'"
+            size="small"
+            @click="searchFilter = 'all'"
+          ) すべて
+          v-chip(
+            :color="searchFilter === 'game' ? 'primary' : undefined"
+            :variant="searchFilter === 'game' ? 'flat' : 'outlined'"
+            size="small"
+            @click="searchFilter = 'game'"
+          ) ゲーム
+          v-chip(
+            :color="searchFilter === 'app' ? 'primary' : undefined"
+            :variant="searchFilter === 'app' ? 'flat' : 'outlined'"
+            size="small"
+            @click="searchFilter = 'app'"
+          ) アプリ
+          v-chip(
+            :color="searchFilter === 'free' ? 'primary' : undefined"
+            :variant="searchFilter === 'free' ? 'flat' : 'outlined'"
+            size="small"
+            @click="searchFilter = 'free'"
+          ) 無料のみ
 
-      //- 1-B. アプリ検索モード
-      template(v-else)
-        .search-header
-          .search-title 「{{ searchQuery }}」の検索結果 ({{ searchResults.length }}件)
-          .filter-chips
-            v-chip(
-              :color="searchFilter === 'all' ? 'primary' : undefined"
-              :variant="searchFilter === 'all' ? 'flat' : 'outlined'"
-              size="small"
-              @click="searchFilter = 'all'"
-            ) すべて
-            v-chip(
-              :color="searchFilter === 'game' ? 'primary' : undefined"
-              :variant="searchFilter === 'game' ? 'flat' : 'outlined'"
-              size="small"
-              @click="searchFilter = 'game'"
-            ) ゲーム
-            v-chip(
-              :color="searchFilter === 'app' ? 'primary' : undefined"
-              :variant="searchFilter === 'app' ? 'flat' : 'outlined'"
-              size="small"
-              @click="searchFilter = 'app'"
-            ) アプリ
-            v-chip(
-              :color="searchFilter === 'free' ? 'primary' : undefined"
-              :variant="searchFilter === 'free' ? 'flat' : 'outlined'"
-              size="small"
-              @click="searchFilter = 'free'"
-            ) 無料のみ
+      .results-list(v-if="searchResults.length > 0")
+        AppRankItem(
+          v-for="(item, idx) in searchResults"
+          :key="item.id"
+          :item="item"
+          :rank="idx + 1"
+          @click="openDetail(item)"
+        )
+      .no-results(v-else)
+        v-icon(size="48" color="grey") mdi-magnify-remove-outline
+        p 一致するアプリやゲームが見つかりませんでした
 
-        .results-list(v-if="searchResults.length > 0")
-          AppRankItem(
-            v-for="(item, idx) in searchResults"
-            :key="item.id"
-            :item="item"
-            :rank="idx + 1"
-            @click="openDetail(item)"
-          )
-        .no-results(v-else)
-          v-icon(size="48" color="grey") mdi-magnify-remove-outline
-          p 一致するアプリやゲームが見つかりませんでした
-
-    //- ---------------- 2. 音楽タブ（Spotify / Apple Music風） ----------------
-    .music-content-view(v-else-if="currentNav === 'music'")
-      MusicView
-
-    //- ---------------- 3. 運営情報タブ ----------------
-    .about-content-view(v-else-if="currentNav === 'about'")
-      AboutView
-
-    //- ---------------- 4. アプリタブ（サブナビ連動） ----------------
-    template(v-else-if="currentNav === 'apps'")
+    //- ---------------- 2. アプリタブ（サブナビ連動） ----------------
+    template(v-else)
       //- おすすめタブ
       .tab-content(v-if="activeTab === 'foryou'")
-        //- ヒーローカルーセル
         HeroBanner(
           :items="featuredApps"
           @click="openDetail"
         )
 
-        //- 棚: あなたへのおすすめ
         AppShelf(
           title="あなたへのおすすめ"
           subtitle="利用傾向に基づいてピックアップ"
@@ -214,7 +114,6 @@ v-card.playstore-root(
             @click="openDetail(item)"
           )
 
-        //- 棚: 注目の新作ゲーム
         AppShelf(
           title="注目の新作ゲーム"
           subtitle="話題の最新タイトルをプレイしよう"
@@ -228,7 +127,6 @@ v-card.playstore-root(
             @click="openDetail(item)"
           )
 
-        //- 棚: 日常と仕事を便利にするツール
         AppShelf(
           title="生産性を高めるおすすめツール"
           subtitle="日々のタスクや作業効率をアップ"
@@ -242,7 +140,6 @@ v-card.playstore-root(
             @click="openDetail(item)"
           )
 
-        //- 棚: 高評価セレクション
         AppShelf(
           title="★ 4.7 以上の高評価アプリ＆ゲーム"
           subtitle="ユーザー満足度の高い定番コレクション"
@@ -254,7 +151,6 @@ v-card.playstore-root(
             @click="openDetail(item)"
           )
 
-        //- 棚: 癒しとライフスタイル
         AppShelf(
           title="健康＆ライフスタイル"
           subtitle="毎日の生活をサポート"
@@ -412,245 +308,52 @@ v-card.playstore-root(
               .cat-count {{ cat.count }}個のアプリ
 
     //- 下部ナビゲーションバー用の余白
-    .bottom-nav-spacer(:class="{ 'has-mini-player': musicStore.currentTrack }")
+    .bottom-nav-spacer
 
-  //- ================= 常駐ミニプレイヤー (音楽再生時) =================
-  MiniPlayer(:bottomOffset="settings.hidden.isAndroid15OrHigher ? 72 : 56")
-
-  //- ================= フル画面 Now Playing モーダル =================
-  NowPlayingModal
-
-  //- ================= ボトムナビゲーション (アプリ / 音楽 / 運営情報 / その他) =================
-  .store-bottom-nav
-    .nav-buttons
-      //- 1. アプリ
-      .nav-btn(
-        :class="{ active: currentNav === 'apps' && !searchQuery }"
-        v-ripple
-        @click="switchBottomNav('apps')"
-      )
-        v-icon {{ currentNav === 'apps' && !searchQuery ? 'mdi-apps' : 'mdi-apps' }}
-        span ソフトウェア
-
-      //- 2. 音楽 (Spotify / Apple Music風)
-      .nav-btn(
-        :class="{ active: currentNav === 'music' && !searchQuery }"
-        v-ripple
-        @click="switchBottomNav('music')"
-      )
-        v-icon {{ currentNav === 'music' && !searchQuery ? 'mdi-music' : 'mdi-music' }}
-        span 音楽
-
-      //- 3. プロフィール・経歴・実績
-      .nav-btn(
-        :class="{ active: currentNav === 'about' && !searchQuery }"
-        v-ripple
-        @click="switchBottomNav('about')"
-      )
-        v-icon {{ currentNav === 'about' && !searchQuery ? 'mdi-account-circle' : 'mdi-account-circle-outline' }}
-        span プロフィール
-
-      //- 4. その他
-      .nav-btn(
-        :class="{ active: optionsDialog }"
-        v-ripple
-        @click="optionsDialog = true"
-      )
-        v-icon mdi-dots-horizontal
-        span その他
-
-    .bottom-android-15-or-higher(v-if="settings.hidden.isAndroid15OrHigher")
-
-  //- ================= アプリ詳細ダイアログ =================
-  AppDetailModal(
-    v-model="detailDialogOpen"
-    :app="selectedApp"
-    @search="detailDialogOpen = false; searchQuery = ''"
-  )
-
-  //- ================= その他 / ようこそダイアログ =================
-  v-dialog(
-    v-model="optionsDialog"
-    transition="dialog-bottom-transition"
-    fullscreen
-  )
-    v-card
-      .top-android-15-or-higher(v-if="settings.hidden.isAndroid15OrHigher")
-      v-card-actions
-        p.ml-4(class="headline" style="font-size: 1.3em") ようこそ
-        v-spacer
-        v-btn(
-          text
-          @click="optionsDialog = false"
-          icon="mdi-close"
-        )
-      v-card-text
-        .account-details(
-          style="display: flex; flex-direction: column; align-items: center; gap: 1em; margin-bottom: 1em;"
-        )
-          .account-img
-            img(
-              src="/icon.png"
-              style="height: 8em; width: 8em; border-radius: 9999px;"
-              onerror="this.src='/account_default.jpg'"
-            )
-          .account-info(style="text-align: center;")
-            p(style="font-size: 1.2em; margin: 0; padding: 0;") エノキ電気
-            p(style="margin: 0; padding: 0;") ENOKI ELECTRONICS
-          //.account-info(style="text-align: center;")
-            p(
-              v-if="myProfile.userId && !myProfile.guest"
-              style="font-size: 1.2em; margin: 0; padding: 0;"
-            ) {{ myProfile.name ? myProfile.name : myProfile.userId }}
-            p(v-else style="font-size: 1.2em; margin: 0; padding: 0;") ログインしていません
-            p(style="margin: 0; padding: 0;")
-              | {{ myProfile.userId && !myProfile.guest ? `@${myProfile.userId}` : 'データは同期されていません' }}
-            v-btn.my-2(
-              v-if="myProfile.userId && !myProfile.guest"
-              text
-              @click="$router.push(`/user/${myProfile.userId}`)"
-              append-icon="mdi-account-outline"
-              style="background-color: rgb(var(--v-theme-primary)); color: white;"
-            ) プロフィールを表示
-            v-btn.my-2(
-              v-else
-              text
-              @click="$router.push('/login')"
-              append-icon="mdi-login"
-              style="background-color: rgb(var(--v-theme-primary)); color: white;"
-            ) ログイン
-
-        v-list.options-list
-          v-list-item.item(@click="$router.push('/qrcode')")
-            .icon-and-text
-              v-icon mdi-qrcode-scan
-              v-list-item-title QRコードで探す
-          v-list-item.item(@click="$router.push('/settings')")
-            .icon-and-text
-              v-icon mdi-cog
-              v-list-item-title 設定
-          v-list-item.item(@click="$router.push('/terms')")
-            .icon-and-text
-              v-icon mdi-file-document-outline
-              v-list-item-title 利用規約
-          v-list-item.item(@click="$router.push('/privacy')")
-            .icon-and-text
-              v-icon mdi-shield-lock-outline
-              v-list-item-title プライバシーポリシー
-          v-list-item.item(@click="optionsDialog = false; switchBottomNav('about')")
-            .icon-and-text
-              v-icon mdi-account-circle-outline
-              v-list-item-title プロフィール・実績（ときえのき）
-          v-list-item.item(@click="share('https://enoki.xyz?openExternalBrowser=1', 'エノキ電気 公式ホームページ')")
-            .icon-and-text
-              v-icon mdi-share-variant
-              v-list-item-title 共有する
-          v-list-item.item(@click="reloadMockData")
-            .icon-and-text
-              v-icon mdi-refresh
-              v-list-item-title アプリモックデータを再読み込み (100件)
-          v-list-item.item(@click="reloadMusicData")
-            .icon-and-text
-              v-icon mdi-music-box-multiple
-              v-list-item-title 音楽モックデータを再読み込み (60曲)
+  //- ================= ボトムナビゲーション =================
+  BottomNav(v-model="optionsDialog")
 </template>
 
 <script lang="ts">
 import { App } from '@capacitor/app'
-import { Share } from '@capacitor/share'
 import { Toast } from '@capacitor/toast'
-// @ts-ignore
 import mixins from '@/mixins/mixins'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
 import { useAppStore, type AppOrMusicItem } from '@/stores/app'
-import { useMusicStore, type MusicItem } from '@/stores/music'
 import Setup from '@/js/setup'
+import HeroProfile from '@/components/common/HeroProfile.vue'
+import BottomNav from '@/components/common/BottomNav.vue'
 import AppCard from '@/components/store/AppCard.vue'
 import AppRankItem from '@/components/store/AppRankItem.vue'
 import AppShelf from '@/components/store/AppShelf.vue'
 import HeroBanner from '@/components/store/HeroBanner.vue'
-import AppDetailModal from '@/components/store/AppDetailModal.vue'
-import MusicView from '@/components/music/MusicView.vue'
-import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
-import MiniPlayer from '@/components/music/MiniPlayer.vue'
-import NowPlayingModal from '@/components/music/NowPlayingModal.vue'
-import AboutView from '@/components/about/AboutView.vue'
-
-const HERO_BACKGROUNDS = [
-  '/backgrounds/20250816-_NIK0445.JPG',
-  '/backgrounds/IMG_1484.jpg',
-  '/backgrounds/IMG_20210813_013325_793.webp',
-  encodeURI('/backgrounds/IMG_20250809_184240 (1).jpg'),
-  encodeURI('/backgrounds/PXL_20260412_104232273 (1).jpg'),
-  '/backgrounds/PXL_20260623_141509354.jpg',
-  '/backgrounds/PXL_20260627_083339375.MP.jpg',
-  '/backgrounds/PXL_20260707_055552550.jpg',
-]
 
 export default {
+  name: 'IndexPage',
   components: {
+    HeroProfile,
+    BottomNav,
     AppCard,
     AppRankItem,
     AppShelf,
     HeroBanner,
-    AppDetailModal,
-    MusicView,
-    MusicTrackRow,
-    MiniPlayer,
-    NowPlayingModal,
-    AboutView,
   },
   mixins: [mixins],
   data() {
-    const route = useRoute()
-    const isProfile =
-      route.query.tab === 'profile' ||
-      route.query.tab === 'about' ||
-      route.query.nav === 'about' ||
-      route.query.nav === 'profile'
     return {
       optionsDialog: false,
       myProfile: useMyProfileStore(),
       settings: useSettingsStore(),
       appStore: useAppStore(),
-      musicStore: useMusicStore(),
-      currentNav: (isProfile ? 'about' : 'apps') as 'apps' | 'music' | 'about',
       searchQuery: '',
-      isSearchActive: false,
       searchFilter: 'all' as 'all' | 'game' | 'app' | 'free',
       activeTab: 'foryou',
       rankingType: 'all',
-      detailDialogOpen: false,
-      selectedApp: null as AppOrMusicItem | null,
       selectedCategory: null as string | null,
-      heroBackgrounds: HERO_BACKGROUNDS,
-      currentHeroBgIndex: 0,
-      heroBgTimer: null as any,
     }
   },
-  watch: {
-    currentNav() {
-      this.updatePageTitle()
-    },
-    '$route.query'(newQuery) {
-      if (
-        newQuery.tab === 'profile' ||
-        newQuery.tab === 'about' ||
-        newQuery.nav === 'about' ||
-        newQuery.nav === 'profile'
-      ) {
-        this.switchBottomNav('about')
-      }
-    },
-  },
   computed: {
-    searchPlaceholder(): string {
-      if (this.currentNav === 'music') {
-        return '楽曲、アーティスト、アルバムを検索'
-      }
-      return 'アプリやゲームを検索'
-    },
     allApps(): AppOrMusicItem[] {
       return this.appStore.list
     },
@@ -727,19 +430,6 @@ export default {
       }
       return filtered
     },
-    musicSearchResults(): MusicItem[] {
-      const q = this.searchQuery.trim().toLowerCase()
-      if (!q || this.currentNav !== 'music') return []
-      return this.musicStore.list.filter((item) => {
-        const titleMatch = (item.title || item.name || '')
-          .toLowerCase()
-          .includes(q)
-        const artistMatch = (item.artist || '').toLowerCase().includes(q)
-        const albumMatch = (item.album || '').toLowerCase().includes(q)
-        const genreMatch = (item.genre || '').toLowerCase().includes(q)
-        return titleMatch || artistMatch || albumMatch || genreMatch
-      })
-    },
     categoryApps(): AppOrMusicItem[] {
       if (!this.selectedCategory) return []
       return this.allApps.filter(
@@ -795,63 +485,26 @@ export default {
     },
   },
   setup() {
-    const route = useRoute()
-    const isProfile =
-      route.query.tab === 'profile' ||
-      route.query.tab === 'about' ||
-      route.query.nav === 'about' ||
-      route.query.nav === 'profile'
-    if (isProfile) {
-      Setup.setTitle('プロフィール')
-      Setup.setDescription(
-        'エノキ電気代表・ときえのき（jikantoki）の経歴、実績、保有資格、スキル一覧です。',
-      )
-    } else {
-      Setup.setTitle('トップ')
-      Setup.setDescription('エノキ電気公式アプリ＆音楽プラットフォーム。')
-    }
+    Setup.setTitle('ソフトウェア')
+    Setup.setDescription(
+      'エノキ電気の公式ソフトウェア・ゲーム・ツール一覧プラットフォーム。',
+    )
   },
   async mounted() {
-    if (
-      this.$route.query.tab === 'profile' ||
-      this.$route.query.tab === 'about' ||
-      this.$route.query.nav === 'about' ||
-      this.$route.query.nav === 'profile'
-    ) {
-      this.currentNav = 'about'
-    }
-    this.updatePageTitle()
+    this.setTitle('ソフトウェア')
 
-    // ヒーロー背景画像の初期ランダム選定 & 3秒単位ローテーションタイマー開始
-    if (this.heroBackgrounds && this.heroBackgrounds.length > 0) {
-      this.currentHeroBgIndex = Math.floor(Math.random() * this.heroBackgrounds.length)
-      this.startHeroBgTimer()
-    }
-
-    // アプリモックデータが存在しない場合は確実にロード
     if (!this.appStore.list || this.appStore.list.length === 0) {
       this.appStore.loadMockData(true)
     }
 
-    // 音楽モックデータが存在しない場合はロード
-    if (!this.musicStore.list || this.musicStore.list.length === 0) {
-      this.musicStore.loadMockData(true)
-    }
-
     /** バックボタンのリスナーを追加 */
     App.addListener('backButton', () => {
-      if (this.musicStore.nowPlayingModalOpen) {
-        this.musicStore.closeNowPlaying()
-      } else if (this.detailDialogOpen) {
-        this.detailDialogOpen = false
-      } else if (this.optionsDialog) {
+      if (this.optionsDialog) {
         this.optionsDialog = false
       } else if (this.selectedCategory) {
         this.selectedCategory = null
       } else if (this.searchQuery) {
         this.searchQuery = ''
-      } else if (this.currentNav !== 'apps') {
-        this.currentNav = 'apps'
       } else if (this.$route.path === '/') {
         App.minimizeApp()
         Toast.show({ text: 'アプリはバックグラウンドで実行されます' })
@@ -861,66 +514,11 @@ export default {
     })
   },
   unmounted() {
-    if (this.heroBgTimer) {
-      clearInterval(this.heroBgTimer)
-      this.heroBgTimer = null
-    }
     App.removeAllListeners()
   },
   methods: {
-    startHeroBgTimer() {
-      if (this.heroBgTimer) {
-        clearInterval(this.heroBgTimer)
-      }
-      this.heroBgTimer = setInterval(() => {
-        this.rotateHeroBackground()
-      }, 3000)
-    },
-    rotateHeroBackground() {
-      if (!this.heroBackgrounds || this.heroBackgrounds.length <= 1) return
-      let nextIdx = Math.floor(Math.random() * (this.heroBackgrounds.length - 1))
-      if (nextIdx >= this.currentHeroBgIndex) {
-        nextIdx += 1
-      }
-      this.currentHeroBgIndex = nextIdx
-    },
-    goToProfile() {
-      this.$router.push('/about')
-    },
     openDetail(item: AppOrMusicItem) {
-      this.selectedApp = item
-      this.detailDialogOpen = true
-    },
-    playMusic(item: MusicItem, queue?: MusicItem[]) {
-      this.musicStore.play(item, queue)
-    },
-    updatePageTitle() {
-      if (this.currentNav === 'about') {
-        this.setTitle('プロフィール')
-      } else if (this.currentNav === 'music') {
-        this.setTitle('音楽')
-      } else {
-        this.setTitle('トップ')
-      }
-    },
-    switchBottomNav(nav: 'apps' | 'music' | 'about') {
-      this.searchQuery = ''
-      this.currentNav = nav
-      this.updatePageTitle()
-      const container = this.$refs.scrollContainer as HTMLElement
-      if (container) {
-        container.scrollTop = 0
-      }
-    },
-    reloadMockData() {
-      this.appStore.loadMockData(true)
-      Toast.show({ text: '100件のアプリモックデータを再読み込みしました' })
-      this.optionsDialog = false
-    },
-    reloadMusicData() {
-      this.musicStore.loadMockData(true)
-      Toast.show({ text: '60曲の音楽モックデータを再読み込みしました' })
-      this.optionsDialog = false
+      this.$router.push(`/apps/${item.id}`)
     },
     gamesByCategory(category: string): AppOrMusicItem[] {
       return this.allApps.filter(
@@ -932,12 +530,6 @@ export default {
         (item) => item.type === 'app' && item.category === category,
       )
     },
-    async share(content: string, title = '') {
-      await Share.share({
-        url: content,
-        title: title,
-      })
-    },
   },
 }
 </script>
@@ -947,639 +539,211 @@ export default {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: rgb(var(--v-theme-surface));
-}
-
-// ---------------- トップ検索バー ----------------
-.store-top-bar {
-  padding: 12px 16px 8px 16px;
-  background-color: rgb(var(--v-theme-surface));
-  z-index: 10;
-
-  .search-pill {
-    display: flex;
-    align-items: center;
-    background-color: rgba(var(--v-theme-on-surface), 0.08);
-    border-radius: 9999px;
-    padding: 4px 6px 4px 16px;
-    height: 48px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-    transition: background-color 0.2s, box-shadow 0.2s;
-
-    &:focus-within {
-      background-color: rgb(var(--v-theme-surface));
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
-      border: 1px solid rgba(var(--v-theme-primary), 0.3);
-    }
-
-    .search-icon {
-      color: rgba(var(--v-theme-on-surface), 0.6);
-      margin-right: 10px;
-    }
-
-    .search-input {
-      flex: 1;
-      border: none;
-      outline: none;
-      background: transparent;
-      font-size: 15px;
-      color: rgb(var(--v-theme-on-surface));
-
-      &::placeholder {
-        color: rgba(var(--v-theme-on-surface), 0.5);
-      }
-    }
-
-    .account-avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      overflow: hidden;
-      cursor: pointer;
-      margin-left: 8px;
-      flex-shrink: 0;
-      border: 1.5px solid rgba(var(--v-theme-on-surface), 0.15);
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-  }
-}
-
-// ---------------- ヒーロー自己紹介エリア (全ページ共通) ----------------
-.hero-profile {
+  height: 100%;
   position: relative;
-  overflow: hidden;
-  margin: 0 16px 10px 16px;
-  border-radius: 20px;
-  min-height: 135px;
-  cursor: pointer;
-  user-select: none;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-  z-index: 8;
-  flex-shrink: 0;
+  background-color: rgb(var(--v-theme-surface));
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.32);
-    border-color: rgba(56, 189, 248, 0.45);
-
-    .cta-arrow {
-      transform: translateX(4px);
-    }
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  // 背景画像レイヤー群 (3秒ごとにクロスフェード＆穏やかなズーム)
-  .hero-bg-container {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    background-color: #0b1120;
-
-    .hero-bg-slide {
-      position: absolute;
-      inset: -4px; // わずかなマージンでズーム時の余白を防ぐ
-      background-size: cover;
-      background-position: center;
-      opacity: 0;
-      transform: scale(1);
-      transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 5s linear;
-      will-change: opacity, transform;
-      pointer-events: none;
-
-      &.active {
-        opacity: 1;
-        transform: scale(1.06);
-        z-index: 1;
-      }
-    }
-
-    // ダークグラデーション＋すりガラスオーバーレイ
-    .hero-bg-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      background: linear-gradient(
-        135deg,
-        rgba(10, 15, 30, 0.88) 0%,
-        rgba(15, 23, 42, 0.74) 45%,
-        rgba(2, 6, 23, 0.84) 100%
-      );
-      backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
-    }
-  }
-
-  // コンテンツ本体
-  .hero-profile-inner {
-    position: relative;
-    z-index: 3;
+  // ---------------- トップ検索バー ----------------
+  .store-top-bar {
+    padding: 10px 16px 8px 16px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px 20px 20px;
-    gap: 16px;
-    color: #ffffff;
+    background-color: rgb(var(--v-theme-surface));
+    z-index: 10;
+    flex-shrink: 0;
 
-    .hero-main-group {
+    .search-pill {
+      flex: 1;
+      height: 48px;
+      background-color: rgba(var(--v-theme-on-surface), 0.07);
+      border-radius: 9999px;
       display: flex;
       align-items: center;
-      gap: 16px;
-      flex: 1;
-      min-width: 0;
-    }
+      padding: 0 8px 0 16px;
+      gap: 10px;
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+      border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 
-    // アイコン / アバター
-    .hero-avatar-wrapper {
-      position: relative;
-      flex-shrink: 0;
-      width: 64px;
-      height: 64px;
-
-      .hero-avatar {
-        width: 100%;
-        height: 100%;
-        border-radius: 18px;
-        object-fit: cover;
-        border: 2px solid rgba(255, 255, 255, 0.35);
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-        background-color: #1e293b;
+      &:focus-within {
+        background-color: rgba(var(--v-theme-on-surface), 0.1);
+        border-color: rgb(var(--v-theme-primary));
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
       }
 
-      .hero-status-badge {
-        position: absolute;
-        bottom: -4px;
-        right: -4px;
-        display: flex;
-        align-items: center;
-        gap: 3px;
-        padding: 2px 6px;
-        border-radius: 9999px;
-        background: rgba(16, 185, 129, 0.95);
-        color: #ffffff;
-        font-size: 8.5px;
-        font-weight: 800;
-        letter-spacing: 0.5px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+      .search-icon {
+        color: rgba(var(--v-theme-on-surface), 0.6);
+        font-size: 20px;
+      }
 
-        .status-dot {
-          width: 5px;
-          height: 5px;
-          border-radius: 50%;
-          background-color: #ffffff;
-          animation: pulse-dot 2s infinite ease-in-out;
+      .search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-size: 14.5px;
+        color: rgb(var(--v-theme-on-surface));
+
+        &::placeholder {
+          color: rgba(var(--v-theme-on-surface), 0.5);
+        }
+      }
+
+      .account-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        overflow: hidden;
+        cursor: pointer;
+        flex-shrink: 0;
+        margin-left: 4px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
       }
     }
+  }
 
-    // 自己紹介テキスト
-    .hero-text-block {
+  // ---------------- サブナビ（アプリ用タブバー） ----------------
+  .store-sub-nav {
+    background-color: rgb(var(--v-theme-surface));
+    border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.06);
+    flex-shrink: 0;
+    z-index: 9;
+  }
+
+  // ---------------- スクロールコンテンツ ----------------
+  .store-scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 24px;
+  }
+
+  .tab-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  // ---------------- 検索結果画面 ----------------
+  .search-results-view {
+    padding: 16px;
+
+    .search-header {
+      margin-bottom: 16px;
+
+      .search-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .filter-chips {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+      }
+    }
+
+    .results-list {
       display: flex;
       flex-direction: column;
       gap: 4px;
-      min-width: 0;
-      flex: 1;
-
-      .hero-title-row {
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-        flex-wrap: wrap;
-
-        .hero-brand-name {
-          font-size: 1.35rem;
-          font-weight: 900;
-          letter-spacing: -0.02em;
-          color: #ffffff;
-          text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-          margin: 0;
-          line-height: 1.2;
-        }
-
-        .hero-brand-en {
-          font-size: 0.72rem;
-          font-weight: 700;
-          letter-spacing: 0.08em;
-          color: rgba(255, 255, 255, 0.65);
-          text-transform: uppercase;
-        }
-
-        .hero-representative-badge {
-          font-size: 0.7rem;
-          font-weight: 600;
-          padding: 1px 7px;
-          border-radius: 6px;
-          background: rgba(255, 255, 255, 0.16);
-          color: #e2e8f0;
-          backdrop-filter: blur(4px);
-        }
-      }
-
-      .hero-catchphrase {
-        display: flex;
-        align-items: baseline;
-        gap: 6px;
-        margin: 2px 0 0 0;
-        font-size: 0.9rem;
-        flex-wrap: wrap;
-        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-
-        .hero-quote {
-          font-weight: 800;
-          color: #38bdf8;
-          letter-spacing: 0.02em;
-        }
-
-        .hero-divider {
-          color: rgba(255, 255, 255, 0.4);
-        }
-
-        .hero-subcatch {
-          color: rgba(255, 255, 255, 0.9);
-          font-weight: 500;
-        }
-      }
-
-      .hero-tag-chips {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-top: 4px;
-        flex-wrap: wrap;
-
-        .hero-chip {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 10px;
-          font-weight: 600;
-          padding: 2px 8px;
-          border-radius: 9999px;
-          background: rgba(255, 255, 255, 0.12);
-          color: rgba(255, 255, 255, 0.92);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-        }
-      }
     }
 
-    // 右側 CTA ボタン
-    .hero-action-group {
-      flex-shrink: 0;
+    .no-results {
+      padding: 60px 20px;
+      text-align: center;
+      color: rgba(var(--v-theme-on-surface), 0.5);
 
-      .hero-cta-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        border-radius: 9999px;
-        background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(99, 102, 241, 0.26) 100%);
-        border: 1px solid rgba(56, 189, 248, 0.45);
-        backdrop-filter: blur(8px);
-        color: #ffffff;
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        transition: all 0.2s ease;
-
-        .cta-arrow {
-          transition: transform 0.2s ease;
-        }
+      p {
+        margin-top: 12px;
+        font-size: 14px;
       }
     }
   }
 
-  // スライドインジケーター（3秒ごとの切り替え表示）
-  .hero-slide-indicators {
-    position: absolute;
-    bottom: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 4;
+  // ---------------- ランキング画面 ----------------
+  .ranking-filter-row {
+    padding: 8px 16px;
+    background-color: rgb(var(--v-theme-surface));
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  .ranking-list {
     display: flex;
-    gap: 4px;
+    flex-direction: column;
+    padding: 0 8px;
+  }
 
-    .indicator-bar {
-      width: 14px;
-      height: 3px;
-      border-radius: 2px;
-      background: rgba(255, 255, 255, 0.22);
-      transition: all 0.4s ease;
+  // ---------------- カテゴリ画面 ----------------
+  .categories-view {
+    padding: 12px 16px;
 
-      &.active {
-        width: 24px;
-        background: #38bdf8;
-        box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+
+      .category-card {
+        padding: 18px 14px;
+        background-color: rgba(var(--v-theme-on-surface), 0.04);
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        cursor: pointer;
+        transition: transform 0.15s, background-color 0.15s;
+        border: 1px solid rgba(var(--v-theme-on-surface), 0.05);
+
+        &:hover {
+          background-color: rgba(var(--v-theme-on-surface), 0.08);
+          transform: translateY(-2px);
+        }
+
+        .cat-name {
+          font-weight: 700;
+          font-size: 13px;
+          margin-top: 8px;
+        }
+
+        .cat-count {
+          font-size: 11px;
+          color: rgba(var(--v-theme-on-surface), 0.55);
+          margin-top: 2px;
+        }
       }
     }
-  }
-}
 
-@keyframes pulse-dot {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(0.8);
-  }
-}
-
-// モバイル対応（画面幅 680px 以下）
-@media (max-width: 680px) {
-  .hero-profile {
-    margin: 0 12px 8px 12px;
-    border-radius: 16px;
-    min-height: auto;
-
-    .hero-profile-inner {
-      padding: 12px 14px 16px 14px;
+    .category-select-row {
+      display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
+      gap: 16px;
 
-      .hero-main-group {
-        width: 100%;
+      .category-heading {
+        font-size: 1.15rem;
+        font-weight: 800;
+      }
+
+      .category-apps-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
         gap: 12px;
       }
-
-      .hero-avatar-wrapper {
-        width: 52px;
-        height: 52px;
-
-        .hero-avatar {
-          border-radius: 14px;
-        }
-
-        .hero-status-badge {
-          font-size: 8px;
-          padding: 1px 4px;
-        }
-      }
-
-      .hero-text-block {
-        .hero-title-row {
-          .hero-brand-name {
-            font-size: 1.15rem;
-          }
-          .hero-brand-en {
-            font-size: 0.65rem;
-          }
-          .hero-representative-badge {
-            font-size: 0.65rem;
-            padding: 1px 5px;
-          }
-        }
-
-        .hero-catchphrase {
-          font-size: 0.82rem;
-          gap: 4px;
-        }
-
-        .hero-tag-chips {
-          display: none; // スマホではコンパクトさを優先
-        }
-      }
-
-      .hero-action-group {
-        width: 100%;
-        display: flex;
-        justify-content: flex-end;
-
-        .hero-cta-btn {
-          padding: 5px 12px;
-          font-size: 11px;
-        }
-      }
-    }
-  }
-}
-
-// ---------------- サブナビ（アプリ用タブバー） ----------------
-.store-sub-nav {
-  background-color: rgb(var(--v-theme-surface));
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  z-index: 9;
-
-  :deep(.v-tab) {
-    font-size: 13.5px;
-    font-weight: 600;
-    letter-spacing: 0;
-    text-transform: none;
-    min-width: 72px;
-    padding: 0 14px;
-  }
-}
-
-// ---------------- メインスクロールエリア ----------------
-.store-scroll-content {
-  flex: 1;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 16px;
-}
-
-// ---------------- 検索結果表示 ----------------
-.search-results-view {
-  padding: 16px;
-
-  .search-header {
-    margin-bottom: 16px;
-
-    .search-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: rgb(var(--v-theme-on-surface));
-    }
-
-    .filter-chips {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
     }
   }
 
-  .results-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .no-results {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    gap: 12px;
-    color: rgba(var(--v-theme-on-surface), 0.6);
-    text-align: center;
-  }
-}
-
-// ---------------- ランキングタブ ----------------
-.ranking-filter-row {
-  padding: 8px 16px;
-}
-.ranking-list {
-  padding: 0 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-// ---------------- カテゴリタブ ----------------
-.categories-view {
-  padding: 16px;
-
-  .category-select-row {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-
-    .category-heading {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .category-apps-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      justify-content: flex-start;
-    }
-  }
-
-  .category-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
-
-    .category-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 18px 12px;
-      border-radius: 16px;
-      background-color: rgba(var(--v-theme-on-surface), 0.04);
-      cursor: pointer;
-      text-align: center;
-      transition: background-color 0.15s, transform 0.15s;
-
-      &:hover {
-        background-color: rgba(var(--v-theme-on-surface), 0.08);
-        transform: translateY(-2px);
-      }
-
-      .cat-name {
-        font-size: 13.5px;
-        font-weight: 600;
-        margin-top: 8px;
-        color: rgb(var(--v-theme-on-surface));
-      }
-
-      .cat-count {
-        font-size: 11px;
-        color: rgba(var(--v-theme-on-surface), 0.55);
-        margin-top: 2px;
-      }
-    }
-  }
-}
-
-// ---------------- ボトムナビゲーション ----------------
-.store-bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: rgb(var(--v-theme-surface));
-  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  z-index: 50;
-
-  .nav-buttons {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 56px;
-
-    .nav-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      flex: 1;
-      height: 100%;
-      cursor: pointer;
-      color: rgba(var(--v-theme-on-surface), 0.65);
-      transition: color 0.15s;
-      user-select: none;
-
-      v-icon {
-        font-size: 22px;
-      }
-
-      span {
-        font-size: 10px;
-        font-weight: 500;
-        margin-top: 2px;
-      }
-
-      &.active {
-        color: rgb(var(--v-theme-primary));
-        font-weight: 700;
-      }
-    }
-  }
-}
-
-.bottom-nav-spacer {
-  height: 64px;
-  transition: height 0.2s;
-
-  &.has-mini-player {
-    height: 128px;
-  }
-}
-
-.bottom-android-15-or-higher {
-  height: 16px;
-}
-.top-android-15-or-higher {
-  padding-top: 40px;
-}
-
-.options-list {
-  .item {
-    padding: 12px 16px;
-    border-radius: 12px !important;
-    margin: 8px 0;
-    cursor: pointer;
-    &:hover {
-      background-color: rgba(var(--v-theme-primary), 0.1);
-    }
-    .icon-and-text {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 16px;
-      v-icon {
-        font-size: 24px;
-      }
-    }
+  .bottom-nav-spacer {
+    height: 72px;
   }
 }
 </style>
