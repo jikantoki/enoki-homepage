@@ -102,7 +102,7 @@ v-card.app-detail-page-root(
       .links-section(v-if="app.links && app.links.length")
         .section-title 外部リンク・公開情報
         .links-grid
-          v-btn(
+          v-btn.pa-2(
             v-for="link in app.links"
             :key="link.text"
             :href="link.url"
@@ -111,10 +111,11 @@ v-card.app-detail-page-root(
             variant="outlined"
             rounded="pill"
             size="small"
+            style="height: 100%;"
             :prepend-icon="link.icon || 'mdi-open-in-new'"
           ) {{ link.text }}
 
-          v-btn(
+          v-btn.pa-2(
             v-if="app.githubUrl"
             :href="app.githubUrl"
             target="_blank"
@@ -122,10 +123,11 @@ v-card.app-detail-page-root(
             variant="outlined"
             rounded="pill"
             size="small"
+            style="height: 100%;"
             prepend-icon="mdi-github"
           ) GitHub
 
-          v-btn(
+          v-btn.pa-2(
             v-if="app.videoUrl"
             :href="app.videoUrl"
             target="_blank"
@@ -133,6 +135,7 @@ v-card.app-detail-page-root(
             variant="outlined"
             rounded="pill"
             size="small"
+            style="height: 100%;"
             prepend-icon="mdi-youtube"
             color="error"
           ) YouTube
@@ -196,7 +199,10 @@ export default {
     relatedApps(): AppOrMusicItem[] {
       if (!this.app) return []
       return this.appStore.list
-        .filter((item) => item.id !== this.appId && item.category === this.app?.category)
+        .filter(
+          (item) =>
+            item.id !== this.appId && item.category === this.app?.category,
+        )
         .slice(0, 8)
     },
   },
@@ -267,7 +273,9 @@ export default {
       await new Promise((resolve) => setTimeout(resolve, 1400))
       this.installing = false
       this.installed = true
-      await Toast.show({ text: `${this.app?.name} のインストールが完了しました！` })
+      await Toast.show({
+        text: `${this.app?.name} のインストールが完了しました！`,
+      })
     },
   },
 }

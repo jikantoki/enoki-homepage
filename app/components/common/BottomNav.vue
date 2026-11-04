@@ -41,22 +41,26 @@
     .bottom-android-15-or-higher(v-if="settings.hidden.isAndroid15OrHigher")
 
   //- ================= その他 / ようこそダイアログ =================
-  v-dialog(
+  v-dialog.options-dialog(
     v-model="optionsDialog"
-    transition="dialog-bottom-transition"
-    fullscreen
+    :fullscreen="isMobile"
+    :transition="isMobile ? 'dialog-bottom-transition' : 'dialog-transition'"
+    :max-width="isMobile ? undefined : 500"
+    :width="isMobile ? '100%' : '90%'"
+    scrollable
   )
-    v-card
-      .top-android-15-or-higher(v-if="settings.hidden.isAndroid15OrHigher")
-      v-card-actions
-        p.ml-4(class="headline" style="font-size: 1.3em") ようこそ
+    v-card.options-dialog-card(:class="{ 'is-pc': !isMobile }")
+      .top-android-15-or-higher(v-if="settings.hidden.isAndroid15OrHigher && isMobile")
+      v-card-actions.dialog-header
+        p.ml-4.dialog-title(class="headline font-weight-bold" style="font-size: 1.25em") ようこそ
         v-spacer
-        v-btn(
-          text
-          @click="optionsDialog = false"
+        v-btn.dialog-close-btn(
           icon="mdi-close"
+          variant="text"
+          density="comfortable"
+          @click="optionsDialog = false"
         )
-      v-card-text
+      v-card-text.dialog-content
         .account-details(
           style="display: flex; flex-direction: column; align-items: center; gap: 1em; margin-bottom: 1em;"
         )
@@ -139,6 +143,10 @@ export default {
     },
   },
   computed: {
+    isMobile(): boolean {
+      // 画面幅が600px未満（スマホ縦画面など）の場合は全画面ダイアログ
+      return Boolean(this.$vuetify?.display?.xs)
+    },
     currentPath(): string {
       return this.$route.path
     },
@@ -246,19 +254,67 @@ export default {
   }
 }
 
+.options-dialog-card {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(var(--v-theme-surface));
+
+  &.is-pc {
+    border-radius: 24px !important;
+    max-height: 85vh;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+
+    .dialog-header {
+      padding: 16px 16px 8px 24px;
+      flex-shrink: 0;
+    }
+
+    .dialog-content {
+      padding: 8px 20px 24px 20px;
+      overflow-y: auto;
+    }
+  }
+
+  &:not(.is-pc) {
+    min-height: 100vh;
+    height: 100%;
+    border-radius: 0 !important;
+
+    .dialog-header {
+      padding: 8px 8px 8px 16px;
+      flex-shrink: 0;
+    }
+
+    .dialog-content {
+      padding: 8px 16px 24px 16px;
+      overflow-y: auto;
+    }
+  }
+}
+
 .options-list {
   background: transparent;
 
   .item {
     cursor: pointer;
     border-radius: 12px !important;
-    padding: 0.5em;
+    padding: 0.5em 0.8em;
     margin-bottom: 4px;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: rgba(var(--v-theme-on-surface), 0.06);
+    }
 
     .icon-and-text {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
+      font-size: 14px;
     }
   }
 }
