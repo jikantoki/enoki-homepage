@@ -2,13 +2,98 @@ import { defineStore } from 'pinia'
 import mockAppsData from '../data/apps.json'
 
 /**
+ * サポートされているプラットフォーム種別
+ */
+export const SUPPORTED_PLATFORMS = [
+  'Windows',
+  'Linux',
+  'Mac OS',
+  'Android',
+  'iOS',
+  'Web',
+  'その他',
+] as const
+
+export type SupportedPlatform = (typeof SUPPORTED_PLATFORMS)[number]
+
+/**
+ * プラットフォーム一致判定ヘルパー関数
+ * 表記ゆれ（大文字小文字、win/windows, mac/macos/osx, etc.）を柔軟に正規化して判定
+ */
+export function isPlatformMatch(
+  platforms: string[] | undefined,
+  targetPlatform: string,
+): boolean {
+  if (!platforms || !Array.isArray(platforms) || platforms.length === 0) {
+    return targetPlatform === 'その他'
+  }
+
+  const normalized = platforms.map((p) => String(p).toLowerCase().trim())
+  const target = targetPlatform.toLowerCase().trim()
+
+  if (target === 'windows' || target === 'win') {
+    return normalized.some((p) => p.includes('windows') || p.includes('win'))
+  }
+  if (target === 'linux') {
+    return normalized.some((p) => p.includes('linux'))
+  }
+  if (
+    target === 'mac os' ||
+    target === 'macos' ||
+    target === 'mac' ||
+    target === 'osx'
+  ) {
+    return normalized.some(
+      (p) =>
+        p.includes('mac') ||
+        p.includes('macos') ||
+        p.includes('osx') ||
+        p.includes('darwin'),
+    )
+  }
+  if (target === 'android') {
+    return normalized.some((p) => p.includes('android'))
+  }
+  if (target === 'ios' || target === 'iphone' || target === 'ipad') {
+    return normalized.some(
+      (p) => p.includes('ios') || p.includes('iphone') || p.includes('ipad'),
+    )
+  }
+  if (target === 'web' || target === 'browser') {
+    return normalized.some((p) => p.includes('web') || p.includes('browser'))
+  }
+  if (target === 'その他' || target === 'other') {
+    return normalized.some(
+      (p) =>
+        ![
+          'windows',
+          'win',
+          'linux',
+          'mac',
+          'macos',
+          'osx',
+          'darwin',
+          'android',
+          'ios',
+          'iphone',
+          'ipad',
+          'web',
+          'browser',
+        ].some((known) => p.includes(known)),
+    )
+  }
+
+  return normalized.some((p) => p.includes(target) || target.includes(p))
+}
+
+/**
  * アプリリンク情報
  */
 export interface AppLink {
   /** ボタンに表示するテキスト */
   text: string
   /** ボタン表示用MDIアイコン */
-  icon: string
+  icon?: string
   /** 遷移先URL */
   url: string
 }
@@ -149,6 +234,32 @@ export const useAppStore = defineStore('app', {
     regularApps: (state) => state.list.filter(item => item.type === 'app'),
     /** ピックアップ/注目一覧 */
     featuredApps: (state) => state.list.filter(item => item.featured),
+    /** あなたへのおすすめ一覧 */
+    recommendedApps: (state) => {
+      const featured = state.list.filter(item => item.featured)
+      const others = state.list.filter(item => !item.featured)
+      return [...featured, ...others].slice(0, 12)
+    },
+    /** Webサービス一覧 */
+    webServices: (state) => state.list.filter(item => isPlatformMatch(item.platforms, 'Web')),
+    /** Androidアプリ一覧 */
+    androidApps: (state) => state.list.filter(item => isPlatformMatch(item.platforms, 'Android')),
+    /** プラットフォーム別フィルター関数 */
+    byPlatform: (state) => (platform: string) => {
+      return state.list.filter(item => isPlatformMatch(item.platforms, platform))
+    },
+    /** 各プラットフォームの登録件数マップ */
+    platformCounts: (state) => {
+      const counts: Record<string, number> = {}
+      for (const p of SUPPORTED_PLATFORMS) {
+        counts[p] = state.list.filter(item => isPlatformMatch(item.platforms, p)).length
+      }
+      return counts
+    },
+    /** カテゴリ別フィルター関数 */
+    byCategory: (state) => (category: string) => {
+      return state.list.filter(item => item.category === category)
+    },
     /** 高評価ランキング一覧 */
     topRanked: (state) => [...state.list].sort((a, b) => ((b.rating || 0) - (a.rating || 0))),
     /** 新着順一覧 */
@@ -166,10 +277,24 @@ export const useAppStore = defineStore('app', {
   },
   actions: {
     /**
-     * モックデータを強制再読み込み
+     * ランダムピックアップアプリを取得
+     * @param count 取得件数 (デフォルト12)
+     */
+    getRandomPickups(count = 12): AppOrMusicItem[] {
+      if (!this.list || this.list.length === 0) return []
+      const shuffled = [...this.list].sort(() => Math.random() - 0.5)
+      return shuffled.slice(0, count)
+    },
+    /**
+     * モックデータを読み込み
+     * 古い永続化データ（platformsにWindowsなどが含まれていない）の場合も自動更新
      */
     loadMockData(force = false) {
-      if (force || !this.list || this.list.length === 0) {
+      const needsRefresh =
+        !this.list ||
+        this.list.length === 0 ||
+        !this.list.some(item => (item.platforms || []).includes('Windows'))
+      if (force || needsRefresh) {
         this.list = [...(mockAppsData as AppOrMusicItem[])]
       }
     },

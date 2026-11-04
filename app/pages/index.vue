@@ -266,7 +266,7 @@ export default {
     }
   },
   setup() {
-    Setup.setTitle('エノキ電気 - 公式ホームページ（ときえのき）')
+    Setup.setTitle('トップ')
     Setup.setDescription(
       'エノキ電気（ときえのき）公式ホームページ。「自由」をデザインする - 音楽も、プログラミングも、それ以外も。',
     )

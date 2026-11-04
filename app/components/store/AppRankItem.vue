@@ -7,20 +7,14 @@
     .app-title {{ item.name }}
     .app-meta
       span.app-category {{ item.category || (item.type === 'game' ? 'ゲーム' : 'アプリ') }}
-      span.meta-dot •
-      span.app-rating(v-if="item.rating")
-        span {{ item.rating }}
-        v-icon(size="11" color="amber-darken-2") mdi-star
-      span.meta-dot •
-      span.app-downloads(v-if="item.downloads") {{ item.downloads }}
-  .price-wrapper
+  .action-wrapper
     v-btn(
       size="small"
       variant="tonal"
       rounded="pill"
       color="primary"
       @click.stop="$emit('click', item)"
-    ) {{ item.price && item.price > 0 ? `¥${item.price}` : 'インストール' }}
+    ) 詳細
 </template>
 
 <script setup lang="ts">
@@ -103,23 +97,10 @@ defineEmits<{
       margin-top: 3px;
       font-size: 12px;
       color: rgba(var(--v-theme-on-surface), 0.65);
-
-      .meta-dot {
-        font-size: 8px;
-        opacity: 0.6;
-      }
-
-      .app-rating {
-        display: inline-flex;
-        align-items: center;
-        gap: 2px;
-        font-weight: 600;
-        color: rgba(var(--v-theme-on-surface), 0.85);
-      }
     }
   }
 
-  .price-wrapper {
+  .action-wrapper {
     flex-shrink: 0;
   }
 }

@@ -1,4 +1,4 @@
-﻿<template lang="pug">
+<template lang="pug">
 v-card.app-detail-page-root(
   style="width: 100%; height: 100%;"
   :class="settings.hidden.isAndroid15OrHigher ? 'top-android-15-or-higher' : ''"
@@ -24,42 +24,45 @@ v-card.app-detail-page-root(
             p.app-dev {{ app.developer || 'エノキ電気' }}
             .app-badges
               span.badge {{ app.category || (app.type === 'game' ? 'ゲーム' : 'アプリ') }}
-              span.badge-sub(v-if="app.price && app.price > 0") ¥{{ app.price }}
-              span.badge-sub(v-else) 無料
 
-      //- 統計バー (Google Play風)
-      .stats-bar
-        .stat-item
-          .stat-val
-            span.num {{ app.rating || 4.7 }}
-            v-icon(size="14" color="amber-darken-2") mdi-star
-          .stat-lbl 1.8万件のレビュー
-        v-divider(vertical inset)
-        .stat-item
-          .stat-val
-            v-icon(size="16" color="primary") mdi-download
-            span.num {{ app.downloads || '100万+' }}
-          .stat-lbl ダウンロード
-        v-divider(vertical inset)
-        .stat-item
-          .stat-val
-            v-icon(size="16" color="success") mdi-shield-check
-            span.num 3+
-          .stat-lbl 全年齢対象
+      //- リンクボタン群（旧インストール/購入ボタンを置き換え、linksをv-forで表示）
+      .action-row(v-if="(app.links && app.links.length) || app.githubUrl || app.videoUrl")
+        .links-container
+          v-btn.link-btn(
+            v-for="link in (app.links || [])"
+            :key="link.text + link.url"
+            :href="link.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            color="primary"
+            rounded="pill"
+            size="large"
+            variant="flat"
+            :prepend-icon="link.icon || 'mdi-open-in-new'"
+          ) {{ link.text }}
 
-      //- インストールボタン (シミュレーション機能)
-      .action-row
-        v-btn.install-btn(
-          color="primary"
-          rounded="pill"
-          size="large"
-          block
-          :loading="installing"
-          @click="handleInstall"
-        )
-          span(v-if="installed") 開く
-          span(v-else-if="app.price && app.price > 0") ¥{{ app.price }} で購入
-          span(v-else) インストール
+          v-btn.link-btn(
+            v-if="app.githubUrl && (!app.links || !app.links.some(l => l.url === app.githubUrl))"
+            :href="app.githubUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="tonal"
+            rounded="pill"
+            size="large"
+            prepend-icon="mdi-github"
+          ) GitHub
+
+          v-btn.link-btn(
+            v-if="app.videoUrl && (!app.links || !app.links.some(l => l.url === app.videoUrl))"
+            :href="app.videoUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            color="error"
+            variant="tonal"
+            rounded="pill"
+            size="large"
+            prepend-icon="mdi-youtube"
+          ) YouTube
 
       //- スクリーンショット
       .screenshots-section(v-if="app.images && app.images.length")
@@ -68,12 +71,12 @@ v-card.app-detail-page-root(
           .screenshot-item(v-for="(img, idx) in app.images" :key="idx")
             img.screenshot-img(:src="img" :alt="`Screenshot ${idx + 1}`" loading="lazy")
 
-      //- このアプリについて
+      //- このアプリについて (Markdown表示対応)
       .about-section
         .section-title この{{ app.type === 'game' ? 'ゲーム' : 'アプリ' }}について
         .about-text
           p.summary-lead(v-if="app.summary") {{ app.summary }}
-          .desc-body {{ app.description }}
+          .markdown-body(v-html="renderedDescription")
 
       //- プラットフォーム & 使用言語チップ
       .meta-section
@@ -97,48 +100,6 @@ v-card.app-detail-page-root(
             variant="tonal"
             color="secondary"
           ) {{ lang }}
-
-      //- 外部リンク・ダウンロード導線
-      .links-section(v-if="app.links && app.links.length")
-        .section-title 外部リンク・公開情報
-        .links-grid
-          v-btn.pa-2(
-            v-for="link in app.links"
-            :key="link.text"
-            :href="link.url"
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="outlined"
-            rounded="pill"
-            size="small"
-            style="height: 100%;"
-            :prepend-icon="link.icon || 'mdi-open-in-new'"
-          ) {{ link.text }}
-
-          v-btn.pa-2(
-            v-if="app.githubUrl"
-            :href="app.githubUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="outlined"
-            rounded="pill"
-            size="small"
-            style="height: 100%;"
-            prepend-icon="mdi-github"
-          ) GitHub
-
-          v-btn.pa-2(
-            v-if="app.videoUrl"
-            :href="app.videoUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            variant="outlined"
-            rounded="pill"
-            size="small"
-            style="height: 100%;"
-            prepend-icon="mdi-youtube"
-            color="error"
-          ) YouTube
 
       //- 類似アプリ棚
       .related-section(v-if="relatedApps.length > 0")
@@ -167,6 +128,7 @@ v-card.app-detail-page-root(
 </template>
 
 <script lang="ts">
+import { marked } from 'marked'
 import { Share } from '@capacitor/share'
 import { Toast } from '@capacitor/toast'
 import { useAppStore, type AppOrMusicItem } from '@/stores/app'
@@ -185,8 +147,6 @@ export default {
     return {
       appStore: useAppStore(),
       settings: useSettingsStore(),
-      installing: false,
-      installed: false,
     }
   },
   computed: {
@@ -204,6 +164,13 @@ export default {
             item.id !== this.appId && item.category === this.app?.category,
         )
         .slice(0, 8)
+    },
+    renderedDescription(): string {
+      if (!this.app?.description) return ''
+      return marked.parse(this.app.description, {
+        breaks: true,
+        gfm: true,
+      }) as string
     },
   },
   setup() {
@@ -262,20 +229,6 @@ export default {
           await Toast.show({ text: 'URLをコピーしました' })
         }
       }
-    },
-    async handleInstall() {
-      if (this.installed) {
-        await Toast.show({ text: `${this.app?.name} を起動しました` })
-        return
-      }
-
-      this.installing = true
-      await new Promise((resolve) => setTimeout(resolve, 1400))
-      this.installing = false
-      this.installed = true
-      await Toast.show({
-        text: `${this.app?.name} のインストールが完了しました！`,
-      })
     },
   },
 }
@@ -360,55 +313,24 @@ export default {
             background: rgba(var(--v-theme-on-surface), 0.08);
             font-weight: 600;
           }
-
-          .badge-sub {
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 6px;
-            background: rgba(var(--v-theme-primary), 0.1);
-            color: rgb(var(--v-theme-primary));
-            font-weight: 600;
-          }
         }
       }
     }
   }
 
-  .stats-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    padding: 12px 0;
-    border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-    border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-
-    .stat-item {
-      text-align: center;
-      flex: 1;
-
-      .stat-val {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 3px;
-        font-weight: 800;
-        font-size: 1.05rem;
-      }
-
-      .stat-lbl {
-        font-size: 11px;
-        color: rgba(var(--v-theme-on-surface), 0.6);
-        margin-top: 2px;
-      }
-    }
-  }
-
   .action-row {
-    .install-btn {
-      font-weight: 700;
-      font-size: 15px;
-      letter-spacing: 0.5px;
-      height: 46px;
+    .links-container {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+
+      .link-btn {
+        flex: 1 1 200px;
+        font-weight: 700;
+        font-size: 14.5px;
+        letter-spacing: 0.3px;
+        height: 48px;
+      }
     }
   }
 
@@ -448,14 +370,101 @@ export default {
       font-size: 0.95rem;
       font-weight: 600;
       color: rgb(var(--v-theme-on-surface));
-      margin-bottom: 8px;
+      margin-bottom: 12px;
+      line-height: 1.6;
     }
 
-    .desc-body {
-      font-size: 0.9rem;
-      line-height: 1.7;
-      color: rgba(var(--v-theme-on-surface), 0.85);
-      white-space: pre-line;
+    .markdown-body {
+      font-size: 0.92rem;
+      line-height: 1.75;
+      color: rgba(var(--v-theme-on-surface), 0.88);
+
+      :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
+        font-weight: 700;
+        margin-top: 1.2em;
+        margin-bottom: 0.6em;
+        color: rgb(var(--v-theme-on-surface));
+      }
+
+      :deep(h1) { font-size: 1.35rem; }
+      :deep(h2) { font-size: 1.2rem; }
+      :deep(h3) { font-size: 1.05rem; }
+      :deep(h4) { font-size: 0.98rem; }
+
+      :deep(p) {
+        margin-bottom: 0.8em;
+      }
+
+      :deep(ul), :deep(ol) {
+        padding-left: 20px;
+        margin-bottom: 0.8em;
+      }
+
+      :deep(li) {
+        margin-bottom: 4px;
+      }
+
+      :deep(strong) {
+        font-weight: 700;
+        color: rgb(var(--v-theme-on-surface));
+      }
+
+      :deep(code) {
+        background: rgba(var(--v-theme-on-surface), 0.08);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-family: monospace;
+      }
+
+      :deep(pre) {
+        background: rgba(var(--v-theme-on-surface), 0.06);
+        padding: 12px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin-bottom: 0.8em;
+
+        code {
+          background: transparent;
+          padding: 0;
+        }
+      }
+
+      :deep(blockquote) {
+        border-left: 4px solid rgb(var(--v-theme-primary));
+        padding-left: 12px;
+        margin: 12px 0;
+        color: rgba(var(--v-theme-on-surface), 0.7);
+        font-style: italic;
+      }
+
+      :deep(a) {
+        color: rgb(var(--v-theme-primary));
+        text-decoration: underline;
+      }
+
+      :deep(hr) {
+        border: none;
+        border-top: 1px solid rgba(var(--v-theme-on-surface), 0.12);
+        margin: 16px 0;
+      }
+
+      :deep(table) {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+
+        th, td {
+          border: 1px solid rgba(var(--v-theme-on-surface), 0.15);
+          padding: 8px;
+          text-align: left;
+        }
+
+        th {
+          background: rgba(var(--v-theme-on-surface), 0.05);
+          font-weight: 700;
+        }
+      }
     }
   }
 
@@ -475,14 +484,6 @@ export default {
         font-weight: 700;
         color: rgba(var(--v-theme-on-surface), 0.7);
       }
-    }
-  }
-
-  .links-section {
-    .links-grid {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
     }
   }
 

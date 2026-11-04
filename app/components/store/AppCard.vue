@@ -6,9 +6,6 @@
     .app-title {{ item.name }}
     .app-sub {{ item.category || (item.type === 'game' ? 'ゲーム' : 'アプリ') }}
     .app-footer
-      .app-rating(v-if="item.rating")
-        span.rating-score {{ item.rating }}
-        v-icon(size="12" color="amber-darken-2") mdi-star
       .app-price(v-if="item.price && item.price > 0") ¥{{ item.price }}
       .app-price.free(v-else) 無料
 </template>
@@ -96,21 +93,9 @@ defineEmits<{
     .app-footer {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       margin-top: 3px;
       font-size: 11px;
-
-      .app-rating {
-        display: inline-flex;
-        align-items: center;
-        gap: 2px;
-        color: rgba(var(--v-theme-on-surface), 0.85);
-        font-weight: 600;
-
-        .rating-score {
-          font-size: 11px;
-        }
-      }
 
       .app-price {
         font-size: 10.5px;

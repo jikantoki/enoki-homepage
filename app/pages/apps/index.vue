@@ -32,7 +32,7 @@ v-card.playstore-root(
   //- ================= ヒーロー自己紹介エリア =================
   HeroProfile
 
-  //- ================= サブナビバー（ソフトウェア選択時） =================
+  //- ================= サブナビバー（おすすめ / カテゴリ / プラットフォーム） =================
   .store-sub-nav(v-if="!searchQuery")
     v-tabs(
       v-model="activeTab"
@@ -42,10 +42,8 @@ v-card.playstore-root(
       show-arrows
     )
       v-tab(value="foryou") おすすめ
-      v-tab(value="ranking") ランキング
-      v-tab(value="games") ゲーム
-      v-tab(value="apps") アプリ
       v-tab(value="categories") カテゴリ
+      v-tab(value="platforms") プラットフォーム
 
   //- ================= メインスクロールエリア =================
   .store-scroll-content(ref="scrollContainer")
@@ -92,9 +90,9 @@ v-card.playstore-root(
         v-icon(size="48" color="grey") mdi-magnify-remove-outline
         p 一致するアプリやゲームが見つかりませんでした
 
-    //- ---------------- 2. アプリタブ（サブナビ連動） ----------------
+    //- ---------------- 2. メインタブ（おすすめ / カテゴリ / プラットフォーム） ----------------
     template(v-else)
-      //- おすすめタブ
+      //- おすすめタブ (stores/app.ts準拠)
       .tab-content(v-if="activeTab === 'foryou'")
         HeroBanner(
           :items="featuredApps"
@@ -104,8 +102,6 @@ v-card.playstore-root(
         AppShelf(
           title="あなたへのおすすめ"
           subtitle="利用傾向に基づいてピックアップ"
-          showMore
-          @more="activeTab = 'ranking'"
         )
           AppCard(
             v-for="item in recommendedApps"
@@ -115,178 +111,51 @@ v-card.playstore-root(
           )
 
         AppShelf(
-          title="注目の新作ゲーム"
-          subtitle="話題の最新タイトルをプレイしよう"
-          showMore
-          @more="activeTab = 'games'"
+          title="ランダムピックアップ"
+          subtitle="気まぐれに出会う新しいソフトウェア"
         )
           AppCard(
-            v-for="item in newGames"
+            v-for="item in randomPickupApps"
             :key="item.id"
             :item="item"
             @click="openDetail(item)"
           )
 
         AppShelf(
-          title="生産性を高めるおすすめツール"
-          subtitle="日々のタスクや作業効率をアップ"
-          showMore
-          @more="activeTab = 'apps'"
+          title="Webサービス"
+          subtitle="ブラウザから手軽に使えるWebアプリケーション"
         )
           AppCard(
-            v-for="item in productivityApps"
+            v-for="item in webServiceApps"
             :key="item.id"
             :item="item"
             @click="openDetail(item)"
           )
 
         AppShelf(
-          title="★ 4.7 以上の高評価アプリ＆ゲーム"
-          subtitle="ユーザー満足度の高い定番コレクション"
+          title="Androidアプリ"
+          subtitle="スマートフォンでいつでも手軽に利用可能"
         )
           AppCard(
-            v-for="item in topRatedApps"
+            v-for="item in androidApps"
             :key="item.id"
             :item="item"
             @click="openDetail(item)"
           )
 
-        AppShelf(
-          title="健康＆ライフスタイル"
-          subtitle="毎日の生活をサポート"
-        )
-          AppCard(
-            v-for="item in lifestyleApps"
-            :key="item.id"
-            :item="item"
-            @click="openDetail(item)"
-          )
-
-      //- ランキングタブ
-      .tab-content(v-else-if="activeTab === 'ranking'")
-        .ranking-filter-row
-          v-chip-group(v-model="rankingType" selected-class="text-primary" mandatory)
-            v-chip(value="all" variant="tonal" size="small") 総合人気
-            v-chip(value="free" variant="tonal" size="small") 人気の無料
-            v-chip(value="paid" variant="tonal" size="small") 人気の有料
-            v-chip(value="games" variant="tonal" size="small") ゲーム人気
-            v-chip(value="apps" variant="tonal" size="small") アプリ人気
-
-        .ranking-list
-          AppRankItem(
-            v-for="(item, idx) in currentRankings"
-            :key="item.id"
-            :item="item"
-            :rank="idx + 1"
-            @click="openDetail(item)"
-          )
-
-      //- ゲームタブ
-      .tab-content(v-else-if="activeTab === 'games'")
-        HeroBanner(
-          :items="featuredGames"
-          @click="openDetail"
-        )
-
-        AppShelf(title="ロールプレイング" subtitle="壮大な物語と冒険の世界")
-          AppCard(
-            v-for="item in gamesByCategory('RPG')"
-            :key="item.id"
-            :item="item"
-            @click="openDetail(item)"
-          )
-
-        AppShelf(title="アクション＆バトル" subtitle="爽快なアクションを楽しもう")
-          AppCard(
-            v-for="item in gamesByCategory('アクション')"
-            :key="item.id"
-            :item="item"
-            @click="openDetail(item)"
-          )
-
-        AppShelf(title="パズル＆脳トレ" subtitle="ひらめきと直感でパズルを解こう")
-          AppCard(
-            v-for="item in gamesByCategory('パズル')"
-            :key="item.id"
-            :item="item"
-            @click="openDetail(item)"
-          )
-
-        AppShelf(title="シミュレーション" subtitle="自分だけの街や世界を創ろう")
-          AppCard(
-            v-for="item in gamesByCategory('シミュレーション')"
-            :key="item.id"
-            :item="item"
-            @click="openDetail(item)"
-          )
-
-        AppShelf(title="レース＆ドライブ" subtitle="スピードとスリルを体感")
-          AppCard(
-            v-for="item in gamesByCategory('レース')"
-            :key="item.id"
-            :item="item"
-            @click="openDetail(item)"
-          )
-
-      //- アプリタブ
-      .tab-content(v-else-if="activeTab === 'apps'")
-        HeroBanner(
-          :items="featuredAppItems"
-          @click="openDetail"
-        )
-
-        AppShelf(title="ツール＆ユーティリティ" subtitle="スマホをさらに便利にする便利ツール")
-          AppCard(
-            v-for="item in appsByCategory('ツール')"
-            :key="item.id"
-            :item="item"
-            @click="openDetail(item)"
-          )
-
-        AppShelf(title="仕事効率化" subtitle="日々の作業や予定をスマートに")
-          AppCard(
-            v-for="item in appsByCategory('仕事効率化')"
-            :key="item.id"
-            :item="item"
-            @click="openDetail(item)"
-          )
-
-        AppShelf(title="写真＆動画" subtitle="思い出を美しく残そう")
-          AppCard(
-            v-for="item in appsByCategory('写真')"
-            :key="item.id"
-            :item="item"
-            @click="openDetail(item)"
-          )
-
-        AppShelf(title="音楽＆オーディオ" subtitle="最高の音響体験")
-          AppCard(
-            v-for="item in appsByCategory('音楽＆オーディオ')"
-            :key="item.id"
-            :item="item"
-            @click="openDetail(item)"
-          )
-
-        AppShelf(title="ファイナンス" subtitle="お金の管理・家計簿")
-          AppCard(
-            v-for="item in appsByCategory('ファイナンス')"
-            :key="item.id"
-            :item="item"
-            @click="openDetail(item)"
-          )
-
-      //- カテゴリ一覧タブ
+      //- カテゴリ一覧タブ (stores/app.ts準拠)
       .tab-content(v-else-if="activeTab === 'categories'")
         .categories-view
           .category-select-row(v-if="selectedCategory")
-            v-btn(
-              prepend-icon="mdi-arrow-left"
-              variant="tonal"
-              size="small"
-              rounded="pill"
-              @click="selectedCategory = null"
-            ) カテゴリ一覧に戻る
-            span.category-heading {{ selectedCategory }} ({{ categoryApps.length }}件)
+            .category-select-header
+              v-btn(
+                prepend-icon="mdi-arrow-left"
+                variant="tonal"
+                size="small"
+                rounded="pill"
+                @click="selectedCategory = null"
+              ) カテゴリ一覧に戻る
+              span.category-heading {{ selectedCategory }} ({{ categoryApps.length }}件)
 
             .category-apps-grid
               AppCard(
@@ -307,6 +176,41 @@ v-card.playstore-root(
               .cat-name {{ cat.name }}
               .cat-count {{ cat.count }}個のアプリ
 
+      //- プラットフォームタブ (stores/app.ts準拠)
+      .tab-content(v-else-if="activeTab === 'platforms'")
+        .platform-view
+          .platform-buttons-wrap
+            v-btn.platform-btn(
+              v-for="plat in platformList"
+              :key="plat.id"
+              :variant="selectedPlatform === plat.id ? 'flat' : 'tonal'"
+              :color="selectedPlatform === plat.id ? 'primary' : undefined"
+              rounded="pill"
+              size="small"
+              :prepend-icon="plat.icon"
+              @click="selectedPlatform = plat.id"
+            )
+              | {{ plat.name }}
+              span.plat-count ({{ getPlatformCount(plat.id) }})
+
+          .platform-content
+            .platform-header
+              .platform-title
+                v-icon(start :color="currentPlatformMeta.color") {{ currentPlatformMeta.icon }}
+                span {{ currentPlatformMeta.name }} 対応ソフトウェア
+              span.platform-count-badge {{ currentPlatformApps.length }}件
+
+            .platform-apps-grid(v-if="currentPlatformApps.length > 0")
+              AppCard(
+                v-for="item in currentPlatformApps"
+                :key="item.id"
+                :item="item"
+                @click="openDetail(item)"
+              )
+            .no-platform-results(v-else)
+              v-icon(size="48" color="grey") mdi-application-outline
+              p このプラットフォームに対応するソフトウェアは現在登録されていません
+
     //- 下部ナビゲーションバー用の余白
     .bottom-nav-spacer
 
@@ -320,7 +224,11 @@ import { Toast } from '@capacitor/toast'
 import mixins from '@/mixins/mixins'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
-import { useAppStore, type AppOrMusicItem } from '@/stores/app'
+import {
+  useAppStore,
+  isPlatformMatch,
+  type AppOrMusicItem,
+} from '@/stores/app'
 import Setup from '@/js/setup'
 import HeroProfile from '@/components/common/HeroProfile.vue'
 import BottomNav from '@/components/common/BottomNav.vue'
@@ -349,8 +257,33 @@ export default {
       searchQuery: '',
       searchFilter: 'all' as 'all' | 'game' | 'app' | 'free',
       activeTab: 'foryou',
-      rankingType: 'all',
       selectedCategory: null as string | null,
+      selectedPlatform: 'Windows',
+      randomPickups: [] as AppOrMusicItem[],
+      platformList: [
+        {
+          id: 'Windows',
+          name: 'Windows',
+          icon: 'mdi-microsoft-windows',
+          color: '#0078d4',
+        },
+        { id: 'Linux', name: 'Linux', icon: 'mdi-linux', color: '#f59e0b' },
+        { id: 'Mac OS', name: 'Mac OS', icon: 'mdi-apple', color: '#64748b' },
+        {
+          id: 'Android',
+          name: 'Android',
+          icon: 'mdi-android',
+          color: '#3ddc84',
+        },
+        { id: 'iOS', name: 'iOS', icon: 'mdi-apple', color: '#000000' },
+        { id: 'Web', name: 'Web', icon: 'mdi-web', color: '#3b82f6' },
+        {
+          id: 'その他',
+          name: 'その他',
+          icon: 'mdi-dots-horizontal-circle-outline',
+          color: '#8b5cf6',
+        },
+      ],
     }
   },
   computed: {
@@ -358,58 +291,29 @@ export default {
       return this.appStore.list
     },
     featuredApps(): AppOrMusicItem[] {
-      return this.allApps.filter((item) => item.featured).slice(0, 6)
-    },
-    featuredGames(): AppOrMusicItem[] {
-      return this.allApps
-        .filter((item) => item.type === 'game' && item.featured)
-        .slice(0, 5)
-    },
-    featuredAppItems(): AppOrMusicItem[] {
-      return this.allApps
-        .filter((item) => item.type === 'app' && item.featured)
-        .slice(0, 5)
+      return this.appStore.featuredApps.slice(0, 6)
     },
     recommendedApps(): AppOrMusicItem[] {
-      return this.allApps.slice(0, 12)
+      return this.appStore.recommendedApps
     },
-    newGames(): AppOrMusicItem[] {
-      return this.allApps.filter((item) => item.type === 'game').slice(10, 22)
+    randomPickupApps(): AppOrMusicItem[] {
+      if (this.randomPickups.length > 0) return this.randomPickups
+      return this.appStore.getRandomPickups(12)
     },
-    productivityApps(): AppOrMusicItem[] {
-      return this.allApps
-        .filter(
-          (item) =>
-            item.category === '仕事効率化' || item.category === 'ツール',
-        )
-        .slice(0, 12)
+    webServiceApps(): AppOrMusicItem[] {
+      return this.appStore.webServices.slice(0, 12)
     },
-    topRatedApps(): AppOrMusicItem[] {
-      return [...this.allApps]
-        .filter((item) => (item.rating || 0) >= 4.7)
-        .slice(0, 12)
+    androidApps(): AppOrMusicItem[] {
+      return this.appStore.androidApps.slice(0, 12)
     },
-    lifestyleApps(): AppOrMusicItem[] {
-      return this.allApps
-        .filter(
-          (item) =>
-            item.category === '健康＆フィットネス' ||
-            item.category === 'ライフスタイル',
-        )
-        .slice(0, 12)
+    currentPlatformApps(): AppOrMusicItem[] {
+      return this.appStore.byPlatform(this.selectedPlatform)
     },
-    currentRankings(): AppOrMusicItem[] {
-      let list = [...this.allApps]
-      if (this.rankingType === 'free') {
-        list = list.filter((item) => !item.price || item.price === 0)
-      } else if (this.rankingType === 'paid') {
-        list = list.filter((item) => item.price && item.price > 0)
-      } else if (this.rankingType === 'games') {
-        list = list.filter((item) => item.type === 'game')
-      } else if (this.rankingType === 'apps') {
-        list = list.filter((item) => item.type === 'app')
-      }
-      return list.sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 30)
+    currentPlatformMeta() {
+      return (
+        this.platformList.find((p) => p.id === this.selectedPlatform) ||
+        this.platformList[0]
+      )
     },
     searchResults(): AppOrMusicItem[] {
       const q = this.searchQuery.trim().toLowerCase()
@@ -432,9 +336,7 @@ export default {
     },
     categoryApps(): AppOrMusicItem[] {
       if (!this.selectedCategory) return []
-      return this.allApps.filter(
-        (item) => item.category === this.selectedCategory,
-      )
+      return this.appStore.byCategory(this.selectedCategory)
     },
     allCategoriesWithMeta(): Array<{
       name: string
@@ -484,6 +386,16 @@ export default {
       })
     },
   },
+  watch: {
+    allApps: {
+      immediate: true,
+      handler(newList) {
+        if (newList && newList.length > 0 && this.randomPickups.length === 0) {
+          this.initRandomPickups()
+        }
+      },
+    },
+  },
   setup() {
     Setup.setTitle('ソフトウェア')
     Setup.setDescription(
@@ -493,9 +405,8 @@ export default {
   async mounted() {
     this.setTitle('ソフトウェア')
 
-    if (!this.appStore.list || this.appStore.list.length === 0) {
-      this.appStore.loadMockData(true)
-    }
+    this.appStore.loadMockData()
+    this.initRandomPickups()
 
     /** バックボタンのリスナーを追加 */
     App.addListener('backButton', () => {
@@ -505,6 +416,8 @@ export default {
         this.selectedCategory = null
       } else if (this.searchQuery) {
         this.searchQuery = ''
+      } else if (this.activeTab !== 'foryou') {
+        this.activeTab = 'foryou'
       } else if (this.$route.path === '/') {
         App.minimizeApp()
         Toast.show({ text: 'アプリはバックグラウンドで実行されます' })
@@ -520,15 +433,14 @@ export default {
     openDetail(item: AppOrMusicItem) {
       this.$router.push(`/apps/${item.id}`)
     },
-    gamesByCategory(category: string): AppOrMusicItem[] {
-      return this.allApps.filter(
-        (item) => item.type === 'game' && item.category === category,
-      )
+    initRandomPickups() {
+      this.randomPickups = this.appStore.getRandomPickups(12)
     },
-    appsByCategory(category: string): AppOrMusicItem[] {
-      return this.allApps.filter(
-        (item) => item.type === 'app' && item.category === category,
-      )
+    getPlatformCount(platId: string): number {
+      return this.appStore.platformCounts[platId] || 0
+    },
+    matchesPlatform(item: AppOrMusicItem, platformId: string): boolean {
+      return isPlatformMatch(item.platforms, platformId)
     },
   },
 }
@@ -608,7 +520,7 @@ export default {
     }
   }
 
-  // ---------------- サブナビ（アプリ用タブバー） ----------------
+  // ---------------- サブナビ（おすすめ / カテゴリ / プラットフォーム） ----------------
   .store-sub-nav {
     background-color: rgb(var(--v-theme-surface));
     border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.06);
@@ -670,24 +582,33 @@ export default {
     }
   }
 
-  // ---------------- ランキング画面 ----------------
-  .ranking-filter-row {
-    padding: 8px 16px;
-    background-color: rgb(var(--v-theme-surface));
-    position: sticky;
-    top: 0;
-    z-index: 5;
-  }
-
-  .ranking-list {
-    display: flex;
-    flex-direction: column;
-    padding: 0 8px;
-  }
-
   // ---------------- カテゴリ画面 ----------------
   .categories-view {
     padding: 12px 16px;
+
+    .category-select-row {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .category-select-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+
+        .category-heading {
+          font-size: 1.15rem;
+          font-weight: 800;
+        }
+      }
+
+      .category-apps-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+        gap: 12px;
+      }
+    }
 
     .category-grid {
       display: grid;
@@ -724,21 +645,75 @@ export default {
         }
       }
     }
+  }
 
-    .category-select-row {
+  // ---------------- プラットフォーム画面 ----------------
+  .platform-view {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .platform-buttons-wrap {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      -webkit-overflow-scrolling: touch;
+
+      .platform-btn {
+        flex-shrink: 0;
+        font-weight: 700;
+        font-size: 13px;
+
+        .plat-count {
+          margin-left: 4px;
+          font-size: 11px;
+          opacity: 0.75;
+        }
+      }
+    }
+
+    .platform-content {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
 
-      .category-heading {
-        font-size: 1.15rem;
-        font-weight: 800;
+      .platform-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .platform-title {
+          font-size: 1.15rem;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .platform-count-badge {
+          font-size: 12px;
+          font-weight: 700;
+          color: rgba(var(--v-theme-on-surface), 0.6);
+        }
       }
 
-      .category-apps-grid {
+      .platform-apps-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
         gap: 12px;
+      }
+
+      .no-platform-results {
+        padding: 60px 20px;
+        text-align: center;
+        color: rgba(var(--v-theme-on-surface), 0.5);
+
+        p {
+          margin-top: 12px;
+          font-size: 14px;
+        }
       }
     }
   }
