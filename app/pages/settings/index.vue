@@ -114,6 +114,8 @@ import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
 import Setup from '@/js/setup'
 import mixins from '@/mixins/mixins'
+import { Capacitor } from '@capacitor/core'
+import { Toast } from '@capacitor/toast'
 
 export default {
   name: 'SettingsPage',
@@ -143,10 +145,24 @@ export default {
       this.$router.push('/login')
     },
     async openNotificationSettings() {
-      await NativeSettings.open({
-        optionAndroid: AndroidSettings.AppNotification,
-        optionIOS: IOSSettings.AppNotification,
-      })
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await NativeSettings.open({
+            optionAndroid: AndroidSettings.AppNotification,
+            optionIOS: IOSSettings.AppNotification,
+          })
+        } catch (error) {
+          Toast.show({
+            text: '通知設定を開くことができませんでした',
+          })
+          console.error('Failed to open notification settings:', error)
+        }
+      } else {
+        // Webブラウザの場合は、トーストでエラー表示
+        Toast.show({
+          text: 'Webブラウザでは通知設定を開くことができません',
+        })
+      }
     },
     /** URLをブラウザで開く */
     async openURL(url: string) {

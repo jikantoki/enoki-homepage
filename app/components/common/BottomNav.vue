@@ -1,17 +1,26 @@
-<template lang="pug">
+﻿<template lang="pug">
 .bottom-nav-container
   .store-bottom-nav
     .nav-buttons
-      //- 1. ソフトウェア
+      //- 1. ホーム
+      .nav-btn(
+        :class="{ active: isHomeActive }"
+        v-ripple
+        @click="goTo('/')"
+      )
+        v-icon {{ isHomeActive ? 'mdi-home' : 'mdi-home-outline' }}
+        span ホーム
+
+      //- 2. ソフトウェア
       .nav-btn(
         :class="{ active: isSoftwareActive }"
         v-ripple
-        @click="goTo('/')"
+        @click="goTo('/apps')"
       )
         v-icon mdi-apps
         span ソフトウェア
 
-      //- 2. 音楽
+      //- 3. 音楽
       .nav-btn(
         :class="{ active: isMusicActive }"
         v-ripple
@@ -20,7 +29,7 @@
         v-icon mdi-music
         span 音楽
 
-      //- 3. プロフィール
+      //- 4. プロフィール
       .nav-btn(
         :class="{ active: isProfileActive }"
         v-ripple
@@ -29,7 +38,7 @@
         v-icon {{ isProfileActive ? 'mdi-account-circle' : 'mdi-account-circle-outline' }}
         span プロフィール
 
-      //- 4. その他
+      //- 5. その他
       .nav-btn(
         :class="{ active: optionsDialog }"
         v-ripple
@@ -75,14 +84,18 @@
             p(style="margin: 0; padding: 0;") ENOKI ELECTRONICS
 
         v-list.options-list
+          v-list-item.item(@click="optionsDialog = false; $router.push('/')")
+            .icon-and-text
+              v-icon mdi-home-outline
+              v-list-item-title ホーム
           v-list-item.item(@click="optionsDialog = false; $router.push('/qrcode')")
             .icon-and-text
               v-icon mdi-qrcode-scan
               v-list-item-title QRコードで探す
-          v-list-item.item(@click="optionsDialog = false; $router.push('/settings')")
+          v-list-item.item(@click="optionsDialog = false; $router.push('/profile')")
             .icon-and-text
-              v-icon mdi-cog
-              v-list-item-title 設定
+              v-icon mdi-account-circle-outline
+              v-list-item-title プロフィール
           v-list-item.item(@click="optionsDialog = false; $router.push('/terms')")
             .icon-and-text
               v-icon mdi-file-document-outline
@@ -91,22 +104,14 @@
             .icon-and-text
               v-icon mdi-shield-lock-outline
               v-list-item-title プライバシーポリシー
-          v-list-item.item(@click="optionsDialog = false; $router.push('/profile')")
+          v-list-item.item(@click="optionsDialog = false; $router.push('/settings')")
             .icon-and-text
-              v-icon mdi-account-circle-outline
-              v-list-item-title プロフィール・実績（ときえのき）
+              v-icon mdi-cog
+              v-list-item-title 設定
           v-list-item.item(@click="shareSite")
             .icon-and-text
               v-icon mdi-share-variant
-              v-list-item-title 共有する
-          v-list-item.item(@click="reloadMockData")
-            .icon-and-text
-              v-icon mdi-refresh
-              v-list-item-title アプリモックデータを再読み込み (100件)
-          v-list-item.item(@click="reloadMusicData")
-            .icon-and-text
-              v-icon mdi-music-box-multiple
-              v-list-item-title 音楽モックデータを再読み込み (60曲)
+              v-list-item-title シェア
 </template>
 
 <script lang="ts">
@@ -150,8 +155,11 @@ export default {
     currentPath(): string {
       return this.$route.path
     },
+    isHomeActive(): boolean {
+      return this.currentPath === '/'
+    },
     isSoftwareActive(): boolean {
-      return this.currentPath === '/' || this.currentPath.startsWith('/apps')
+      return this.currentPath.startsWith('/apps')
     },
     isMusicActive(): boolean {
       return this.currentPath.startsWith('/music')

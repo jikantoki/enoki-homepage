@@ -4,7 +4,7 @@ v-card(
   :class="settings.hidden.isAndroid15OrHigher ? 'top-android-15-or-higher' : ''"
   )
   v-card-actions
-    p.ml-2(style="font-size: 1.3em") QRで友達を探す
+    p.ml-2(style="font-size: 1.3em") QRスキャナー
     v-spacer
     v-btn(
       text

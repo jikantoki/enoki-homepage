@@ -1,4 +1,4 @@
-<template lang="pug">
+﻿<template lang="pug">
 v-card.app-detail-page-root(
   style="width: 100%; height: 100%;"
   :class="settings.hidden.isAndroid15OrHigher ? 'top-android-15-or-higher' : ''"
@@ -8,7 +8,7 @@ v-card.app-detail-page-root(
     v-btn(icon="mdi-arrow-left" variant="text" @click="handleBack")
     v-toolbar-title.text-subtitle-1 {{ app ? app.name : 'ソフトウェア詳細' }}
     v-spacer
-    v-btn(icon="mdi-magnify" variant="text" @click="$router.push('/')")
+    v-btn(icon="mdi-magnify" variant="text" @click="$router.push('/apps')")
     v-btn(icon="mdi-share-variant" variant="text" @click="shareApp")
 
   //- ================= メインスクロールエリア =================
@@ -162,7 +162,7 @@ v-card.app-detail-page-root(
       color="primary"
       rounded="pill"
       prepend-icon="mdi-arrow-left"
-      @click="$router.push('/')"
+      @click="$router.push('/apps')"
     ) ソフトウェア一覧へ戻る
 </template>
 
@@ -240,7 +240,7 @@ export default {
       if (window.history.length > 1) {
         this.$router.back()
       } else {
-        this.$router.push('/')
+        this.$router.push('/apps')
       }
     },
     goToOtherApp(item: AppOrMusicItem) {

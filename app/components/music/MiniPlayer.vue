@@ -230,7 +230,7 @@ export default {
 
 @media (max-width: 600px) {
   .mini-player-wrapper {
-    transform: translateY(-4px);
+    transform: translateY(-8px);
   }
 }
 </style>

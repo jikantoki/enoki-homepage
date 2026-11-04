@@ -1,4 +1,4 @@
-<template lang="pug">
+﻿<template lang="pug">
 v-app
   common-splash-vue(v-show="splashScreen")
   main(style="height: 100vh; height: 100dvh;")
@@ -40,7 +40,7 @@ export default {
   computed: {
     hasBottomNav(): boolean {
       const p = this.$route.path
-      return p === '/' || p === '/music' || p === '/profile'
+      return p === '/' || p === '/apps' || p === '/music' || p === '/profile'
     },
     miniPlayerBottomOffset(): number {
       const isA15 = this.settings.hidden.isAndroid15OrHigher
