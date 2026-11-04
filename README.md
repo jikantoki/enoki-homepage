@@ -67,6 +67,11 @@
   - **Android 15+ のエッジ・トゥ・エッジ (Edge-to-Edge) 対応**: ステータスバーやノッチ切り欠きに応じたパディング制御
 - 🌐 **多言語対応 (i18n)**: `@nuxtjs/i18n` による日本語・英語のローカライズ対応
 - 📚 **コンテンツ管理**: `@nuxt/content` (v3) による Markdown ページのコレクション管理
+- 🛠️ **管理者向けコンテンツ管理 (CMS)**:
+  - 管理者ログイン時（`/login`）のアプリ登録・音楽登録フォーム（FAB・設定・メニュー連動）
+  - **音声ファイル（mp3 / wav / m4a 等）のサーバー側アップロード** & クライアント側自動 duration 解析
+  - アプリ・音楽メタデータおよび音声ファイル URL の **MySQL データベース管理**（`app_list`, `music_list`）
+  - アップロードされた楽曲の本格インライン試聴・全体プレイヤー再生連携
 - 🔒 **セキュアな独自 API 認証**: API ID / Token / AccessKey によるリクエスト署名・認証機構
 
 ---
@@ -214,12 +219,19 @@ enoki-homepage/
 │   ├── sw.js                           # PWA / WebPush 用 Service Worker
 │   ├── favicon.ico                     # ファビコン
 │   └── icon.png                        # メインアプリアイコン
-├── server/                             # Nitro サーバーエンドポイント用ディレクトリ（拡張用）
+├── server/                             # Nitro サーバーエンドポイント
+│   └── api/
+│       ├── upload-audio.post.ts        # 音声ファイル (mp3/wav) アップロード API
+│       ├── upload-image.post.ts        # 画像ファイル アップロード API
+│       ├── register-app.post.ts        # アプリ登録 API
+│       └── register-music.post.ts      # 音楽登録 API
 ├── capacitor.config.ts                 # Capacitor 8 設定ファイル
 ├── content.config.ts                   # @nuxt/content (v3) コレクション定義
 ├── eslint.config.mjs                   # ESLint Flat Config 設定
 ├── nuxt.config.ts                      # Nuxt 4 設定ファイル
-├── database.sql                        # MySQL スキーマ定義
+├── database.sql                        # MySQL スキーマ定義（全テーブル・ビュー・インデックス）
+├── migration_admin.sql                 # 管理者権限追加用差分マイグレーション
+├── migration_app_music.sql             # アプリ・音楽管理（音声ファイルURL含む）差分マイグレーション
 ├── env.example.php                     # PHP 側環境変数サンプル
 ├── .env.example                        # Nuxt 側環境変数サンプル
 ├── composer.json                       # PHP 依存関係定義
@@ -381,6 +393,20 @@ mysql -u your_user -p your_database_name < database.sql
 > - `push_token_list`: プッシュ通知送信用トークン一覧
 > - `location_list`: ユーザー位置情報
 > - `api_list`: API 認証キー（ID・トークン・ハッシュ化アクセスキー）
+> - `app_list`: アプリ・ゲーム情報（価格・プラットフォーム・各種外部リンク・画像URL）
+> - `music_list`: 楽曲情報・サーバー上音声ファイルURL（mp3/wav/m4a等）・歌詞・ジャケット画像
+
+#### 既存データベースからの差分更新 (マイグレーション)
+
+すでに既存の `database.sql` をインポート済みの環境では、新規テーブル作成用の差分マイグレーション SQL（`migration_app_music.sql`）を実行してください。
+
+```bash
+# アプリ・音楽管理テーブル（音声ファイルURL含む）の追加
+mysql -u your_user -p your_database_name < migration_app_music.sql
+```
+
+> [!TIP]
+> phpMyAdmin をご利用の場合は、「インポート」タブから `migration_app_music.sql` を選択して実行することで、既存データを保持したまま `app_list` および `music_list` テーブルが安全に追加されます。
 
 ---
 
@@ -507,6 +533,11 @@ PHP バックエンド（`php/`）に用意されている主なエンドポイ�
 | **位置情報**         | `updateGeoLocation.php`         | ユーザーの位置情報（緯度・経度）更新       |
 | **システム・管理**   | `makeApiForAdmin.php`           | 管理者用 API トークンの初期生成            |
 |                      | `createTable.php`               | DB テーブル自動初期化                      |
+| **コンテンツ管理**   | `uploadAudio.php`               | 音声ファイル (mp3/wav) アップロード API    |
+|                      | `registerApp.php`               | アプリ情報 MySQL 登録・更新 API            |
+|                      | `registerMusic.php`             | 楽曲・音声ファイルURL MySQL 登録・更新 API |
+|                      | `getApps.php`                   | アプリ一覧 MySQL 取得 API                  |
+|                      | `getMusic.php`                  | 楽曲一覧 MySQL 取得 API                  |
 
 ---
 

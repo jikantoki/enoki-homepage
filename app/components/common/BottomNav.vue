@@ -108,6 +108,14 @@
             .icon-and-text
               v-icon mdi-shield-lock-outline
               v-list-item-title プライバシーポリシー
+          v-list-item.item(
+            v-if="isAdmin"
+            @click="optionsDialog = false; $router.push('/admin/register')"
+            style="background: rgba(var(--v-theme-primary), 0.08); border-radius: 8px;"
+          )
+            .icon-and-text
+              v-icon(color="primary") mdi-shield-plus-outline
+              v-list-item-title.font-weight-bold(style="color: rgb(var(--v-theme-primary));") アプリ・音楽を登録
           v-list-item.item(@click="optionsDialog = false; $router.push('/settings')")
             .icon-and-text
               v-icon mdi-cog
@@ -124,6 +132,7 @@ import { Toast } from '@capacitor/toast'
 import { useSettingsStore } from '@/stores/settings'
 import { useAppStore } from '@/stores/app'
 import { useMusicStore } from '@/stores/music'
+import { useMyProfileStore } from '@/stores/myProfile'
 
 export default {
   name: 'BottomNav',
@@ -140,6 +149,7 @@ export default {
       settings: useSettingsStore(),
       appStore: useAppStore(),
       musicStore: useMusicStore(),
+      myProfile: useMyProfileStore(),
       optionsDialog: this.modelValue,
     }
   },
@@ -152,6 +162,13 @@ export default {
     },
   },
   computed: {
+    isAdmin(): boolean {
+      return Boolean(
+        this.myProfile.isAdmin ||
+        this.myProfile.role === 'admin' ||
+        (!this.myProfile.guest && this.myProfile.canRegisterApp)
+      )
+    },
     isMobile(): boolean {
       // 画面幅が600px未満（スマホ縦画面など）の場合は全画面ダイアログ
       return Boolean(this.$vuetify?.display?.xs)

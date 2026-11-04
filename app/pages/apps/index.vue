@@ -214,6 +214,24 @@ v-card.playstore-root(
     //- 下部ナビゲーションバー用の余白
     .bottom-nav-spacer
 
+  //- 管理者用 アプリ登録FABボタン
+  v-btn.admin-register-fab(
+    v-if="isAdmin"
+    color="primary"
+    icon="mdi-plus"
+    size="large"
+    elevation="4"
+    @click="adminRegisterModalOpen = true"
+  )
+    v-icon(size="28") mdi-plus
+    v-tooltip(activator="parent" location="left") アプリを登録 (管理者)
+
+  //- 管理者コンテンツ登録モーダル
+  AdminRegisterModal(
+    v-model="adminRegisterModalOpen"
+    initialTab="app"
+  )
+
   //- ================= ボトムナビゲーション =================
   BottomNav(v-model="optionsDialog")
 </template>
@@ -236,6 +254,7 @@ import AppCard from '@/components/store/AppCard.vue'
 import AppRankItem from '@/components/store/AppRankItem.vue'
 import AppShelf from '@/components/store/AppShelf.vue'
 import HeroBanner from '@/components/store/HeroBanner.vue'
+import AdminRegisterModal from '@/components/admin/AdminRegisterModal.vue'
 
 export default {
   name: 'AppsPage',
@@ -246,11 +265,13 @@ export default {
     AppRankItem,
     AppShelf,
     HeroBanner,
+    AdminRegisterModal,
   },
   mixins: [mixins],
   data() {
     return {
       optionsDialog: false,
+      adminRegisterModalOpen: false,
       myProfile: useMyProfileStore(),
       settings: useSettingsStore(),
       appStore: useAppStore(),
@@ -287,6 +308,13 @@ export default {
     }
   },
   computed: {
+    isAdmin(): boolean {
+      return Boolean(
+        this.myProfile.isAdmin ||
+        this.myProfile.role === 'admin' ||
+        (!this.myProfile.guest && this.myProfile.canRegisterApp)
+      )
+    },
     allApps(): AppOrMusicItem[] {
       return this.appStore.list
     },
@@ -720,6 +748,15 @@ export default {
 
   .bottom-nav-spacer {
     height: 72px;
+  }
+
+  .admin-register-fab {
+    position: fixed;
+    right: 20px;
+    bottom: 80px;
+    z-index: 95;
+    border-radius: 50%;
+    box-shadow: 0 4px 16px rgba(var(--v-theme-primary), 0.4);
   }
 }
 </style>

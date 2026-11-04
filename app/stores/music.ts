@@ -36,7 +36,11 @@ export interface MusicItem {
   lyricist: string
   price: number
   type: string
+  audioUrl?: string
 }
+
+// 実際の音声ファイル再生用（mp3 / wav 等）
+let audioElement: HTMLAudioElement | null = null
 
 // Web Audio API によるシンセプレビューエンジン（簡易シンセサイザー）
 let audioCtx: AudioContext | null = null
@@ -259,6 +263,31 @@ export const useMusicStore = defineStore('music', {
       }
     },
 
+    /**
+     * 新しい楽曲を登録してリストの先頭に追加
+     */
+    addTrack(track: MusicItem) {
+      const existingIdx = this.list.findIndex(t => t.id === track.id)
+      if (existingIdx !== -1) {
+        this.list[existingIdx] = track
+      } else {
+        this.list.unshift(track)
+      }
+    },
+
+    /**
+     * 現在再生中の音声を停止
+     */
+    stopAudio() {
+      stopSynth()
+      if (audioElement) {
+        audioElement.pause()
+        audioElement.currentTime = 0
+        audioElement = null
+      }
+      this.stopTimer()
+    },
+
     play(track: MusicItem, newQueue?: MusicItem[]) {
       if (newQueue && newQueue.length > 0) {
         this.queue = [...newQueue]
@@ -266,14 +295,51 @@ export const useMusicStore = defineStore('music', {
         this.queue = [...this.list]
       }
 
+      this.stopAudio()
+
       this.currentTrack = track
       this.currentTime = 0
       this.isPlaying = true
 
-      // シンセサウンドの再生
-      startSynth(track.audioPreset || 'citypop', track.bpm || 120)
+      // 実際の音声ファイル (mp3 / wav 等) がある場合は HTMLAudioElement で再生
+      if (track.audioUrl && typeof window !== 'undefined') {
+        try {
+          audioElement = new Audio(track.audioUrl)
+          audioElement.volume = this.isMuted ? 0 : this.volume
+          audioElement.currentTime = 0
 
-      // 再生時間タイマーの開始
+          audioElement.ontimeupdate = () => {
+            if (audioElement) {
+              this.currentTime = Math.floor(audioElement.currentTime)
+            }
+          }
+
+          audioElement.onloadedmetadata = () => {
+            if (audioElement && audioElement.duration && !isNaN(audioElement.duration)) {
+              this.currentTrack!.duration = Math.floor(audioElement.duration)
+              const mins = Math.floor(audioElement.duration / 60)
+              const secs = Math.floor(audioElement.duration % 60)
+              this.currentTrack!.durationFormatted = `${mins}:${secs < 10 ? '0' : ''}${secs}`
+            }
+          }
+
+          audioElement.onended = () => {
+            this.next()
+          }
+
+          audioElement.play().catch((err) => {
+            console.warn('Audio element play failed, falling back to synth:', err)
+            startSynth(track.audioPreset || 'citypop', track.bpm || 120)
+            this.startTimer()
+          })
+          return
+        } catch (e) {
+          console.warn('Could not initialize Audio element:', e)
+        }
+      }
+
+      // 音声ファイルがない場合は従来のシンセサイザーで再生
+      startSynth(track.audioPreset || 'citypop', track.bpm || 120)
       this.startTimer()
     },
 
@@ -287,12 +353,22 @@ export const useMusicStore = defineStore('music', {
 
       if (this.isPlaying) {
         this.isPlaying = false
-        stopSynth()
+        if (audioElement) {
+          audioElement.pause()
+        } else {
+          stopSynth()
+        }
         this.stopTimer()
       } else {
         this.isPlaying = true
-        startSynth(this.currentTrack.audioPreset || 'citypop', this.currentTrack.bpm || 120)
-        this.startTimer()
+        if (audioElement) {
+          audioElement.play().catch((err) => {
+            console.warn('Audio resume failed:', err)
+          })
+        } else {
+          startSynth(this.currentTrack.audioPreset || 'citypop', this.currentTrack.bpm || 120)
+          this.startTimer()
+        }
       }
     },
 
@@ -317,8 +393,7 @@ export const useMusicStore = defineStore('music', {
           this.play(this.queue[0])
         } else {
           this.isPlaying = false
-          stopSynth()
-          this.stopTimer()
+          this.stopAudio()
         }
       } else {
         this.play(this.queue[currentIndex + 1])
@@ -330,7 +405,7 @@ export const useMusicStore = defineStore('music', {
 
       // 再生開始3秒以降なら曲の先頭に戻る
       if (this.currentTime > 3) {
-        this.currentTime = 0
+        this.seek(0)
         return
       }
 
@@ -343,7 +418,11 @@ export const useMusicStore = defineStore('music', {
     },
 
     seek(time: number) {
-      this.currentTime = Math.max(0, Math.min(time, this.currentTrack?.duration || 180))
+      const maxDuration = this.currentTrack?.duration || 180
+      this.currentTime = Math.max(0, Math.min(time, maxDuration))
+      if (audioElement) {
+        audioElement.currentTime = this.currentTime
+      }
     },
 
     toggleLike(id: string) {
@@ -367,6 +446,9 @@ export const useMusicStore = defineStore('music', {
 
     setVolume(vol: number) {
       this.volume = Math.max(0, Math.min(1, vol))
+      if (audioElement) {
+        audioElement.volume = this.isMuted ? 0 : this.volume
+      }
       if (masterGain && audioCtx) {
         masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume * 0.4, audioCtx.currentTime)
       }
@@ -374,6 +456,9 @@ export const useMusicStore = defineStore('music', {
 
     toggleMute() {
       this.isMuted = !this.isMuted
+      if (audioElement) {
+        audioElement.volume = this.isMuted ? 0 : this.volume
+      }
       if (masterGain && audioCtx) {
         masterGain.gain.setValueAtTime(this.isMuted ? 0 : this.volume * 0.4, audioCtx.currentTime)
       }

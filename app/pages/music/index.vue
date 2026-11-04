@@ -62,6 +62,24 @@ v-card.music-page-root(
     //- 下部ナビゲーションバー用の余白
     .bottom-nav-spacer
 
+  //- 管理者用 音楽登録FABボタン
+  v-btn.admin-register-fab(
+    v-if="isAdmin"
+    color="primary"
+    icon="mdi-plus"
+    size="large"
+    elevation="4"
+    @click="adminRegisterModalOpen = true"
+  )
+    v-icon(size="28") mdi-plus
+    v-tooltip(activator="parent" location="left") 音楽を登録 (管理者)
+
+  //- 管理者コンテンツ登録モーダル
+  AdminRegisterModal(
+    v-model="adminRegisterModalOpen"
+    initialTab="music"
+  )
+
   //- ボトムナビゲーション
   BottomNav(v-model="optionsDialog")
 </template>
@@ -71,6 +89,7 @@ import HeroProfile from '@/components/common/HeroProfile.vue'
 import BottomNav from '@/components/common/BottomNav.vue'
 import MusicView from '@/components/music/MusicView.vue'
 import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
+import AdminRegisterModal from '@/components/admin/AdminRegisterModal.vue'
 import { useMusicStore, type MusicItem } from '@/stores/music'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
@@ -84,12 +103,14 @@ export default {
     BottomNav,
     MusicView,
     MusicTrackRow,
+    AdminRegisterModal,
   },
   mixins: [mixins],
   data() {
     return {
       searchQuery: '',
       optionsDialog: false,
+      adminRegisterModalOpen: false,
       musicStore: useMusicStore(),
       myProfile: useMyProfileStore(),
       settings: useSettingsStore(),
@@ -102,6 +123,13 @@ export default {
     )
   },
   computed: {
+    isAdmin(): boolean {
+      return Boolean(
+        this.myProfile.isAdmin ||
+        this.myProfile.role === 'admin' ||
+        (!this.myProfile.guest && this.myProfile.canRegisterApp)
+      )
+    },
     musicSearchResults(): MusicItem[] {
       const q = this.searchQuery.trim().toLowerCase()
       if (!q) return []
@@ -226,6 +254,15 @@ export default {
         font-size: 14px;
       }
     }
+  }
+
+  .admin-register-fab {
+    position: fixed;
+    right: 20px;
+    bottom: 80px;
+    z-index: 95;
+    border-radius: 50%;
+    box-shadow: 0 4px 16px rgba(var(--v-theme-primary), 0.4);
   }
 
   .bottom-nav-spacer {

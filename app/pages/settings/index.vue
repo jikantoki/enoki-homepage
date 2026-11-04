@@ -90,7 +90,7 @@ v-card(
         .text
           p.title 管理者ログイン
           p.description 管理者アカウントでログイン
-      .setting-item(
+      //.setting-item(
         v-else
         v-ripple
         @click="$router.push('/settings/profile')"
@@ -102,6 +102,18 @@ v-card(
         .text
           p.title 管理者プロファイル ({{ myProfile.userId }})
           p.description 管理者プロフィールの確認・編集
+      .setting-item(
+        v-if="!myProfile.guest"
+        v-ripple
+        @click="$router.push('/admin/register')"
+        )
+        .icon(
+          style="background-color: rgba(var(--v-theme-primary), 1); color: white;"
+        )
+          v-icon mdi-shield-plus-outline
+        .text
+          p.title コンテンツ登録 (アプリ・音楽)
+          p.description 管理者権限で新規アプリや楽曲、音声を登録
       .setting-item(
         v-ripple
         @click="logoutRequest()"

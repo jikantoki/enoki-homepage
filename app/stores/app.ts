@@ -299,11 +299,22 @@ export const useAppStore = defineStore('app', {
       }
     },
     /**
-     * リストにアイテムを追加
+     * リストにアイテムを追加（または更新）
      * @param item - 追加するアプリまたは楽曲情報
      */
     addItem(item: AppOrMusicItem) {
-      this.list.push(item)
+      const existingIdx = this.list.findIndex(t => t.id === item.id)
+      if (existingIdx !== -1) {
+        this.list[existingIdx] = item
+      } else {
+        this.list.unshift(item)
+      }
+    },
+    /**
+     * 新しいアプリまたはアイテムを先頭に登録
+     */
+    registerApp(item: AppOrMusicItem) {
+      this.addItem(item)
     },
     /**
      * IDでアイテムを検索
