@@ -1,6 +1,6 @@
 <template lang="pug">
 .music-view-container
-  //- ジャンル / フィルターピル
+  //- ジャンル / フィルターピル (すべて / 歌モノ / インスト / AI楽曲)
   .genre-filter-bar
     v-chip-group(
       v-model="selectedGenre"
@@ -14,11 +14,20 @@
         :value="g"
         variant="tonal"
         size="small"
-      ) {{ g }}
+      )
+        | {{ g }}
+        span.ms-1.text-caption ({{ getGenreCount(g) }})
 
   //- 1. ジャンル絞り込み時
   .genre-filtered-view(v-if="selectedGenre !== 'all'")
     .genre-header
+      v-btn.mb-2(
+        prepend-icon="mdi-arrow-left"
+        variant="tonal"
+        size="small"
+        rounded="pill"
+        @click="selectedGenre = 'all'"
+      ) すべてに戻る
       h2.genre-title {{ selectedGenre }}
       p.genre-subtitle {{ filteredTracks.length }} 曲が見つかりました
 
@@ -34,146 +43,83 @@
         @play="playTrack(item, filteredTracks)"
       )
 
-  //- 2. 「すべて」総合モード (Spotify / Apple Music フル体験)
+  //- 2. 「すべて」総合モード（おすすめ / ランダムピックアップ / 歌モノ / AI楽曲 / すべてのジャンルを探索）
   .music-main-scroll(v-else)
-    //- ヒーロー大型カルーセル
+    //- ヒーローカルーセル
     MusicHeroBanner(
       :items="featuredTracks"
       @click="openTrack"
       @play="playTrack"
     )
 
-    //- Spotify風 クイックアクセス (6グリッド)
-    .quick-picks-section
-      h3.section-heading おすすめのピックアップ
-      .quick-grid
-        .quick-card(
-          v-for="item in quickPicks"
-          :key="item.id"
-          :class="{ 'is-active': currentTrackId === item.id }"
-          v-ripple
-          @click="playTrack(item)"
-        )
-          img.quick-thumb(:src="item.cover || item.icon")
-          .quick-text
-            span.quick-title {{ item.title }}
-          .quick-play-btn
-            v-btn(
-              icon
-              color="primary"
-              size="x-small"
-              elevation="3"
-            )
-              v-icon(:icon="currentTrackId === item.id && isPlaying ? 'mdi-pause' : 'mdi-play'" size="16" color="white")
-
-    //- Shelf: 話題のトレンド曲
+    //- 1. おすすめ
     MusicShelf(
-      title="🔥 トレンド急上昇"
-      subtitle="今もっとも聴かれている人気トラック"
-      showMore
-      @more="selectedGenre = 'J-POP'"
+      title="おすすめ"
+      subtitle="エノキ電気が贈る厳選トラックコレクション"
     )
       MusicCard(
-        v-for="item in trendingTracks"
+        v-for="item in recommendedTracks"
         :key="item.id"
         :item="item"
         :isPlaying="isPlaying"
         :currentTrackId="currentTrackId"
         @click="openTrack(item)"
-        @play="playTrack(item, trendingTracks)"
+        @play="playTrack(item, recommendedTracks)"
       )
 
-    //- ランキング: Top 10 トラックリスト
-    .ranking-section
-      .ranking-header
-        .title-area
-          h3.section-heading 🏆 ENOKI TOP 10
-          p.section-sub リアルタイム総合ヒットチャート
-      .ranking-track-list
-        MusicTrackRow(
-          v-for="(item, idx) in topRankedTracks"
-          :key="item.id"
-          :item="item"
-          :rank="idx + 1"
-          :isPlaying="isPlaying"
-          :currentTrackId="currentTrackId"
-          :isLiked="musicStore.isLiked(item.id)"
-          @click="openTrack(item)"
-          @play="playTrack(item, topRankedTracks)"
-          @like="musicStore.toggleLike($event)"
-        )
-
-    //- Shelf: Lo-Fi & チルビート (作業用BGM)
+    //- 2. ランダムピックアップ
     MusicShelf(
-      title="☕ 深夜の作業用 Lo-Fi Beats"
-      subtitle="集中・リラックス・読書のためのチルサウンド"
-      showMore
-      @more="selectedGenre = 'Lo-Fi'"
+      title="ランダムピックアップ"
+      subtitle="思いがけない名曲との出会い"
     )
       MusicCard(
-        v-for="item in lofiTracks"
+        v-for="item in randomPickupTracks"
         :key="item.id"
         :item="item"
         :isPlaying="isPlaying"
         :currentTrackId="currentTrackId"
         @click="openTrack(item)"
-        @play="playTrack(item, lofiTracks)"
+        @play="playTrack(item, randomPickupTracks)"
       )
 
-    //- Shelf: シティポップ & ネオンレトロ
+    //- 3. 歌モノ
     MusicShelf(
-      title="🌆 煌めく City Pop & Synthwave"
-      subtitle="80sグルーヴとレトロフューチャー"
+      title="歌モノ"
+      subtitle="感情豊かなボーカルと心に響くメロディ"
       showMore
-      @more="selectedGenre = 'City Pop'"
+      @more="selectedGenre = '歌モノ'"
     )
       MusicCard(
-        v-for="item in cityPopTracks"
+        v-for="item in vocalTracks"
         :key="item.id"
         :item="item"
         :isPlaying="isPlaying"
         :currentTrackId="currentTrackId"
         @click="openTrack(item)"
-        @play="playTrack(item, cityPopTracks)"
+        @play="playTrack(item, vocalTracks)"
       )
 
-    //- Shelf: アニメ＆ゲーム サウンドトラック
+    //- 4. AI楽曲
     MusicShelf(
-      title="⚔️ アニメ＆ゲーム テーマソング"
-      subtitle="胸が熱くなる壮大なメロディと主題歌"
+      title="AI楽曲"
+      subtitle="最先端AI技術と音楽が織りなす新体験サウンド"
       showMore
-      @more="selectedGenre = 'Anime/Game'"
+      @more="selectedGenre = 'AI楽曲'"
     )
       MusicCard(
-        v-for="item in animeTracks"
+        v-for="item in aiTracks"
         :key="item.id"
         :item="item"
         :isPlaying="isPlaying"
         :currentTrackId="currentTrackId"
         @click="openTrack(item)"
-        @play="playTrack(item, animeTracks)"
+        @play="playTrack(item, aiTracks)"
       )
 
-    //- Shelf: エレクトロニック & ダンス
-    MusicShelf(
-      title="⚡ ハイエナジー EDM & Club"
-      subtitle="高揚感を刺激するフロアアンセム"
-      showMore
-      @more="selectedGenre = 'EDM'"
-    )
-      MusicCard(
-        v-for="item in edmTracks"
-        :key="item.id"
-        :item="item"
-        :isPlaying="isPlaying"
-        :currentTrackId="currentTrackId"
-        @click="openTrack(item)"
-        @play="playTrack(item, edmTracks)"
-      )
-
-    //- Spotify風 ジャンル一覧タイル
+    //- 5. すべてのジャンルを探索 (歌モノ / インスト / AI楽曲)
     .genres-browse-section
       h3.section-heading すべてのジャンルを探索
+      p.section-sub お好みのジャンルからお気に入りの音楽を見つけよう
       .genres-grid
         .genre-tile(
           v-for="g in genreTiles"
@@ -182,17 +128,19 @@
           v-ripple
           @click="selectedGenre = g.name"
         )
-          span.tile-name {{ g.name }}
-          v-icon.tile-icon(size="36" color="rgba(255, 255, 255, 0.3)") {{ g.icon }}
+          .tile-content
+            span.tile-name {{ g.name }}
+            span.tile-desc {{ g.description }}
+            span.tile-count {{ getGenreCount(g.name) }} 曲
+          v-icon.tile-icon(size="48" color="rgba(255, 255, 255, 0.28)") {{ g.icon }}
 
     //- ミニプレイヤー用のボトム余白
     .mini-player-spacer(v-if="currentTrack")
 </template>
 
 <script lang="ts">
-import { useMusicStore, type MusicItem } from '@/stores/music'
+import { useMusicStore, MUSIC_GENRES, type MusicItem } from '@/stores/music'
 import MusicCard from '@/components/music/MusicCard.vue'
-import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
 import MusicShelf from '@/components/music/MusicShelf.vue'
 import MusicHeroBanner from '@/components/music/MusicHeroBanner.vue'
 
@@ -200,7 +148,6 @@ export default {
   name: 'MusicView',
   components: {
     MusicCard,
-    MusicTrackRow,
     MusicShelf,
     MusicHeroBanner,
   },
@@ -211,17 +158,26 @@ export default {
   data() {
     return {
       selectedGenre: 'all',
+      randomPickups: [] as MusicItem[],
       genreTiles: [
-        { name: 'J-POP', gradient: 'linear-gradient(135deg, #F43F5E, #FB923C)', icon: 'mdi-music' },
-        { name: 'City Pop', gradient: 'linear-gradient(135deg, #4338CA, #38BDF8)', icon: 'mdi-weather-night' },
-        { name: 'Lo-Fi', gradient: 'linear-gradient(135deg, #78350F, #D97706)', icon: 'mdi-coffee' },
-        { name: 'Synthwave', gradient: 'linear-gradient(135deg, #831843, #06B6D4)', icon: 'mdi-lightning-bolt' },
-        { name: 'Anime/Game', gradient: 'linear-gradient(135deg, #1E3A8A, #3B82F6)', icon: 'mdi-sword' },
-        { name: 'EDM', gradient: 'linear-gradient(135deg, #047857, #10B981)', icon: 'mdi-speaker' },
-        { name: 'Piano', gradient: 'linear-gradient(135deg, #1E293B, #64748B)', icon: 'mdi-piano' },
-        { name: 'Acoustic', gradient: 'linear-gradient(135deg, #713F12, #EAB308)', icon: 'mdi-guitar-acoustic' },
-        { name: 'Rock', gradient: 'linear-gradient(135deg, #881337, #E11D48)', icon: 'mdi-guitar-electric' },
-        { name: 'R&B', gradient: 'linear-gradient(135deg, #312E81, #A855F7)', icon: 'mdi-heart-pulse' },
+        {
+          name: '歌モノ',
+          gradient: 'linear-gradient(135deg, #F43F5E, #FB923C)',
+          icon: 'mdi-microphone-variant',
+          description: '感情豊かなボーカル曲コレクション',
+        },
+        {
+          name: 'インスト',
+          gradient: 'linear-gradient(135deg, #0EA5E9, #3B82F6)',
+          icon: 'mdi-piano',
+          description: '作業・集中・リラックスのためのBGM',
+        },
+        {
+          name: 'AI楽曲',
+          gradient: 'linear-gradient(135deg, #8B5CF6, #A855F7)',
+          icon: 'mdi-robot',
+          description: '最先端AI技術による新感覚トラック',
+        },
       ],
     }
   },
@@ -239,7 +195,7 @@ export default {
       return this.musicStore.currentTrack?.id || ''
     },
     genres(): string[] {
-      return this.musicStore.allGenres
+      return [...MUSIC_GENRES]
     },
     filteredTracks(): MusicItem[] {
       if (this.selectedGenre === 'all') return this.allTracks
@@ -248,29 +204,30 @@ export default {
     featuredTracks(): MusicItem[] {
       return this.musicStore.featuredTracks.slice(0, 5)
     },
-    quickPicks(): MusicItem[] {
-      return this.allTracks.slice(0, 6)
+    recommendedTracks(): MusicItem[] {
+      return this.musicStore.recommendedTracks
     },
-    trendingTracks(): MusicItem[] {
-      return this.allTracks.filter(t => t.isTrending).slice(0, 10)
+    randomPickupTracks(): MusicItem[] {
+      if (this.randomPickups.length > 0) return this.randomPickups
+      return this.musicStore.getRandomPickups(10)
     },
-    topRankedTracks(): MusicItem[] {
-      return this.musicStore.topRanked.slice(0, 10)
+    vocalTracks(): MusicItem[] {
+      return this.musicStore.vocalTracks
     },
-    lofiTracks(): MusicItem[] {
-      return this.allTracks.filter(t => t.genre === 'Lo-Fi' || t.genre === 'Ambient').slice(0, 10)
-    },
-    cityPopTracks(): MusicItem[] {
-      return this.allTracks.filter(t => t.genre === 'City Pop' || t.genre === 'Synthwave').slice(0, 10)
-    },
-    animeTracks(): MusicItem[] {
-      return this.allTracks.filter(t => t.genre === 'Anime/Game').slice(0, 10)
-    },
-    edmTracks(): MusicItem[] {
-      return this.allTracks.filter(t => t.genre === 'EDM').slice(0, 10)
+    aiTracks(): MusicItem[] {
+      return this.musicStore.aiTracks
     },
   },
+  mounted() {
+    this.initRandomPickups()
+  },
   methods: {
+    initRandomPickups() {
+      this.randomPickups = this.musicStore.getRandomPickups(10)
+    },
+    getGenreCount(genreName: string): number {
+      return this.musicStore.genreCounts[genreName] || 0
+    },
     playTrack(track: MusicItem, queue?: MusicItem[]) {
       if (this.currentTrackId === track.id) {
         this.musicStore.togglePlay()
@@ -300,6 +257,7 @@ export default {
     position: sticky;
     top: 0;
     z-index: 8;
+    border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.05);
   }
 
   // 1. ジャンル別絞り込み表示
@@ -312,7 +270,7 @@ export default {
       .genre-title {
         font-size: 22px;
         font-weight: 800;
-        margin: 0;
+        margin: 4px 0 0 0;
       }
 
       .genre-subtitle {
@@ -333,6 +291,7 @@ export default {
   .music-main-scroll {
     display: flex;
     flex-direction: column;
+    gap: 8px;
   }
 
   .section-heading {
@@ -349,141 +308,69 @@ export default {
     margin: 0;
   }
 
-  // Spotify風 6グリッド クイックアクセス
-  .quick-picks-section {
-    padding: 16px;
-
-    .quick-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 12px;
-
-      @media (min-width: 768px) {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      .quick-card {
-        display: flex;
-        align-items: center;
-        background-color: rgba(var(--v-theme-on-surface), 0.05);
-        border-radius: 8px;
-        overflow: hidden;
-        cursor: pointer;
-        transition: background-color 0.2s, transform 0.15s;
-        height: 54px;
-        position: relative;
-
-        &:hover {
-          background-color: rgba(var(--v-theme-on-surface), 0.1);
-          transform: translateY(-1px);
-
-          .quick-play-btn {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-
-        &.is-active {
-          background-color: rgba(var(--v-theme-primary), 0.12);
-          .quick-title {
-            color: rgb(var(--v-theme-primary));
-          }
-        }
-
-        .quick-thumb {
-          width: 54px;
-          height: 54px;
-          object-fit: cover;
-          flex-shrink: 0;
-        }
-
-        .quick-text {
-          flex: 1;
-          padding: 0 10px;
-          min-width: 0;
-
-          .quick-title {
-            font-size: 13px;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
-          }
-        }
-
-        .quick-play-btn {
-          position: absolute;
-          right: 8px;
-          opacity: 0;
-          transform: scale(0.85);
-          transition: opacity 0.2s, transform 0.2s;
-        }
-      }
-    }
-  }
-
-  // ランキングセクション
-  .ranking-section {
-    padding: 16px;
-    margin-bottom: 24px;
-
-    .ranking-header {
-      margin-bottom: 12px;
-    }
-
-    .ranking-track-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      background: rgba(var(--v-theme-on-surface), 0.02);
-      border-radius: 12px;
-      padding: 6px;
-    }
-  }
-
-  // ジャンル探索タイル
+  // ジャンル探索タイル (3つのジャンル)
   .genres-browse-section {
     padding: 16px;
+    margin-top: 8px;
     margin-bottom: 24px;
 
     .genres-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-top: 12px;
-
-      @media (min-width: 600px) {
-        grid-template-columns: repeat(4, 1fr);
-      }
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
 
       .genre-tile {
         position: relative;
-        height: 84px;
-        border-radius: 12px;
-        padding: 14px;
+        height: 104px;
+        border-radius: 16px;
+        padding: 16px;
         color: #ffffff;
         cursor: pointer;
         overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transition: transform 0.2s;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
 
         &:hover {
           transform: translateY(-3px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
         }
 
-        .tile-name {
-          font-size: 16px;
-          font-weight: 800;
-          display: block;
+        .tile-content {
+          z-index: 2;
+
+          .tile-name {
+            font-size: 18px;
+            font-weight: 800;
+            display: block;
+            line-height: 1.2;
+          }
+
+          .tile-desc {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-top: 4px;
+            display: block;
+          }
+
+          .tile-count {
+            font-size: 11px;
+            font-weight: 700;
+            opacity: 0.8;
+            margin-top: 6px;
+            display: inline-block;
+          }
         }
 
         .tile-icon {
           position: absolute;
-          bottom: -4px;
-          right: -4px;
-          transform: rotate(15deg);
+          bottom: -6px;
+          right: -6px;
+          transform: rotate(12deg);
+          z-index: 1;
         }
       }
     }

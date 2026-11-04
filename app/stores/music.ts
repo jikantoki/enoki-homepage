@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia'
 import mockMusicData from '../data/music.json'
 
+/**
+ * 音楽ジャンル定数（「歌モノ」「インスト」「AI楽曲」の3つ）
+ */
+export const MUSIC_GENRES = ['歌モノ', 'インスト', 'AI楽曲'] as const
+export type MusicGenre = (typeof MUSIC_GENRES)[number]
+
 export interface MusicItem {
   id: string
   name: string
@@ -211,14 +217,23 @@ export const useMusicStore = defineStore('music', {
   getters: {
     featuredTracks: (state) => state.list.filter(item => item.featured),
     trendingTracks: (state) => state.list.filter(item => item.isTrending),
+    recommendedTracks: (state) => {
+      const featured = state.list.filter(item => item.featured)
+      const others = state.list.filter(item => !item.featured)
+      return [...featured, ...others].slice(0, 10)
+    },
+    vocalTracks: (state) => state.list.filter(item => item.genre === '歌モノ'),
+    instrumentalTracks: (state) => state.list.filter(item => item.genre === 'インスト'),
+    aiTracks: (state) => state.list.filter(item => item.genre === 'AI楽曲'),
     topRanked: (state) => [...state.list].sort((a, b) => b.rating - a.rating),
     byGenre: (state) => (genre: string) => state.list.filter(item => item.genre === genre),
-    allGenres: (state) => {
-      const genres = new Set<string>()
-      state.list.forEach(item => {
-        if (item.genre) genres.add(item.genre)
-      })
-      return Array.from(genres)
+    allGenres: (): string[] => [...MUSIC_GENRES],
+    genreCounts: (state) => {
+      const counts: Record<string, number> = {}
+      for (const g of MUSIC_GENRES) {
+        counts[g] = state.list.filter(item => item.genre === g).length
+      }
+      return counts
     },
     isCurrentLiked: (state) => {
       if (!state.currentTrack) return false
@@ -228,8 +243,18 @@ export const useMusicStore = defineStore('music', {
   },
 
   actions: {
+    getRandomPickups(count = 10): MusicItem[] {
+      if (!this.list || this.list.length === 0) return []
+      const shuffled = [...this.list].sort(() => Math.random() - 0.5)
+      return shuffled.slice(0, count)
+    },
+
     loadMockData(force = false) {
-      if (force || !this.list || this.list.length === 0) {
+      const needsRefresh =
+        !this.list ||
+        this.list.length === 0 ||
+        !this.list.some(item => item.genre === '歌モノ')
+      if (force || needsRefresh) {
         this.list = [...(mockMusicData as MusicItem[])]
       }
     },

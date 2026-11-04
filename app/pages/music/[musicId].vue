@@ -1,4 +1,4 @@
-<template lang="pug">
+﻿<template lang="pug">
 v-card.music-detail-page-root(
   style="width: 100%; height: 100%;"
   :class="settings.hidden.isAndroid15OrHigher ? 'top-android-15-or-higher' : ''"
@@ -60,7 +60,6 @@ v-card.music-detail-page-root(
           .track-tags
             span.genre-tag {{ track.genre }}
             span.album-tag {{ track.album }}
-            span.plays-tag {{ track.plays }} 回再生
 
         //- シークバー
         .scrubber-container

@@ -28,8 +28,6 @@
     .song-artist {{ item.artist }}
     .song-extra(v-if="showExtra")
       span.genre-tag {{ item.genre }}
-      span.dot •
-      span.plays-text {{ item.plays }} 回再生
 </template>
 
 <script lang="ts">

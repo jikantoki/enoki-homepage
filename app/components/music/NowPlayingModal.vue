@@ -193,9 +193,6 @@ v-dialog(
               span.label リリース日
               span.value {{ track.releaseDateFormatted }}
             .info-detail-item
-              span.label 再生回数
-              span.value {{ track.plays }} 回
-            .info-detail-item
               span.label BPM / 音源
               span.value {{ track.bpm }} BPM / {{ track.audioPreset }}
             .info-detail-item
