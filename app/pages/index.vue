@@ -216,7 +216,7 @@ v-card.home-page-root(
               rounded="pill"
             ) GitHub
             v-btn.sns-btn(
-              href="https://www.nicovideo.jp/user/89659039"
+              href="https://www.nicovideo.jp/user/78021860/video"
               target="_blank"
               rel="noopener noreferrer"
               color="#252525"
