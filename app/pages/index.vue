@@ -46,7 +46,7 @@ v-card.home-page-root(
             elevation="6"
             @click="$router.push('/apps')"
           )
-            span ソフトウェアを見る
+            span.mx-2 ソフトウェアを見る
             v-icon.ml-1(size="18") mdi-arrow-right
 
           v-btn.hero-btn.btn-music(
@@ -57,7 +57,7 @@ v-card.home-page-root(
             elevation="4"
             @click="$router.push('/music')"
           )
-            span 音楽を聴く
+            span.mx-2 音楽を聴く
 
           v-btn.hero-btn.btn-youtube(
             size="large"
@@ -69,7 +69,7 @@ v-card.home-page-root(
             target="_blank"
             rel="noopener noreferrer"
           )
-            span YouTubeで曲を聴く
+            span.mx-2 YouTubeで曲を聴く
 
           v-btn.hero-btn.btn-profile(
             size="large"
@@ -79,7 +79,17 @@ v-card.home-page-root(
             color="white"
             @click="$router.push('/profile')"
           )
-            span プロフィール・実績
+            span.mx-2 プロフィール・実績
+
+          v-btn.hero-btn.btn-profile(
+            size="large"
+            rounded="pill"
+            prepend-icon="mdi-handshake-outline"
+            variant="outlined"
+            color="white"
+            @click="$router.push('/sponsors')"
+          )
+            span.mx-2 スポンサー
 
       //- スクロール促進ヒント
       .scroll-down-hint(@click="scrollToContent")
