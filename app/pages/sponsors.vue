@@ -62,7 +62,58 @@ v-card.sponsors-page-root(
             v-icon(start) mdi-account-heart
             | 友人 ({{ friendList.length }})
 
-      //- ================= 1. スポンサーセクション =================
+      //- ================= 1. 友人セクション =================
+      section.friend-section.mt-10(v-if="activeFilter === 'all' || activeFilter === 'friend'")
+        .section-header
+          .section-title-wrap
+            v-icon(color="teal" size="24") mdi-account-heart
+            h2.section-heading 友人
+            span.section-badge {{ friendList.length }}
+          p.section-subtext
+            | 音楽・イラスト・映像・プログラム・ハードウェアなど、日頃から刺激を受け合いながら共に歩んでいるクリエイター仲間です。
+
+        .cards-grid
+          v-card.sponsor-card.friend-card(
+            v-for="item in friendList"
+            :key="item.id"
+            variant="outlined"
+          )
+            .card-header-bar
+              v-chip(
+                size="small"
+                variant="tonal"
+                :color="item.tierColor || 'teal'"
+                class="font-weight-bold"
+              ) {{ item.tier }}
+              span.since-text(v-if="item.since") {{ item.since }}
+
+            .card-profile-header
+              .avatar-container
+                img.sponsor-avatar(
+                  :src="item.avatar"
+                  :alt="item.name"
+                  onerror="this.src='/account_default.jpg'"
+                )
+              .profile-names
+                h3.name-text {{ item.name }}
+                p.role-text {{ item.role }}
+
+            v-card-text.card-body
+              p.desc-text {{ item.description }}
+
+            v-card-actions.card-footer(v-if="item.links && item.links.length")
+              v-btn(
+                v-for="link in item.links"
+                :key="link.title"
+                size="small"
+                variant="tonal"
+                rounded="pill"
+                :prepend-icon="link.icon"
+                :color="link.color"
+                @click="openURL(link.url)"
+              ) {{ link.title }}
+
+      //- ================= 2. スポンサーセクション =================
       section.sponsor-section.mt-8(v-if="activeFilter === 'all' || activeFilter === 'sponsor'")
         .section-header
           .section-title-wrap
@@ -114,60 +165,9 @@ v-card.sponsors-page-root(
                 @click="openURL(link.url)"
               ) {{ link.title }}
 
-      //- ================= 2. 友人セクション =================
-      section.friend-section.mt-10(v-if="activeFilter === 'all' || activeFilter === 'friend'")
-        .section-header
-          .section-title-wrap
-            v-icon(color="teal" size="24") mdi-account-heart
-            h2.section-heading 友人
-            span.section-badge {{ friendList.length }}
-          p.section-subtext
-            | 音楽・イラスト・映像・プログラム・ハードウェアなど、日頃から刺激を受け合いながら共に歩んでいるクリエイター仲間です。
-
-        .cards-grid
-          v-card.sponsor-card.friend-card(
-            v-for="item in friendList"
-            :key="item.id"
-            variant="outlined"
-          )
-            .card-header-bar
-              v-chip(
-                size="small"
-                variant="tonal"
-                :color="item.tierColor || 'teal'"
-                class="font-weight-bold"
-              ) {{ item.tier }}
-              span.since-text(v-if="item.since") {{ item.since }}
-
-            .card-profile-header
-              .avatar-container
-                img.sponsor-avatar(
-                  :src="item.avatar"
-                  :alt="item.name"
-                  onerror="this.src='/account_default.jpg'"
-                )
-              .profile-names
-                h3.name-text {{ item.name }}
-                p.role-text {{ item.role }}
-
-            v-card-text.card-body
-              p.desc-text {{ item.description }}
-
-            v-card-actions.card-footer(v-if="item.links && item.links.length")
-              v-btn(
-                v-for="link in item.links"
-                :key="link.title"
-                size="small"
-                variant="tonal"
-                rounded="pill"
-                :prepend-icon="link.icon"
-                :color="link.color"
-                @click="openURL(link.url)"
-              ) {{ link.title }}
-
       //- ================= 3. スポンサー募集・コンタクト案内カード =================
-      .join-sponsor-banner.my-10
-        v-card.sponsor-cta-card(variant="tonal" color="primary")
+      .join-sponsor-banner.my-4
+        v-card.sponsor-cta-card.pa-2(variant="tonal" color="primary")
           v-card-item
             template(#prepend)
               .cta-icon-circle
@@ -302,7 +302,11 @@ export default {
   overflow: hidden;
   padding: 32px 20px;
   text-align: center;
-  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.12), rgba(var(--v-theme-primary), 0.03));
+  background: linear-gradient(
+    135deg,
+    rgba(var(--v-theme-primary), 0.12),
+    rgba(var(--v-theme-primary), 0.03)
+  );
   border: 1px solid rgba(var(--v-theme-primary), 0.2);
   margin-bottom: 20px;
 
