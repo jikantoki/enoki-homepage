@@ -273,6 +273,8 @@ CREATE TABLE `app_list` (
   `downloads` varchar(32) NOT NULL DEFAULT 'NEW' COMMENT 'ダウンロード数表示用テキスト',
   `developer` varchar(255) DEFAULT 'エノキ電気' COMMENT '開発者・開発元名称',
   `featured` tinyint(1) NOT NULL DEFAULT 0 COMMENT '注目・ピックアップフラグ (1: 注目, 0: 通常)',
+  `isUnfinished` tinyint(1) NOT NULL DEFAULT 0 COMMENT '未完成フラグ (1: 未完成, 0: 完成)',
+  `tags` text DEFAULT NULL COMMENT 'タグ一覧 (JSON配列)',
   `createdAt` int(11) NOT NULL COMMENT '登録日時 (unixtime秒)',
   `updatedAt` int(11) NOT NULL COMMENT '更新日時 (unixtime秒)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='アプリ・ゲーム情報リスト';
@@ -305,6 +307,8 @@ CREATE TABLE `music_list` (
   `rating` double NOT NULL DEFAULT 5.0 COMMENT '評価レーティング (1.0 - 5.0)',
   `featured` tinyint(1) NOT NULL DEFAULT 0 COMMENT '注目・ピックアップ曲フラグ (1: 注目, 0: 通常)',
   `isTrending` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'トレンド曲フラグ (1: トレンド, 0: 通常)',
+  `isUnfinished` tinyint(1) NOT NULL DEFAULT 0 COMMENT '未完成フラグ (1: 未完成, 0: 完成)',
+  `tags` text DEFAULT NULL COMMENT 'タグ一覧 (JSON配列)',
   `themeColor` varchar(32) NOT NULL DEFAULT '#4F46E5' COMMENT 'テーマカラーHEX',
   `accentColor` varchar(32) NOT NULL DEFAULT '#38BDF8' COMMENT 'アクセントカラーHEX',
   `audioPreset` varchar(32) NOT NULL DEFAULT 'citypop' COMMENT 'シンセプリセット名 (citypop, lofi, synthwave, piano等)',
@@ -394,6 +398,7 @@ ALTER TABLE `app_list`
   ADD PRIMARY KEY (`appId`),
   ADD KEY `type` (`type`),
   ADD KEY `featured` (`featured`),
+  ADD KEY `isUnfinished` (`isUnfinished`),
   ADD KEY `createdAt` (`createdAt`);
 
 --
@@ -404,6 +409,7 @@ ALTER TABLE `music_list`
   ADD KEY `genre` (`genre`),
   ADD KEY `featured` (`featured`),
   ADD KEY `isTrending` (`isTrending`),
+  ADD KEY `isUnfinished` (`isUnfinished`),
   ADD KEY `createdAt` (`createdAt`);
 
 -- --------------------------------------------------------

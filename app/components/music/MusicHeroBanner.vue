@@ -16,6 +16,9 @@
         .badge-row
           span.category-badge {{ item.genre }}
           span.exclusive-tag ピックアップ
+          span.wip-hero-badge(v-if="isTrackUnfinished(item)")
+            v-icon.mr-1(size="11") mdi-progress-wrench
+            | 未完成
 
         h2.slide-title {{ item.title }}
         p.slide-artist {{ item.artist }} — {{ item.album }}
@@ -50,7 +53,7 @@
 
 <script lang="ts">
 import type { PropType } from 'vue'
-import type { MusicItem } from '@/stores/music'
+import { isTrackUnfinished, type MusicItem } from '@/stores/music'
 
 export default {
   name: 'MusicHeroBanner',
@@ -90,6 +93,9 @@ export default {
     goToSlide(index: number) {
       this.currentSlide = index
       this.startAutoSlide()
+    },
+    isTrackUnfinished(item: any): boolean {
+      return isTrackUnfinished(item)
     },
   },
 }
@@ -193,6 +199,19 @@ export default {
           padding: 3px 8px;
           border-radius: 9999px;
           color: #e0e0e0;
+        }
+
+        .wip-hero-badge {
+          background: #f59e0b;
+          color: #ffffff;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 3px 8px;
+          border-radius: 9999px;
+          letter-spacing: 0.3px;
+          display: inline-flex;
+          align-items: center;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
       }
 

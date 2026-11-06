@@ -16,16 +16,37 @@ v-dialog(
 
     //- メインコンテンツ
     .detail-body
+      //- 未完成（開発中）注意バナー
+      v-alert.unfinished-banner.mb-4.pa-4(
+        v-if="isUnfinished"
+        type="warning"
+        variant="tonal"
+        rounded="xl"
+        density="comfortable"
+        icon="mdi-hammer-wrench"
+      )
+        .d-flex.align-center.justify-space-between.flex-wrap.gap-2
+          div
+            .font-weight-bold.text-body-2 このアプリは「未完成（開発中）」です
+            .text-caption.text-medium-emphasis 機能の追加や仕様変更が進行中であり、一部機能や動作が不安定な場合があります。
+          v-chip(size="x-small" color="warning" variant="flat") 制作中 / WIP
+
       //- ヘッダー情報
       .detail-header
         .header-main
           .icon-box
             img.app-icon(:src="app.icon" :alt="app.name")
+            .wip-corner-badge(v-if="isUnfinished")
+              v-icon(size="11") mdi-progress-wrench
+              span 未完成
           .meta-box
             h1.app-name {{ app.name }}
             p.app-dev {{ app.developer || 'Enoki Studio' }}
             .app-badges
               span.badge {{ app.category || (app.type === 'game' ? 'ゲーム' : 'アプリ') }}
+              span.badge.wip-badge(v-if="isUnfinished")
+                v-icon.mr-1(size="11") mdi-progress-wrench
+                | 未完成 (WIP)
 
       //- リンクボタン群（旧インストール/購入ボタンを置き換え、linksをv-forで表示）
       .action-row(v-if="(app.links && app.links.length) || app.githubUrl || app.videoUrl")
@@ -97,7 +118,7 @@ import { computed } from 'vue'
 import { marked } from 'marked'
 import { Browser } from '@capacitor/browser'
 import { Share } from '@capacitor/share'
-import type { AppOrMusicItem } from '~/stores/app'
+import { isItemUnfinished, type AppOrMusicItem } from '~/stores/app'
 
 const props = defineProps<{
   modelValue: boolean
@@ -142,6 +163,8 @@ const getPlatformIcon = (platform: string) => {
   if (p.includes('windows')) return 'mdi-microsoft-windows'
   return 'mdi-devices'
 }
+
+const isUnfinished = computed(() => isItemUnfinished(props.app))
 
 const renderedDescription = computed(() => {
   if (!props.app?.description) return ''
@@ -287,17 +310,31 @@ const renderedDescription = computed(() => {
         line-height: 1.7;
         color: rgba(var(--v-theme-on-surface), 0.88);
 
-        :deep(h1), :deep(h2), :deep(h3), :deep(h4) {
+        :deep(h1),
+        :deep(h2),
+        :deep(h3),
+        :deep(h4) {
           font-weight: 700;
           margin-top: 1em;
           margin-bottom: 0.5em;
           color: rgb(var(--v-theme-on-surface));
         }
 
-        :deep(p) { margin-bottom: 0.7em; }
-        :deep(ul), :deep(ol) { padding-left: 20px; margin-bottom: 0.7em; }
-        :deep(li) { margin-bottom: 3px; }
-        :deep(strong) { font-weight: 700; color: rgb(var(--v-theme-on-surface)); }
+        :deep(p) {
+          margin-bottom: 0.7em;
+        }
+        :deep(ul),
+        :deep(ol) {
+          padding-left: 20px;
+          margin-bottom: 0.7em;
+        }
+        :deep(li) {
+          margin-bottom: 3px;
+        }
+        :deep(strong) {
+          font-weight: 700;
+          color: rgb(var(--v-theme-on-surface));
+        }
         :deep(code) {
           background: rgba(var(--v-theme-on-surface), 0.08);
           padding: 2px 5px;

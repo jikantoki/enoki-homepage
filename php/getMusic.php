@@ -37,6 +37,8 @@ try {
         'rating' => floatval($row['rating']),
         'featured' => boolval($row['featured']),
         'isTrending' => boolval($row['isTrending']),
+        'isUnfinished' => boolval($row['isUnfinished'] ?? false) || (isset($row['tags']) && in_array('未完成', json_decode($row['tags'] ?? '[]', true) ?: [])),
+        'tags' => json_decode($row['tags'] ?? '[]', true) ?: (!empty($row['isUnfinished']) ? ['未完成'] : []),
         'themeColor' => $row['themeColor'],
         'accentColor' => $row['accentColor'],
         'audioPreset' => $row['audioPreset'],

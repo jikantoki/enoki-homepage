@@ -27,7 +27,9 @@
     "composer": "Toki & The Neon Nights",
     "lyricist": "Toki & The Neon Nights",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-002",
@@ -57,7 +59,11 @@
     "composer": "青空メロディックス",
     "lyricist": "青空メロディックス",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "id": "music-003",
@@ -87,7 +93,9 @@
     "composer": "蓮見 カナタ",
     "lyricist": "蓮見 カナタ",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-004",
@@ -117,7 +125,11 @@
     "composer": "Vapor Waveform",
     "lyricist": "Vapor Waveform",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "id": "music-005",
@@ -147,7 +159,9 @@
     "composer": "ハルカミドリ",
     "lyricist": "ハルカミドリ",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-006",
@@ -177,7 +191,9 @@
     "composer": "星野ルカ & Nova Project",
     "lyricist": "星野ルカ & Nova Project",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-007",
@@ -207,7 +223,11 @@
     "composer": "Chill Enoki Room",
     "lyricist": "Chill Enoki Room",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "id": "music-008",
@@ -237,7 +257,9 @@
     "composer": "Sleepy Cat Beats",
     "lyricist": "Sleepy Cat Beats",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-009",
@@ -267,7 +289,11 @@
     "composer": "Lofi Toki Garden",
     "lyricist": "Lofi Toki Garden",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "id": "music-010",
@@ -297,7 +323,9 @@
     "composer": "Study Companion",
     "lyricist": "Study Companion",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-011",
@@ -327,7 +355,11 @@
     "composer": "Cozy Corner Studio",
     "lyricist": "Cozy Corner Studio",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "id": "music-012",
@@ -357,7 +389,9 @@
     "composer": "Neon Samurai",
     "lyricist": "Neon Samurai",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-013",
@@ -387,7 +421,9 @@
     "composer": "Retro Horizon",
     "lyricist": "Retro Horizon",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-014",
@@ -417,7 +453,9 @@
     "composer": "Zero Vector",
     "lyricist": "Zero Vector",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-015",
@@ -447,7 +485,9 @@
     "composer": "HyperDrive Alpha",
     "lyricist": "HyperDrive Alpha",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-016",
@@ -477,7 +517,9 @@
     "composer": "アルカディア幻想交響楽団",
     "lyricist": "アルカディア幻想交響楽団",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-017",
@@ -507,7 +549,9 @@
     "composer": "神崎レイ & Sound Battalion",
     "lyricist": "神崎レイ & Sound Battalion",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-018",
@@ -537,7 +581,9 @@
     "composer": "月詠 ミク (Covered by Toki)",
     "lyricist": "月詠 ミク (Covered by Toki)",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-019",
@@ -567,7 +613,9 @@
     "composer": "8-Bit Enoki Heroes",
     "lyricist": "8-Bit Enoki Heroes",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-020",
@@ -597,7 +645,9 @@
     "composer": "DJ Enoki Pulse",
     "lyricist": "DJ Enoki Pulse",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-021",
@@ -627,7 +677,9 @@
     "composer": "Shibuya Electro Syndicate",
     "lyricist": "Shibuya Electro Syndicate",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-022",
@@ -657,7 +709,11 @@
     "composer": "SubZero Labs",
     "lyricist": "SubZero Labs",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "id": "music-023",
@@ -687,7 +743,9 @@
     "composer": "森のピアニスト",
     "lyricist": "森のピアニスト",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-024",
@@ -717,7 +775,9 @@
     "composer": "木陰カルテット",
     "lyricist": "木陰カルテット",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-025",
@@ -747,7 +807,9 @@
     "composer": "Ambient Soundscape Lab",
     "lyricist": "Ambient Soundscape Lab",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-026",
@@ -777,7 +839,9 @@
     "composer": "朝比奈 ひより",
     "lyricist": "朝比奈 ひより",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-027",
@@ -807,7 +871,11 @@
     "composer": "The Black Enoki",
     "lyricist": "The Black Enoki",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "id": "music-028",
@@ -837,7 +905,9 @@
     "composer": "午前3時のガレージ",
     "lyricist": "午前3時のガレージ",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-029",
@@ -867,7 +937,9 @@
     "composer": "Sora & Soul Collective",
     "lyricist": "Sora & Soul Collective",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-030",
@@ -897,7 +969,9 @@
     "composer": "Maya Jenkins",
     "lyricist": "Maya Jenkins",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-031",
@@ -927,7 +1001,9 @@
     "composer": "Toki Beats",
     "lyricist": "Toki Beats",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-032",
@@ -957,7 +1033,11 @@
     "composer": "Enoki Soundworks",
     "lyricist": "Enoki Soundworks",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "id": "music-033",
@@ -987,7 +1067,11 @@
     "composer": "Miu Shizuki",
     "lyricist": "Miu Shizuki",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "id": "music-034",
@@ -1017,7 +1101,9 @@
     "composer": "Kaito Arata",
     "lyricist": "Kaito Arata",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-035",
@@ -1047,7 +1133,9 @@
     "composer": "Lumina Sound",
     "lyricist": "Lumina Sound",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-036",
@@ -1077,7 +1165,9 @@
     "composer": "Yuki & The Stars",
     "lyricist": "Yuki & The Stars",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-037",
@@ -1107,7 +1197,11 @@
     "composer": "Chronos Quartet",
     "lyricist": "Chronos Quartet",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "id": "music-038",
@@ -1137,7 +1231,9 @@
     "composer": "Aoi Resonance",
     "lyricist": "Aoi Resonance",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-039",
@@ -1167,7 +1263,9 @@
     "composer": "Cosmic Echoes",
     "lyricist": "Cosmic Echoes",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-040",
@@ -1197,7 +1295,9 @@
     "composer": "Rei Takamura",
     "lyricist": "Rei Takamura",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-041",
@@ -1227,7 +1327,9 @@
     "composer": "Toki Beats",
     "lyricist": "Toki Beats",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-042",
@@ -1257,7 +1359,11 @@
     "composer": "Enoki Soundworks",
     "lyricist": "Enoki Soundworks",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "id": "music-043",
@@ -1287,7 +1393,9 @@
     "composer": "Miu Shizuki",
     "lyricist": "Miu Shizuki",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-044",
@@ -1317,7 +1425,9 @@
     "composer": "Kaito Arata",
     "lyricist": "Kaito Arata",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-045",
@@ -1347,7 +1457,9 @@
     "composer": "Lumina Sound",
     "lyricist": "Lumina Sound",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-046",
@@ -1377,7 +1489,9 @@
     "composer": "Yuki & The Stars",
     "lyricist": "Yuki & The Stars",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-047",
@@ -1407,7 +1521,9 @@
     "composer": "Chronos Quartet",
     "lyricist": "Chronos Quartet",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-048",
@@ -1437,7 +1553,9 @@
     "composer": "Aoi Resonance",
     "lyricist": "Aoi Resonance",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-049",
@@ -1467,7 +1585,9 @@
     "composer": "Cosmic Echoes",
     "lyricist": "Cosmic Echoes",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-050",
@@ -1497,7 +1617,9 @@
     "composer": "Rei Takamura",
     "lyricist": "Rei Takamura",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-051",
@@ -1527,7 +1649,9 @@
     "composer": "Toki Beats",
     "lyricist": "Toki Beats",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-052",
@@ -1557,7 +1681,9 @@
     "composer": "Enoki Soundworks",
     "lyricist": "Enoki Soundworks",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-053",
@@ -1587,7 +1713,9 @@
     "composer": "Miu Shizuki",
     "lyricist": "Miu Shizuki",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-054",
@@ -1617,7 +1745,9 @@
     "composer": "Kaito Arata",
     "lyricist": "Kaito Arata",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-055",
@@ -1647,7 +1777,9 @@
     "composer": "Lumina Sound",
     "lyricist": "Lumina Sound",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-056",
@@ -1677,7 +1809,9 @@
     "composer": "Yuki & The Stars",
     "lyricist": "Yuki & The Stars",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-057",
@@ -1707,7 +1841,9 @@
     "composer": "Chronos Quartet",
     "lyricist": "Chronos Quartet",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-058",
@@ -1737,7 +1873,9 @@
     "composer": "Aoi Resonance",
     "lyricist": "Aoi Resonance",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-059",
@@ -1767,7 +1905,9 @@
     "composer": "Cosmic Echoes",
     "lyricist": "Cosmic Echoes",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "id": "music-060",
@@ -1797,6 +1937,8 @@
     "composer": "Rei Takamura",
     "lyricist": "Rei Takamura",
     "price": 0,
-    "type": "music"
+    "type": "music",
+    "isUnfinished": false,
+    "tags": []
   }
 ]

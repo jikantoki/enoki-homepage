@@ -1,12 +1,23 @@
 <template lang="pug">
-.store-rank-item(v-ripple @click="$emit('click', item)")
+.store-rank-item(:class="{ 'is-unfinished': isUnfinished }" v-ripple @click="$emit('click', item)")
   .rank-badge(:class="{ 'top-three': rank <= 3 }") {{ rank }}
   .icon-wrapper
     img.app-icon(:src="item.icon" :alt="item.name" loading="lazy")
+    .wip-indicator(v-if="isUnfinished")
+      v-icon(size="9") mdi-progress-wrench
   .info-wrapper
-    .app-title {{ item.name }}
+    .app-title-row
+      span.app-title {{ item.name }}
+      v-chip.unfinished-chip(
+        v-if="isUnfinished"
+        size="x-small"
+        color="warning"
+        variant="flat"
+        density="compact"
+      ) 未完成
     .app-meta
       span.app-category {{ item.category || (item.type === 'game' ? 'ゲーム' : 'アプリ') }}
+      span.wip-text(v-if="isUnfinished") • 開発中
   .action-wrapper
     v-btn(
       size="small"
@@ -18,9 +29,10 @@
 </template>
 
 <script setup lang="ts">
-import type { AppOrMusicItem } from '~/stores/app'
+import { computed } from 'vue'
+import { isItemUnfinished, type AppOrMusicItem } from '~/stores/app'
 
-defineProps<{
+const props = defineProps<{
   item: AppOrMusicItem
   rank: number
 }>()
@@ -28,6 +40,8 @@ defineProps<{
 defineEmits<{
   (e: 'click', item: AppOrMusicItem): void
 }>()
+
+const isUnfinished = computed(() => isItemUnfinished(props.item))
 </script>
 
 <style lang="scss" scoped>
@@ -59,6 +73,7 @@ defineEmits<{
   }
 
   .icon-wrapper {
+    position: relative;
     width: 56px;
     height: 56px;
     min-width: 56px;
@@ -73,6 +88,20 @@ defineEmits<{
       object-fit: cover;
       display: block;
     }
+
+    .wip-indicator {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      background: #f59e0b;
+      color: #fff;
+      border-radius: 4px;
+      padding: 1px 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
   }
 
   .info-wrapper {
@@ -81,13 +110,28 @@ defineEmits<{
     display: flex;
     flex-direction: column;
 
-    .app-title {
-      font-size: 14px;
-      font-weight: 500;
-      color: rgb(var(--v-theme-on-surface));
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .app-title-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+
+      .app-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: rgb(var(--v-theme-on-surface));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .unfinished-chip {
+        font-size: 9.5px !important;
+        height: 18px !important;
+        padding: 0 5px !important;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
     }
 
     .app-meta {
@@ -97,6 +141,11 @@ defineEmits<{
       margin-top: 3px;
       font-size: 12px;
       color: rgba(var(--v-theme-on-surface), 0.65);
+
+      .wip-text {
+        color: #d97706;
+        font-weight: 600;
+      }
     }
   }
 

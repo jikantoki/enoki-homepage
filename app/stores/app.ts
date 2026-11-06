@@ -20,6 +20,30 @@ export type SupportedPlatform = (typeof SUPPORTED_PLATFORMS)[number]
  * プラットフォーム一致判定ヘルパー関数
  * 表記ゆれ（大文字小文字、win/windows, mac/macos/osx, etc.）を柔軟に正規化して判定
  */
+
+/**
+ * アイテム（アプリ/楽曲）が「未完成」であるかを判定する共通ヘルパー関数
+ */
+export function isItemUnfinished(
+  item: { isUnfinished?: boolean; tags?: string[] } | null | undefined,
+): boolean {
+  if (!item) return false
+  if (item.isUnfinished === true) return true
+  if (
+    Array.isArray(item.tags) &&
+    item.tags.some(
+      (t) =>
+        typeof t === 'string' &&
+        (t.trim() === '未完成' ||
+          t.trim().toLowerCase() === 'wip' ||
+          t.trim().toLowerCase() === 'unfinished'),
+    )
+  ) {
+    return true
+  }
+  return false
+}
+
 export function isPlatformMatch(
   platforms: string[] | undefined,
   targetPlatform: string,
@@ -142,6 +166,10 @@ export interface AppInfo {
   summary?: string
   /** ピックアップ/注目 */
   featured?: boolean
+  /** 未完成フラグ */
+  isUnfinished?: boolean
+  /** タグ一覧 */
+  tags?: string[]
 }
 
 /**

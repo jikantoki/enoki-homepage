@@ -4,6 +4,30 @@ import mockMusicData from '../data/music.json'
 /**
  * 音楽ジャンル定数（「歌モノ」「インスト」「AI楽曲」の3つ）
  */
+
+/**
+ * 楽曲が「未完成」であるかを判定するヘルパー関数
+ */
+export function isTrackUnfinished(
+  track: { isUnfinished?: boolean; tags?: string[] } | null | undefined,
+): boolean {
+  if (!track) return false
+  if (track.isUnfinished === true) return true
+  if (
+    Array.isArray(track.tags) &&
+    track.tags.some(
+      (t) =>
+        typeof t === 'string' &&
+        (t.trim() === '未完成' ||
+          t.trim().toLowerCase() === 'wip' ||
+          t.trim().toLowerCase() === 'unfinished'),
+    )
+  ) {
+    return true
+  }
+  return false
+}
+
 export const MUSIC_GENRES = ['歌モノ', 'インスト', 'AI楽曲'] as const
 export type MusicGenre = (typeof MUSIC_GENRES)[number]
 
@@ -37,6 +61,8 @@ export interface MusicItem {
   price: number
   type: string
   audioUrl?: string
+  isUnfinished?: boolean
+  tags?: string[]
 }
 
 // 実際の音声ファイル再生用（mp3 / wav 等）

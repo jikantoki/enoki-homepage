@@ -50,6 +50,21 @@ v-card.music-detail-page-root(
     .backdrop-glow
 
     .music-body
+      //- 未完成（制作中）注意バナー
+      v-alert.unfinished-banner.mb-3.pa-4(
+        v-if="isUnfinished"
+        type="warning"
+        variant="tonal"
+        rounded="xl"
+        density="comfortable"
+        icon="mdi-progress-wrench"
+      )
+        .d-flex.align-center.justify-space-between.flex-wrap.gap-2
+          div
+            .font-weight-bold.text-body-2 この楽曲は現在「未完成（制作中）」です
+            .text-caption.text-medium-emphasis デモ版またはラフ音源であり、完成版とアレンジや内容が異なる場合があります。
+          v-chip(size="x-small" color="warning" variant="flat") 制作中 / WIP
+
       //- ビュー切り替えタブ（プレイヤー / 歌詞 / 楽曲情報）
       .mode-toggle-chips
         v-chip(
@@ -85,6 +100,9 @@ v-card.music-detail-page-root(
           .track-tags
             span.genre-tag {{ track.genre }}
             span.album-tag {{ track.album }}
+            span.genre-tag.wip-tag(v-if="isUnfinished")
+              v-icon.mr-1(size="11") mdi-progress-wrench
+              | 未完成
 
         //- シークバー
         .scrubber-container
@@ -176,6 +194,9 @@ v-card.music-detail-page-root(
         .info-card
           h2.info-heading 楽曲詳細情報
           .info-list
+            .info-item(v-if="isUnfinished")
+              span.label 制作状況
+              span.value.text-warning.font-weight-bold 未完成 (WIP / 制作中音源)
             .info-item
               span.label タイトル
               span.value {{ track.title }}
@@ -272,7 +293,11 @@ v-card.music-detail-page-root(
 <script lang="ts">
 import { Share } from '@capacitor/share'
 import { Toast } from '@capacitor/toast'
-import { useMusicStore, type MusicItem } from '@/stores/music'
+import {
+  useMusicStore,
+  isTrackUnfinished,
+  type MusicItem,
+} from '@/stores/music'
 import { useSettingsStore } from '@/stores/settings'
 import MusicCard from '@/components/music/MusicCard.vue'
 import AdminRegisterModal from '@/components/admin/AdminRegisterModal.vue'
@@ -310,6 +335,9 @@ export default {
     },
     musicId(): string {
       return (this.$route.params.musicId as string) || ''
+    },
+    isUnfinished(): boolean {
+      return isTrackUnfinished(this.track)
     },
     track(): MusicItem | undefined {
       return this.musicStore.list.find((item) => item.id === this.musicId)

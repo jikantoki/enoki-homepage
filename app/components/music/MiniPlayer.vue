@@ -16,7 +16,15 @@
         .playing-halo(v-if="isPlaying")
 
       .title-group
-        .track-title {{ currentTrack.title || currentTrack.name }}
+        .track-title
+          span.title-text {{ currentTrack.title || currentTrack.name }}
+          v-chip.unfinished-mini-chip(
+            v-if="isUnfinished"
+            size="x-small"
+            color="warning"
+            variant="flat"
+            density="compact"
+          ) 未完成
         .track-artist {{ currentTrack.artist }}
 
     //- 右側: コントロール
@@ -59,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import { useMusicStore } from '@/stores/music'
+import { useMusicStore, isTrackUnfinished } from '@/stores/music'
 
 export default {
   name: 'MiniPlayer',
@@ -82,6 +90,9 @@ export default {
     },
     isLiked() {
       return this.musicStore.isCurrentLiked
+    },
+    isUnfinished() {
+      return isTrackUnfinished(this.currentTrack)
     },
     progressPercent() {
       if (!this.currentTrack || !this.currentTrack.duration) return 0

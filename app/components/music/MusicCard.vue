@@ -1,5 +1,6 @@
 <template lang="pug">
 .music-card(
+  :class="{ 'is-unfinished': isUnfinished }"
   v-ripple
   @click="$emit('click', item)"
 )
@@ -24,15 +25,24 @@
       .eq-bar
 
   .meta-container
-    .song-title(:class="{ active: isPlayingThis }") {{ item.title || item.name }}
+    .title-row
+      .song-title(:class="{ active: isPlayingThis }") {{ item.title || item.name }}
+      v-chip.unfinished-chip(
+        v-if="isUnfinished"
+        size="x-small"
+        color="warning"
+        variant="flat"
+        density="compact"
+      ) 未完成
     .song-artist {{ item.artist }}
-    .song-extra(v-if="showExtra")
+    .song-extra
       span.genre-tag {{ item.genre }}
+      span.wip-status(v-if="isUnfinished") • 制作中
 </template>
 
 <script lang="ts">
 import type { PropType } from 'vue'
-import type { MusicItem } from '@/stores/music'
+import { isTrackUnfinished, type MusicItem } from '@/stores/music'
 
 export default {
   name: 'MusicCard',
@@ -59,6 +69,9 @@ export default {
     isPlayingThis(): boolean {
       return this.isPlaying && this.currentTrackId === this.item.id
     },
+    isUnfinished(): boolean {
+      return isTrackUnfinished(this.item)
+    },
   },
 }
 </script>
@@ -74,6 +87,7 @@ export default {
   border-radius: 12px;
   transition: background-color 0.2s, transform 0.2s;
   user-select: none;
+  position: relative;
 
   &:hover {
     background-color: rgba(var(--v-theme-on-surface), 0.06);
@@ -101,6 +115,28 @@ export default {
       display: block;
     }
 
+    .wip-tag {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #ffffff;
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      letter-spacing: 0.3px;
+      z-index: 2;
+
+      .wip-icon {
+        color: #ffffff;
+      }
+    }
+
     .play-overlay {
       position: absolute;
       right: 8px;
@@ -121,7 +157,7 @@ export default {
     .playing-indicator {
       position: absolute;
       top: 8px;
-      left: 8px;
+      right: 8px;
       display: flex;
       align-items: flex-end;
       gap: 2px;
@@ -130,6 +166,7 @@ export default {
       background: rgba(0, 0, 0, 0.65);
       border-radius: 4px;
       backdrop-filter: blur(4px);
+      z-index: 2;
 
       .eq-bar {
         width: 3px;
@@ -137,10 +174,26 @@ export default {
         border-radius: 1px;
         animation: eqBounce 0.8s ease-in-out infinite alternate;
 
-        &:nth-child(1) { height: 12px; animation-delay: 0.1s; }
-        &:nth-child(2) { height: 7px; animation-delay: 0.3s; }
-        &:nth-child(3) { height: 14px; animation-delay: 0.2s; }
+        &:nth-child(1) {
+          height: 12px;
+          animation-delay: 0.1s;
+        }
+        &:nth-child(2) {
+          height: 7px;
+          animation-delay: 0.3s;
+        }
+        &:nth-child(3) {
+          height: 14px;
+          animation-delay: 0.2s;
+        }
       }
+    }
+  }
+
+  &.is-unfinished {
+    .cover-container {
+      outline: 2px solid rgba(245, 158, 11, 0.55);
+      outline-offset: -1px;
     }
   }
 
@@ -149,17 +202,33 @@ export default {
     display: flex;
     flex-direction: column;
 
-    .song-title {
-      font-size: 13.5px;
-      font-weight: 700;
-      color: rgb(var(--v-theme-on-surface));
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 1.3;
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
 
-      &.active {
-        color: rgb(var(--v-theme-primary));
+      .song-title {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: rgb(var(--v-theme-on-surface));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.3;
+        flex: 1;
+
+        &.active {
+          color: rgb(var(--v-theme-primary));
+        }
+      }
+
+      .unfinished-chip {
+        font-size: 9px !important;
+        height: 16px !important;
+        padding: 0 4px !important;
+        font-weight: 700;
+        flex-shrink: 0;
       }
     }
 
@@ -183,12 +252,21 @@ export default {
       .genre-tag {
         font-weight: 600;
       }
+
+      .wip-status {
+        color: #d97706;
+        font-weight: 600;
+      }
     }
   }
 }
 
 @keyframes eqBounce {
-  0% { height: 3px; }
-  100% { height: 14px; }
+  0% {
+    height: 3px;
+  }
+  100% {
+    height: 14px;
+  }
 }
 </style>

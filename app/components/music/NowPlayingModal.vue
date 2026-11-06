@@ -58,11 +58,22 @@ v-dialog(
         .artwork-container
           .artwork-glow(:style="{ background: track.themeColor || '#4F46E5' }")
           img.artwork-img(:src="track.cover || track.icon" :alt="track.title")
+          .wip-cover-tag(v-if="isUnfinished")
+            v-icon.mr-1(size="12") mdi-progress-wrench
+            span 未完成音源
 
         //- 楽曲情報 & お気に入り
         .meta-row
           .title-area
-            h1.song-main-title {{ track.title || track.name }}
+            .title-with-badge
+              h1.song-main-title {{ track.title || track.name }}
+              v-chip.unfinished-nowplaying-chip(
+                v-if="isUnfinished"
+                size="x-small"
+                color="warning"
+                variant="flat"
+                density="compact"
+              ) 未完成
             p.song-main-artist {{ track.artist }}
           v-btn.like-btn(
             icon
@@ -207,7 +218,7 @@ v-dialog(
 </template>
 
 <script lang="ts">
-import { useMusicStore, type MusicItem } from '@/stores/music'
+import { useMusicStore, isTrackUnfinished, type MusicItem } from '@/stores/music'
 
 export default {
   name: 'NowPlayingModal',
@@ -235,6 +246,9 @@ export default {
     },
     track(): MusicItem | null {
       return this.musicStore.currentTrack
+    },
+    isUnfinished(): boolean {
+      return isTrackUnfinished(this.track)
     },
     isLiked(): boolean {
       return this.musicStore.isCurrentLiked

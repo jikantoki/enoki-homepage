@@ -35,6 +35,8 @@ try {
         'downloads' => $row['downloads'],
         'developer' => $row['developer'],
         'featured' => boolval($row['featured']),
+        'isUnfinished' => boolval($row['isUnfinished'] ?? false) || (isset($row['tags']) && in_array('未完成', json_decode($row['tags'] ?? '[]', true) ?: [])),
+        'tags' => json_decode($row['tags'] ?? '[]', true) ?: (!empty($row['isUnfinished']) ? ['未完成'] : []),
         'releaseDate' => intval($row['createdAt']) * 1000,
       ];
     }

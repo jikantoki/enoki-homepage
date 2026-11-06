@@ -256,12 +256,21 @@ v-dialog(
                   placeholder="https://github.com/..."
                 )
 
-            v-switch(
-              v-model="appData.featured"
-              color="primary"
-              label="注目 / ピックアップアプリに設定する"
-              hide-details
-            )
+            v-row(dense)
+              v-col(cols="12" md="6")
+                v-switch(
+                  v-model="appData.featured"
+                  color="primary"
+                  label="注目 / ピックアップアプリに設定する"
+                  hide-details
+                )
+              v-col(cols="12" md="6")
+                v-switch(
+                  v-model="appData.isUnfinished"
+                  color="warning"
+                  label="「未完成」タグを付ける (制作中・ベータ版等)"
+                  hide-details
+                )
 
             .d-flex.justify-end.mt-6.gap-3
               v-btn(variant="text" @click="closeModal") キャンセル
@@ -504,18 +513,25 @@ v-dialog(
             )
 
             v-row(dense)
-              v-col(cols="12" md="6")
+              v-col(cols="12" md="4")
                 v-switch(
                   v-model="musicData.featured"
                   color="primary"
                   label="注目・ピックアップ曲に設定"
                   hide-details
                 )
-              v-col(cols="12" md="6")
+              v-col(cols="12" md="4")
                 v-switch(
                   v-model="musicData.isTrending"
                   color="secondary"
                   label="トレンド曲に設定"
+                  hide-details
+                )
+              v-col(cols="12" md="4")
+                v-switch(
+                  v-model="musicData.isUnfinished"
+                  color="warning"
+                  label="「未完成」タグを付ける (制作中・デモ音源等)"
                   hide-details
                 )
 
@@ -581,6 +597,7 @@ export default defineComponent({
         description: '',
         githubUrl: '',
         featured: false,
+        isUnfinished: false,
       },
       appLinks: {
         googlePlay: '',
@@ -630,6 +647,7 @@ export default defineComponent({
         lyrics: '',
         featured: false,
         isTrending: false,
+        isUnfinished: false,
       },
       uploadedAudioName: '',
       uploadingAudio: false,
@@ -732,6 +750,7 @@ export default defineComponent({
         this.musicData.lyrics = item.lyrics || ''
         this.musicData.featured = Boolean(item.featured)
         this.musicData.isTrending = Boolean(item.isTrending)
+        this.musicData.isUnfinished = Boolean(item.isUnfinished || (Array.isArray(item.tags) && item.tags.includes('未完成')))
 
         if (this.musicData.audioUrl) {
           this.initPreviewAudio(this.musicData.audioUrl)
@@ -758,6 +777,7 @@ export default defineComponent({
         this.appData.description = item.description || ''
         this.appData.githubUrl = item.githubUrl || ''
         this.appData.featured = Boolean(item.featured)
+        this.appData.isUnfinished = Boolean(item.isUnfinished || (Array.isArray(item.tags) && item.tags.includes('未完成')))
 
         this.appLinks.googlePlay = ''
         this.appLinks.appStore = ''
@@ -1114,6 +1134,8 @@ export default defineComponent({
         developer: existing?.developer || this.myProfile.name || 'エノキ電気',
         summary: this.appData.summary || `${this.appData.name} を体験しよう`,
         featured: this.appData.featured,
+        isUnfinished: this.appData.isUnfinished,
+        tags: this.appData.isUnfinished ? ['未完成'] : [],
       }
 
       try {
@@ -1221,6 +1243,8 @@ export default defineComponent({
         rating: existing?.rating ?? 5.0,
         featured: this.musicData.featured,
         isTrending: this.musicData.isTrending,
+        isUnfinished: this.musicData.isUnfinished,
+        tags: this.musicData.isUnfinished ? ['未完成'] : [],
         themeColor: existing?.themeColor || '#4F46E5',
         accentColor: existing?.accentColor || '#38BDF8',
         audioPreset: existing?.audioPreset || 'citypop',

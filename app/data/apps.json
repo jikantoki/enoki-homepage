@@ -46,7 +46,9 @@
     "downloads": "500万+",
     "developer": "Enoki Interactive",
     "summary": "RPGの決定版！ステラクロニクル 救世の星で新しい体験を。",
-    "featured": true
+    "featured": true,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "サイバーブレード 2088",
@@ -92,7 +94,11 @@
     "downloads": "100万+",
     "developer": "Pixel Forge Studio",
     "summary": "アクションの決定版！サイバーブレード 2088で新しい体験を。",
-    "featured": true
+    "featured": true,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "ジュエルブラスト ポップ！",
@@ -139,7 +145,9 @@
     "downloads": "1000万+",
     "developer": "Hypernova Lab",
     "summary": "パズルの決定版！ジュエルブラスト ポップ！で新しい体験を。",
-    "featured": true
+    "featured": true,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ビートウェーブ 3D Rhythm",
@@ -186,7 +194,9 @@
     "downloads": "200万+",
     "developer": "Komorebi Soft",
     "summary": "音楽ゲームの決定版！ビートウェーブ 3D Rhythmで新しい体験を。",
-    "featured": true
+    "featured": true,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ニトロ・レーサーズ Overdrive",
@@ -235,7 +245,11 @@
     "downloads": "500万+",
     "developer": "Aether Works",
     "summary": "レースの決定版！ニトロ・レーサーズ Overdriveで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "キングダム・タクティクス 王権",
@@ -282,7 +296,9 @@
     "downloads": "300万+",
     "developer": "Nexus Digital",
     "summary": "ストラテジーの決定版！キングダム・タクティクス 王権で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "スペースコロニー計画 2200",
@@ -330,7 +346,9 @@
     "downloads": "50万+",
     "developer": "Enoki Interactive",
     "summary": "シミュレーションの決定版！スペースコロニー計画 2200で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ダンジョン・ダイバー 迷宮深層",
@@ -377,7 +395,11 @@
     "downloads": "150万+",
     "developer": "Pixel Forge Studio",
     "summary": "RPGの決定版！ダンジョン・ダイバー 迷宮深層で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "シャドウダッシュ 忍道",
@@ -426,7 +448,9 @@
     "downloads": "400万+",
     "developer": "Hypernova Lab",
     "summary": "アクションの決定版！シャドウダッシュ 忍道で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "マイ・カフェ・ライフ 癒しの時間",
@@ -474,7 +498,9 @@
     "downloads": "800万+",
     "developer": "Komorebi Soft",
     "summary": "シミュレーションの決定版！マイ・カフェ・ライフ 癒しの時間で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ギャラクシー・ウォーズ 艦隊戦",
@@ -521,7 +547,11 @@
     "downloads": "120万+",
     "developer": "Aether Works",
     "summary": "ストラテジーの決定版！ギャラクシー・ウォーズ 艦隊戦で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "ブロックコネクト 脳トレパズル",
@@ -568,7 +598,9 @@
     "downloads": "600万+",
     "developer": "Nexus Digital",
     "summary": "パズルの決定版！ブロックコネクト 脳トレパズルで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "リズム・シンフォニア 古代の旋律",
@@ -618,7 +650,11 @@
     "downloads": "80万+",
     "developer": "Enoki Interactive",
     "summary": "音楽ゲームの決定版！リズム・シンフォニア 古代の旋律で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "ドリフト・マスター TOKYO",
@@ -664,7 +700,9 @@
     "downloads": "250万+",
     "developer": "Pixel Forge Studio",
     "summary": "レースの決定版！ドリフト・マスター TOKYOで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "タワーディフェンス Zero",
@@ -711,7 +749,11 @@
     "downloads": "350万+",
     "developer": "Hypernova Lab",
     "summary": "ストラテジーの決定版！タワーディフェンス Zeroで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "ドラゴンズ・レガシー 竜血の絆",
@@ -759,7 +801,9 @@
     "downloads": "700万+",
     "developer": "Komorebi Soft",
     "summary": "RPGの決定版！ドラゴンズ・レガシー 竜血の絆で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "メカ・バトラーズ アリーナ",
@@ -808,7 +852,11 @@
     "downloads": "180万+",
     "developer": "Aether Works",
     "summary": "アクションの決定版！メカ・バトラーズ アリーナで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "ペンギン・アイランド 放置庭園",
@@ -855,7 +903,11 @@
     "downloads": "900万+",
     "developer": "Nexus Digital",
     "summary": "シミュレーションの決定版！ペンギン・アイランド 放置庭園で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "数字パズル クロス 1000問",
@@ -903,7 +955,9 @@
     "downloads": "300万+",
     "developer": "Enoki Interactive",
     "summary": "パズルの決定版！数字パズル クロス 1000問で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "テクノステップ アーケード",
@@ -949,7 +1003,9 @@
     "downloads": "100万+",
     "developer": "Pixel Forge Studio",
     "summary": "音楽ゲームの決定版！テクノステップ アーケードで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ミニカート・グランプリ DX",
@@ -998,7 +1054,11 @@
     "downloads": "60万+",
     "developer": "Hypernova Lab",
     "summary": "レースの決定版！ミニカート・グランプリ DXで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "エーテルファンタジー 幻獣契約",
@@ -1046,7 +1106,9 @@
     "downloads": "450万+",
     "developer": "Komorebi Soft",
     "summary": "RPGの決定版！エーテルファンタジー 幻獣契約で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "スピードストーム 疾風の拳",
@@ -1094,7 +1156,9 @@
     "downloads": "140万+",
     "developer": "Aether Works",
     "summary": "アクションの決定版！スピードストーム 疾風の拳で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ファーム・ハーベスト 四季の村",
@@ -1141,7 +1205,11 @@
     "downloads": "550万+",
     "developer": "Nexus Digital",
     "summary": "シミュレーションの決定版！ファーム・ハーベスト 四季の村で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "ウォー・オブ・エンパイア 覇権",
@@ -1190,7 +1258,9 @@
     "downloads": "200万+",
     "developer": "Enoki Interactive",
     "summary": "ストラテジーの決定版！ウォー・オブ・エンパイア 覇権で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "物理の箱庭 サンドボックス",
@@ -1236,7 +1306,9 @@
     "downloads": "90万+",
     "developer": "Pixel Forge Studio",
     "summary": "パズルの決定版！物理の箱庭 サンドボックスで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ピアノ・メロディ・タイル",
@@ -1284,7 +1356,9 @@
     "downloads": "1500万+",
     "developer": "Hypernova Lab",
     "summary": "音楽ゲームの決定版！ピアノ・メロディ・タイルで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ハイウェイ・チェイス 警視庁",
@@ -1331,7 +1405,9 @@
     "downloads": "110万+",
     "developer": "Komorebi Soft",
     "summary": "レースの決定版！ハイウェイ・チェイス 警視庁で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "星降る夜の冒険者たち",
@@ -1379,7 +1455,9 @@
     "downloads": "320万+",
     "developer": "Aether Works",
     "summary": "RPGの決定版！星降る夜の冒険者たちで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "モンスターハンター ソウル",
@@ -1425,7 +1503,9 @@
     "downloads": "600万+",
     "developer": "Nexus Digital",
     "summary": "アクションの決定版！モンスターハンター ソウルで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "トレイン・タイクーン 鉄道王",
@@ -1473,7 +1553,11 @@
     "downloads": "170万+",
     "developer": "Enoki Interactive",
     "summary": "シミュレーションの決定版！トレイン・タイクーン 鉄道王で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "クラフト・サバイバル 孤島",
@@ -1520,7 +1604,9 @@
     "downloads": "120万+",
     "developer": "Pixel Forge Studio",
     "summary": "アドベンチャーの決定版！クラフト・サバイバル 孤島で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "カラーソート ボールパズル",
@@ -1567,7 +1653,9 @@
     "downloads": "800万+",
     "developer": "Hypernova Lab",
     "summary": "パズルの決定版！カラーソート ボールパズルで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "エレクトロ・グルーヴ DJ",
@@ -1614,7 +1702,9 @@
     "downloads": "70万+",
     "developer": "Komorebi Soft",
     "summary": "音楽ゲームの決定版！エレクトロ・グルーヴ DJで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "オフロード・クライマー 4x4",
@@ -1662,7 +1752,9 @@
     "downloads": "220万+",
     "developer": "Aether Works",
     "summary": "レースの決定版！オフロード・クライマー 4x4で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "アビス・ナイツ 深淵の騎士",
@@ -1709,7 +1801,9 @@
     "downloads": "280万+",
     "developer": "Nexus Digital",
     "summary": "RPGの決定版！アビス・ナイツ 深淵の騎士で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "アーチェリー・キング 3D",
@@ -1759,7 +1853,9 @@
     "downloads": "400万+",
     "developer": "Enoki Interactive",
     "summary": "アクションの決定版！アーチェリー・キング 3Dで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "アクアリウム・ドリーム 水族館",
@@ -1806,7 +1902,11 @@
     "downloads": "330万+",
     "developer": "Pixel Forge Studio",
     "summary": "シミュレーションの決定版！アクアリウム・ドリーム 水族館で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "コマンダー・イン・チーフ 戦線",
@@ -1853,7 +1953,9 @@
     "downloads": "90万+",
     "developer": "Hypernova Lab",
     "summary": "ストラテジーの決定版！コマンダー・イン・チーフ 戦線で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "タングラム 幾何学パズル",
@@ -1901,7 +2003,9 @@
     "downloads": "190万+",
     "developer": "Komorebi Soft",
     "summary": "パズルの決定版！タングラム 幾何学パズルで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "8ビット・ヒーローズ レトロ",
@@ -1949,7 +2053,9 @@
     "downloads": "40万+",
     "developer": "Aether Works",
     "summary": "RPGの決定版！8ビット・ヒーローズ レトロで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "スナイパー・エリート ゴースト",
@@ -1995,7 +2101,9 @@
     "downloads": "650万+",
     "developer": "Nexus Digital",
     "summary": "アクションの決定版！スナイパー・エリート ゴーストで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "シティ・ビルダー 大都市創造",
@@ -2043,7 +2151,11 @@
     "downloads": "420万+",
     "developer": "Enoki Interactive",
     "summary": "シミュレーションの決定版！シティ・ビルダー 大都市創造で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "ワード・マスター ことばの海",
@@ -2090,7 +2202,9 @@
     "downloads": "290万+",
     "developer": "Pixel Forge Studio",
     "summary": "パズルの決定版！ワード・マスター ことばの海で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "エアプレーン・フライト シム",
@@ -2138,7 +2252,9 @@
     "downloads": "85万+",
     "developer": "Hypernova Lab",
     "summary": "シミュレーションの決定版！エアプレーン・フライト シムで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ラリー・チャンピオン WRC",
@@ -2185,7 +2301,9 @@
     "downloads": "160万+",
     "developer": "Komorebi Soft",
     "summary": "レースの決定版！ラリー・チャンピオン WRCで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ヴァルキリー・クライシス",
@@ -2232,7 +2350,9 @@
     "downloads": "380万+",
     "developer": "Aether Works",
     "summary": "RPGの決定版！ヴァルキリー・クライシスで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "クレーンゲーム オンライン 直送",
@@ -2279,7 +2399,9 @@
     "downloads": "210万+",
     "developer": "Nexus Digital",
     "summary": "カジュアルの決定版！クレーンゲーム オンライン 直送で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "チェス・マスターズ AI対局",
@@ -2327,7 +2449,11 @@
     "downloads": "500万+",
     "developer": "Enoki Interactive",
     "summary": "テーブルの決定版！チェス・マスターズ AI対局で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "バブル・シューター・ポップ",
@@ -2373,7 +2499,9 @@
     "downloads": "1200万+",
     "developer": "Pixel Forge Studio",
     "summary": "パズルの決定版！バブル・シューター・ポップで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "Enoki ファイルマネージャー Pro",
@@ -2421,7 +2549,9 @@
     "downloads": "100万+",
     "developer": "Hypernova Lab",
     "summary": "ツールの決定版！Enoki ファイルマネージャー Proで新しい体験を。",
-    "featured": true
+    "featured": true,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "Focus ポモドーロ 集中タイマー",
@@ -2470,7 +2600,9 @@
     "downloads": "250万+",
     "developer": "Komorebi Soft",
     "summary": "仕事効率化の決定版！Focus ポモドーロ 集中タイマーで新しい体験を。",
-    "featured": true
+    "featured": true,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "レトロカメラ 1998 フィルムFX",
@@ -2517,7 +2649,9 @@
     "downloads": "800万+",
     "developer": "Aether Works",
     "summary": "写真の決定版！レトロカメラ 1998 フィルムFXで新しい体験を。",
-    "featured": true
+    "featured": true,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "Enoki チャット＆セキュア通話",
@@ -2564,7 +2698,11 @@
     "downloads": "300万+",
     "developer": "Nexus Digital",
     "summary": "通信の決定版！Enoki チャット＆セキュア通話で新しい体験を。",
-    "featured": true
+    "featured": true,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "シンプル家計簿 3秒で記録",
@@ -2612,7 +2750,9 @@
     "downloads": "400万+",
     "developer": "Enoki Interactive",
     "summary": "ファイナンスの決定版！シンプル家計簿 3秒で記録で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "雨雲レーダー 高精度天気予報",
@@ -2659,7 +2799,9 @@
     "downloads": "600万+",
     "developer": "Pixel Forge Studio",
     "summary": "天気の決定版！雨雲レーダー 高精度天気予報で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "Markdown ノート 瞬速同期",
@@ -2708,7 +2850,9 @@
     "downloads": "50万+",
     "developer": "Hypernova Lab",
     "summary": "仕事効率化の決定版！Markdown ノート 瞬速同期で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "AI ポートレート レタッチ HD",
@@ -2755,7 +2899,9 @@
     "downloads": "500万+",
     "developer": "Komorebi Soft",
     "summary": "写真の決定版！AI ポートレート レタッチ HDで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "スマートQR＆バーコード リーダー",
@@ -2802,7 +2948,11 @@
     "downloads": "900万+",
     "developer": "Aether Works",
     "summary": "ツールの決定版！スマートQR＆バーコード リーダーで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "Ambient 睡眠サウンド＆白雑音",
@@ -2848,7 +2998,9 @@
     "downloads": "350万+",
     "developer": "Nexus Digital",
     "summary": "健康＆フィットネスの決定版！Ambient 睡眠サウンド＆白雑音で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "タスク・カンバン ボード共有",
@@ -2898,7 +3050,9 @@
     "downloads": "120万+",
     "developer": "Enoki Interactive",
     "summary": "仕事効率化の決定版！タスク・カンバン ボード共有で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "資産トラッカー 株＆暗号資産",
@@ -2945,7 +3099,9 @@
     "downloads": "180万+",
     "developer": "Pixel Forge Studio",
     "summary": "ファイナンスの決定版！資産トラッカー 株＆暗号資産で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "デイリー英単語 忘却曲線メソッド",
@@ -2994,7 +3150,11 @@
     "downloads": "270万+",
     "developer": "Hypernova Lab",
     "summary": "教育の決定版！デイリー英単語 忘却曲線メソッドで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "快眠アシスト 睡眠トラッカー",
@@ -3041,7 +3201,9 @@
     "downloads": "310万+",
     "developer": "Komorebi Soft",
     "summary": "健康＆フィットネスの決定版！快眠アシスト 睡眠トラッカーで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "PDF スキャナー＆電子署名",
@@ -3089,7 +3251,9 @@
     "downloads": "150万+",
     "developer": "Aether Works",
     "summary": "ビジネスの決定版！PDF スキャナー＆電子署名で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "イコライザー FX 音質強化 Pro",
@@ -3135,7 +3299,11 @@
     "downloads": "430万+",
     "developer": "Nexus Digital",
     "summary": "音楽＆オーディオの決定版！イコライザー FX 音質強化 Proで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "クイック電卓 Pro 単位換算付き",
@@ -3184,7 +3352,9 @@
     "downloads": "700万+",
     "developer": "Enoki Interactive",
     "summary": "ツールの決定版！クイック電卓 Pro 単位換算付きで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "スターゲイザー 3D天体観測",
@@ -3233,7 +3403,9 @@
     "downloads": "90万+",
     "developer": "Pixel Forge Studio",
     "summary": "教育の決定版！スターゲイザー 3D天体観測で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "スマート瞑想 1日5分マインドフル",
@@ -3280,7 +3452,11 @@
     "downloads": "220万+",
     "developer": "Hypernova Lab",
     "summary": "健康＆フィットネスの決定版！スマート瞑想 1日5分マインドフルで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "ショート動画スタジオ 編集Vlog",
@@ -3330,7 +3506,11 @@
     "downloads": "650万+",
     "developer": "Komorebi Soft",
     "summary": "動画再生＆編集の決定版！ショート動画スタジオ 編集Vlogで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "バッテリー・ドクター 節電ガード",
@@ -3377,7 +3557,9 @@
     "downloads": "850万+",
     "developer": "Aether Works",
     "summary": "ツールの決定版！バッテリー・ドクター 節電ガードで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "VoiceRoom 音声ルーム・ラジオ",
@@ -3424,7 +3606,9 @@
     "downloads": "160万+",
     "developer": "Nexus Digital",
     "summary": "ソーシャルの決定版！VoiceRoom 音声ルーム・ラジオで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "レシート家計簿 AI自動読取",
@@ -3473,7 +3657,9 @@
     "downloads": "340万+",
     "developer": "Enoki Interactive",
     "summary": "ファイナンスの決定版！レシート家計簿 AI自動読取で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "コミックリーダー Pro 縦スクロール",
@@ -3522,7 +3708,9 @@
     "downloads": "110万+",
     "developer": "Pixel Forge Studio",
     "summary": "マンガ＆書籍の決定版！コミックリーダー Pro 縦スクロールで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "プログラミング入門 Python学習",
@@ -3571,7 +3759,11 @@
     "downloads": "190万+",
     "developer": "Hypernova Lab",
     "summary": "教育の決定版！プログラミング入門 Python学習で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "デイリー・ウォーター 水分記録",
@@ -3618,7 +3810,9 @@
     "downloads": "240万+",
     "developer": "Komorebi Soft",
     "summary": "健康＆フィットネスの決定版！デイリー・ウォーター 水分記録で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ポッドキャスト・キャスト 高音質",
@@ -3665,7 +3859,11 @@
     "downloads": "170万+",
     "developer": "Aether Works",
     "summary": "音楽＆オーディオの決定版！ポッドキャスト・キャスト 高音質で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "為替レート 計算＆アラート",
@@ -3712,7 +3910,9 @@
     "downloads": "130万+",
     "developer": "Nexus Digital",
     "summary": "ファイナンスの決定版！為替レート 計算＆アラートで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "WiFi スピードテスト＆解析",
@@ -3761,7 +3961,11 @@
     "downloads": "780万+",
     "developer": "Enoki Interactive",
     "summary": "ツールの決定版！WiFi スピードテスト＆解析で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "短編小説パラダイス 毎日更新",
@@ -3810,7 +4014,9 @@
     "downloads": "85万+",
     "developer": "Pixel Forge Studio",
     "summary": "マンガ＆書籍の決定版！短編小説パラダイス 毎日更新で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ボイスレコーダー HD 高音質録音",
@@ -3859,7 +4065,9 @@
     "downloads": "390万+",
     "developer": "Hypernova Lab",
     "summary": "ビジネスの決定版！ボイスレコーダー HD 高音質録音で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "タイムゾーン 世界時計＆会議調整",
@@ -3908,7 +4116,11 @@
     "downloads": "60万+",
     "developer": "Komorebi Soft",
     "summary": "仕事効率化の決定版！タイムゾーン 世界時計＆会議調整で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "ランニング・トラッカー GPS計測",
@@ -3954,7 +4166,9 @@
     "downloads": "470万+",
     "developer": "Aether Works",
     "summary": "健康＆フィットネスの決定版！ランニング・トラッカー GPS計測で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "コラージュ メーカー 写真加工",
@@ -4000,7 +4214,9 @@
     "downloads": "520万+",
     "developer": "Nexus Digital",
     "summary": "写真の決定版！コラージュ メーカー 写真加工で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "クリップボード マネージャー 履歴",
@@ -4050,7 +4266,9 @@
     "downloads": "140万+",
     "developer": "Enoki Interactive",
     "summary": "ツールの決定版！クリップボード マネージャー 履歴で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "習慣トラッカー 30日チャレンジ",
@@ -4097,7 +4315,9 @@
     "downloads": "260万+",
     "developer": "Pixel Forge Studio",
     "summary": "仕事効率化の決定版！習慣トラッカー 30日チャレンジで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "3D 地震速報＆防災マップ",
@@ -4144,7 +4364,9 @@
     "downloads": "580万+",
     "developer": "Hypernova Lab",
     "summary": "天気の決定版！3D 地震速報＆防災マップで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ミニマリスト日記 秘密の鍵付き",
@@ -4191,7 +4413,9 @@
     "downloads": "180万+",
     "developer": "Komorebi Soft",
     "summary": "ライフスタイルの決定版！ミニマリスト日記 秘密の鍵付きで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ギターチューナー＆メトロノーム",
@@ -4238,7 +4462,9 @@
     "downloads": "620万+",
     "developer": "Aether Works",
     "summary": "音楽＆オーディオの決定版！ギターチューナー＆メトロノームで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "パスワード管理キー Vault",
@@ -4286,7 +4512,11 @@
     "downloads": "80万+",
     "developer": "Nexus Digital",
     "summary": "ツールの決定版！パスワード管理キー Vaultで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "カロリー管理 AI食事撮影",
@@ -4333,7 +4563,9 @@
     "downloads": "330万+",
     "developer": "Enoki Interactive",
     "summary": "健康＆フィットネスの決定版！カロリー管理 AI食事撮影で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "イラスト・スケッチ キャンバス",
@@ -4380,7 +4612,11 @@
     "downloads": "210万+",
     "developer": "Pixel Forge Studio",
     "summary": "アート＆デザインの決定版！イラスト・スケッチ キャンバスで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "名刺管理 スキャナー＆連絡先",
@@ -4429,7 +4665,9 @@
     "downloads": "150万+",
     "developer": "Hypernova Lab",
     "summary": "ビジネスの決定版！名刺管理 スキャナー＆連絡先で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "世界ラジオ FM/AM ストリーミング",
@@ -4476,7 +4714,9 @@
     "downloads": "410万+",
     "developer": "Komorebi Soft",
     "summary": "音楽＆オーディオの決定版！世界ラジオ FM/AM ストリーミングで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ブルーライト カット 目の保護フィルター",
@@ -4523,7 +4763,11 @@
     "downloads": "880万+",
     "developer": "Aether Works",
     "summary": "ツールの決定版！ブルーライト カット 目の保護フィルターで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": true,
+    "tags": [
+      "未完成"
+    ]
   },
   {
     "name": "タイピング練習 フリック向上",
@@ -4572,7 +4816,9 @@
     "downloads": "120万+",
     "developer": "Nexus Digital",
     "summary": "教育の決定版！タイピング練習 フリック向上で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "お買い物メモ 家族と共有リスト",
@@ -4620,7 +4866,9 @@
     "downloads": "290万+",
     "developer": "Enoki Interactive",
     "summary": "ライフスタイルの決定版！お買い物メモ 家族と共有リストで新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "コンパス 3D 水準器＆高度計",
@@ -4667,7 +4915,9 @@
     "downloads": "490万+",
     "developer": "Pixel Forge Studio",
     "summary": "ツールの決定版！コンパス 3D 水準器＆高度計で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "ストレッチ リフレッシュ通知",
@@ -4713,7 +4963,9 @@
     "downloads": "140万+",
     "developer": "Hypernova Lab",
     "summary": "健康＆フィットネスの決定版！ストレッチ リフレッシュ通知で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   },
   {
     "name": "シンプル目覚まし時計 爽快起床",
@@ -4760,6 +5012,8 @@
     "downloads": "360万+",
     "developer": "Komorebi Soft",
     "summary": "ライフスタイルの決定版！シンプル目覚まし時計 爽快起床で新しい体験を。",
-    "featured": false
+    "featured": false,
+    "isUnfinished": false,
+    "tags": []
   }
 ]

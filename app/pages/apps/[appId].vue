@@ -39,16 +39,37 @@ v-card.app-detail-page-root(
   //- ================= メインスクロールエリア =================
   .detail-scroll-content(v-if="app")
     .detail-body
+      //- 未完成（開発中）注意バナー
+      v-alert.unfinished-banner.mb-4.pa-4(
+        v-if="isUnfinished"
+        type="warning"
+        variant="tonal"
+        rounded="xl"
+        density="comfortable"
+        icon="mdi-hammer-wrench"
+      )
+        .d-flex.align-center.justify-space-between.flex-wrap.gap-2
+          div
+            .font-weight-bold.text-body-2 このアプリは「未完成（開発中）」です
+            .text-caption.text-medium-emphasis 機能の追加や仕様変更が進行中であり、一部機能や動作が不安定な場合があります。
+          v-chip(size="x-small" color="warning" variant="flat") 制作中 / WIP
+
       //- ヘッダー情報 (アイコン・名前・開発者・バッジ)
       .detail-header
         .header-main
           .icon-box
             img.app-icon(:src="app.icon" :alt="app.name" onerror="this.src='/icon.png'")
+            .wip-corner-badge(v-if="isUnfinished")
+              v-icon(size="11") mdi-progress-wrench
+              span 未完成
           .meta-box
             h1.app-name {{ app.name }}
             p.app-dev {{ app.developer || 'エノキ電気' }}
             .app-badges
               span.badge {{ app.category || (app.type === 'game' ? 'ゲーム' : 'アプリ') }}
+              span.badge.wip-badge(v-if="isUnfinished")
+                v-icon.mr-1(size="11") mdi-progress-wrench
+                | 未完成 (WIP)
 
       //- リンクボタン群（旧インストール/購入ボタンを置き換え、linksをv-forで表示）
       .action-row(v-if="(app.links && app.links.length) || app.githubUrl || app.videoUrl")
@@ -189,7 +210,11 @@ v-card.app-detail-page-root(
 import { marked } from 'marked'
 import { Share } from '@capacitor/share'
 import { Toast } from '@capacitor/toast'
-import { useAppStore, type AppOrMusicItem } from '@/stores/app'
+import {
+  useAppStore,
+  isItemUnfinished,
+  type AppOrMusicItem,
+} from '@/stores/app'
 import { useSettingsStore } from '@/stores/settings'
 import { useMyProfileStore } from '@/stores/myProfile'
 import AppCard from '@/components/store/AppCard.vue'
@@ -236,6 +261,9 @@ export default {
             item.id !== this.appId && item.category === this.app?.category,
         )
         .slice(0, 8)
+    },
+    isUnfinished(): boolean {
+      return isItemUnfinished(this.app)
     },
     renderedDescription(): string {
       if (!this.app?.description) return ''

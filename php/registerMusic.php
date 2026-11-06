@@ -41,6 +41,8 @@ $plays = !empty($data['plays']) ? $data['plays'] : 'NEW';
 $rating = isset($data['rating']) ? floatval($data['rating']) : 5.0;
 $featured = !empty($data['featured']) ? 1 : 0;
 $isTrending = !empty($data['isTrending']) ? 1 : 0;
+$isUnfinished = (!empty($data['isUnfinished']) || (isset($data['tags']) && is_array($data['tags']) && in_array('未完成', $data['tags']))) ? 1 : 0;
+$tags = isset($data['tags']) ? (is_array($data['tags']) ? json_encode($data['tags'], JSON_UNESCAPED_UNICODE) : $data['tags']) : ($isUnfinished ? json_encode(['未完成'], JSON_UNESCAPED_UNICODE) : '[]');
 $themeColor = !empty($data['themeColor']) ? $data['themeColor'] : '#4F46E5';
 $accentColor = !empty($data['accentColor']) ? $data['accentColor'] : '#38BDF8';
 $audioPreset = !empty($data['audioPreset']) ? $data['audioPreset'] : 'citypop';
@@ -60,14 +62,14 @@ try {
       `musicId`, `title`, `name`, `artist`, `album`, `albumType`,
       `genre`, `bpm`, `price`, `audioUrl`, `cover`, `icon`, `thumbnail`,
       `duration`, `durationFormatted`, `releaseDate`, `releaseDateFormatted`,
-      `plays`, `rating`, `featured`, `isTrending`, `themeColor`, `accentColor`,
+      `plays`, `rating`, `featured`, `isTrending`, `isUnfinished`, `tags`, `themeColor`, `accentColor`,
       `audioPreset`, `description`, `lyrics`, `composer`, `lyricist`,
       `createdAt`, `updatedAt`
     ) VALUES (
       :musicId, :title, :name, :artist, :album, :albumType,
       :genre, :bpm, :price, :audioUrl, :cover, :icon, :thumbnail,
       :duration, :durationFormatted, :releaseDate, :releaseDateFormatted,
-      :plays, :rating, :featured, :isTrending, :themeColor, :accentColor,
+      :plays, :rating, :featured, :isTrending, :isUnfinished, :tags, :themeColor, :accentColor,
       :audioPreset, :description, :lyrics, :composer, :lyricist,
       :createdAt, :updatedAt
     ) ON DUPLICATE KEY UPDATE
@@ -87,6 +89,8 @@ try {
       `durationFormatted` = VALUES(`durationFormatted`),
       `featured` = VALUES(`featured`),
       `isTrending` = VALUES(`isTrending`),
+      `isUnfinished` = VALUES(`isUnfinished`),
+      `tags` = VALUES(`tags`),
       `themeColor` = VALUES(`themeColor`),
       `accentColor` = VALUES(`accentColor`),
       `audioPreset` = VALUES(`audioPreset`),
@@ -119,6 +123,8 @@ try {
       ':rating' => $rating,
       ':featured' => $featured,
       ':isTrending' => $isTrending,
+      ':isUnfinished' => $isUnfinished,
+      ':tags' => $tags,
       ':themeColor' => $themeColor,
       ':accentColor' => $accentColor,
       ':audioPreset' => $audioPreset,

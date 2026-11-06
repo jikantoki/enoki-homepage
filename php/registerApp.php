@@ -39,6 +39,8 @@ $rating = isset($data['rating']) ? floatval($data['rating']) : 5.0;
 $downloads = !empty($data['downloads']) ? $data['downloads'] : 'NEW';
 $developer = !empty($data['developer']) ? $data['developer'] : 'エノキ電気';
 $featured = !empty($data['featured']) ? 1 : 0;
+$isUnfinished = (!empty($data['isUnfinished']) || (isset($data['tags']) && is_array($data['tags']) && in_array('未完成', $data['tags']))) ? 1 : 0;
+$tags = isset($data['tags']) ? (is_array($data['tags']) ? json_encode($data['tags'], JSON_UNESCAPED_UNICODE) : $data['tags']) : ($isUnfinished ? json_encode(['未完成'], JSON_UNESCAPED_UNICODE) : '[]');
 
 $mysqlSaved = false;
 $mysqlError = null;
@@ -51,12 +53,12 @@ try {
       `appId`, `name`, `type`, `category`, `price`, `icon`, `thumbnail`,
       `description`, `summary`, `platforms`, `languages`, `links`,
       `githubUrl`, `videoUrl`, `images`, `rating`, `downloads`, `developer`,
-      `featured`, `createdAt`, `updatedAt`
+      `featured`, `isUnfinished`, `tags`, `createdAt`, `updatedAt`
     ) VALUES (
       :appId, :name, :type, :category, :price, :icon, :thumbnail,
       :description, :summary, :platforms, :languages, :links,
       :githubUrl, :videoUrl, :images, :rating, :downloads, :developer,
-      :featured, :createdAt, :updatedAt
+      :featured, :isUnfinished, :tags, :createdAt, :updatedAt
     ) ON DUPLICATE KEY UPDATE
       `name` = VALUES(`name`),
       `type` = VALUES(`type`),
@@ -73,6 +75,8 @@ try {
       `videoUrl` = VALUES(`videoUrl`),
       `images` = VALUES(`images`),
       `featured` = VALUES(`featured`),
+      `isUnfinished` = VALUES(`isUnfinished`),
+      `tags` = VALUES(`tags`),
       `updatedAt` = VALUES(`updatedAt`)";
 
     $stmt = $pdo->prepare($sql);
@@ -96,6 +100,8 @@ try {
       ':downloads' => $downloads,
       ':developer' => $developer,
       ':featured' => $featured,
+      ':isUnfinished' => $isUnfinished,
+      ':tags' => $tags,
       ':createdAt' => $now,
       ':updatedAt' => $now,
     ]);

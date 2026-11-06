@@ -10,7 +10,6 @@ v-card.admin-manage-page(
     v-chip.mr-2(color="primary" size="small" variant="flat")
       v-icon.mr-1(size="14") mdi-shield-check
       | 管理者モード
-    v-spacer
     v-btn(
       color="primary"
       variant="flat"
@@ -115,9 +114,12 @@ v-card.admin-manage-page(
                 .font-weight-bold.text-body-1.text-truncate {{ app.name }}
                 v-chip(size="x-small" variant="flat" color="primary") {{ app.type === 'game' ? 'ゲーム' : 'アプリ' }}
                 v-chip(size="x-small" variant="tonal") {{ app.category || 'ツール' }}
-                v-chip(v-if="app.featured" size="x-small" color="warning" variant="flat")
+                v-chip(v-if="app.featured" size="x-small" color="primary" variant="flat")
                   v-icon(size="10" start) mdi-star
                   | 注目
+                v-chip(v-if="isUnfinishedItem(app)" size="x-small" color="warning" variant="flat")
+                  v-icon(size="10" start) mdi-progress-wrench
+                  | 未完成
 
               .text-caption.text-grey.mt-1
                 span.font-weight-medium ID:
@@ -246,6 +248,9 @@ v-card.admin-manage-page(
               .d-flex.align-center.gap-2.flex-wrap
                 .font-weight-bold.text-body-1.text-truncate {{ track.title }}
                 v-chip(size="x-small" variant="flat" color="secondary") {{ track.genre || 'J-Pop' }}
+                v-chip(v-if="isUnfinishedTrack(track)" size="x-small" color="warning" variant="flat")
+                  v-icon(size="10" start) mdi-progress-wrench
+                  | 未完成
                 v-chip(
                   v-if="track.audioUrl"
                   size="x-small"
@@ -372,8 +377,8 @@ v-card.admin-manage-page(
 <script lang="ts">
 import { defineComponent } from 'vue'
 import AdminRegisterModal from '@/components/admin/AdminRegisterModal.vue'
-import { useAppStore, type AppOrMusicItem } from '@/stores/app'
-import { useMusicStore, type MusicItem } from '@/stores/music'
+import { useAppStore, isItemUnfinished, type AppOrMusicItem } from '@/stores/app'
+import { useMusicStore, isTrackUnfinished, type MusicItem } from '@/stores/music'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
 import Setup from '@/js/setup'
@@ -503,6 +508,12 @@ export default defineComponent({
     }
   },
   methods: {
+    isUnfinishedItem(item: any): boolean {
+      return isItemUnfinished(item)
+    },
+    isUnfinishedTrack(track: any): boolean {
+      return isTrackUnfinished(track)
+    },
     handleBack() {
       if (window.history.length > 1) {
         this.$router.back()

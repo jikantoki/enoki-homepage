@@ -16,7 +16,11 @@
         img.hero-bg(:src="item.thumbnail" :alt="item.name" loading="lazy")
         .hero-overlay
           .hero-content
-            .hero-badge {{ item.category }} • 注目のピックアップ
+            .badge-row
+              span.hero-badge {{ item.category }} • 注目のピックアップ
+              span.hero-wip-badge(v-if="isItemUnfinished(item)")
+                v-icon.mr-1(size="11") mdi-progress-wrench
+                | 未完成
             h2.hero-title {{ item.name }}
             p.hero-summary {{ item.summary || '今すぐダウンロードして新しい世界を体験' }}
             .hero-action
@@ -31,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import type { AppOrMusicItem } from '~/stores/app'
+import { isItemUnfinished, type AppOrMusicItem } from '~/stores/app'
 
 defineProps<{
   items: AppOrMusicItem[]
@@ -87,34 +91,55 @@ defineEmits<{
       justify-content: flex-end;
       padding: 16px 20px;
 
+      .badge-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 4px;
+        flex-wrap: wrap;
+      }
+
       .hero-badge {
         font-size: 11px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: #93c5fd;
-        margin-bottom: 4px;
+      }
+
+      .hero-wip-badge {
+        font-size: 10px;
+        font-weight: 700;
+        background: #f59e0b;
+        color: #fff;
+        padding: 2px 7px;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        letter-spacing: 0.3px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
       }
 
       .hero-title {
         font-size: 18px;
-        font-weight: 800;
+        font-weight: 700;
         color: #ffffff;
-        margin: 0;
-        line-height: 1.25;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        margin-bottom: 4px;
+        line-height: 1.3;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
       .hero-summary {
-        font-size: 12px;
+        font-size: 12.5px;
         color: rgba(255, 255, 255, 0.85);
-        margin: 4px 0 10px 0;
-        white-space: nowrap;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
         overflow: hidden;
-        text-overflow: ellipsis;
+        margin-bottom: 8px;
       }
 
       .hero-action {
