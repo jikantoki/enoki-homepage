@@ -68,7 +68,7 @@ v-card.home-page-root(
             target="_blank"
             rel="noopener noreferrer"
           )
-            span.mx-2 YouTubeで曲を聴く
+            span.mx-2 YouTube
 
           v-btn.hero-btn.btn-profile(
             size="large"

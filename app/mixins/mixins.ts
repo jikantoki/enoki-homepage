@@ -299,6 +299,12 @@ export default defineComponent({
         case 'cn': {
           return '中文'
         }
+        case 'ko': {
+          return '한국어'
+        }
+        case 'hu': {
+          return 'Magyar'
+        }
         default: {
           return locale
         }

@@ -15,7 +15,7 @@ v-dialog(
     //- ヘッダー
     v-card-title.d-flex.align-center.modal-header.py-3.px-4
       v-icon.mr-2(color="primary") {{ isEditMode ? 'mdi-pencil-box-outline' : 'mdi-shield-plus-outline' }}
-      span.font-weight-bold {{ isEditMode ? (currentTab === 'app' ? `アプリの編集 (${appData.name || appData.id})` : `音楽の編集 (${musicData.title || musicData.id})`) : '管理者コンテンツ登録' }}
+      span(style="overflow: hidden;") {{ isEditMode ? (currentTab === 'app' ? `アプリの編集 (${appData.name || appData.id})` : `音楽の編集 (${musicData.title || musicData.id})`) : '管理者コンテンツ登録' }}
       v-spacer
       v-btn(
         icon="mdi-close"
@@ -40,7 +40,7 @@ v-dialog(
         | 音楽登録
 
     //- コンテンツスクロールエリア
-    v-card-text.modal-body.pa-4(style="max-height: 75vh; overflow-y: auto;")
+    v-card-text.modal-body.pa-4(style="max-height: inherit; overflow-y: auto;")
       v-window(v-model="currentTab")
 
         //- ==================== 1. アプリ登録フォーム ====================
@@ -198,7 +198,7 @@ v-dialog(
               label.v-label.mb-1 言語
               .d-flex.flex-wrap.gap-2
                 v-chip(
-                  v-for="lang in ['日本語', 'English', '中文', '한국어']"
+                  v-for="lang in availableLanguages"
                   :key="lang"
                   :color="appData.languages.includes(lang) ? 'primary' : undefined"
                   :variant="appData.languages.includes(lang) ? 'flat' : 'outlined'"
@@ -596,6 +596,7 @@ export default defineComponent({
         'Linux',
         'その他',
       ],
+      availableLanguages: ['日本語', 'English', '中文', '한국어', 'Magyar'],
       suggestedAppCategories: [
         'ツール',
         'ユーティリティ',
