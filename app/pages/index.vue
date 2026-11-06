@@ -21,7 +21,7 @@ v-card.home-page-root(
       .hero-content
         //- バッジ
         .hero-badge
-          v-icon(size="16" color="#38bdf8") mdi-lightning-bolt
+          v-icon(size="16" color="primary") mdi-lightning-bolt
           span.badge-text エノキ電気 / ENOKI ELECTRONICS
 
         //- ページの一番大きい文字
@@ -76,7 +76,6 @@ v-card.home-page-root(
             rounded="pill"
             prepend-icon="mdi-account-circle-outline"
             variant="outlined"
-            color="white"
             @click="$router.push('/profile')"
           )
             span.mx-2 プロフィール・実績
@@ -86,7 +85,6 @@ v-card.home-page-root(
             rounded="pill"
             prepend-icon="mdi-handshake-outline"
             variant="outlined"
-            color="white"
             @click="$router.push('/sponsors')"
           )
             span.mx-2 スポンサー
@@ -377,8 +375,9 @@ export default {
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  background-color: #0b0f19;
-  color: #f8fafc;
+  background-color: rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-on-surface));
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .home-scroll-container {
@@ -438,7 +437,9 @@ export default {
     }
   }
 
-  // 暗幕グラデーションオーバーレイ（昼夜どちらの写真でも白文字を美しく際立たせる）
+  // 背景オーバーレイ
+  // Vuetifyのsurface色（ライト: 白、ダーク: 濃灰/黒）のグラデーションにより、
+  // ライトモードでは爽やかな白ベース、ダークモードでは落ち着いた黒ベースを実現
   .bg-overlay {
     position: absolute;
     top: 0;
@@ -447,12 +448,13 @@ export default {
     height: 100%;
     background: linear-gradient(
       180deg,
-      rgba(11, 15, 25, 0.45) 0%,
-      rgba(11, 15, 25, 0.68) 50%,
-      rgba(11, 15, 25, 0.92) 100%
+      rgba(var(--v-theme-surface), 0.55) 0%,
+      rgba(var(--v-theme-surface), 0.8) 50%,
+      rgba(var(--v-theme-surface), 0.98) 100%
     );
     backdrop-filter: blur(2px);
     z-index: 3;
+    transition: background 0.3s ease;
   }
 }
 
@@ -475,26 +477,25 @@ export default {
     gap: 8px;
     padding: 6px 18px;
     border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(var(--v-theme-surface), 0.85);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(var(--v-theme-on-surface), 0.12);
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.08em;
-    color: #e0f2fe;
+    color: rgb(var(--v-theme-primary));
     margin-bottom: 24px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   }
 
   // ページの一番大きい文字
   .hero-main-title {
     font-size: clamp(2.2rem, 6.5vw, 4.2rem);
-    font-weight: normal;
+    font-weight: 700;
     line-height: 1.25;
     letter-spacing: -0.01em;
-    color: #ffffff;
+    color: rgb(var(--v-theme-on-surface));
     margin: 0 0 14px 0;
-    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.7), 0 8px 30px rgba(0, 0, 0, 0.5);
     word-break: keep-all;
     overflow-wrap: break-word;
   }
@@ -502,11 +503,10 @@ export default {
   // その次に大きい文字
   .hero-sub-title {
     font-size: clamp(1.15rem, 3.4vw, 1.9rem);
-    font-weight: 100;
+    font-weight: 400;
     line-height: 1.45;
-    color: #e2e8f0;
+    color: rgba(var(--v-theme-on-surface), 0.85);
     margin: 0 0 20px 0;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 4px 16px rgba(0, 0, 0, 0.5);
     word-break: keep-all;
     overflow-wrap: break-word;
   }
@@ -516,10 +516,9 @@ export default {
     font-size: clamp(0.95rem, 2.2vw, 1.2rem);
     font-weight: 500;
     line-height: 1.7;
-    color: #cbd5e1;
+    color: rgba(var(--v-theme-on-surface), 0.72);
     margin: 0 0 16px 0;
     max-width: 680px;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
   }
 
   // 導線ボタングループ
@@ -560,10 +559,17 @@ export default {
       }
 
       &.btn-profile {
-        background: rgba(255, 255, 255, 0.12) !important;
-        border-color: rgba(255, 255, 255, 0.35) !important;
+        background: rgba(var(--v-theme-surface), 0.6) !important;
+        border: 1px solid rgba(var(--v-theme-on-surface), 0.2) !important;
         backdrop-filter: blur(8px);
-        color: #ffffff !important;
+        color: rgb(var(--v-theme-on-surface)) !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+
+        &:hover {
+          background: rgba(var(--v-theme-surface), 0.95) !important;
+          border-color: rgb(var(--v-theme-primary)) !important;
+          color: rgb(var(--v-theme-primary)) !important;
+        }
       }
     }
   }
@@ -591,11 +597,11 @@ export default {
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(var(--v-theme-on-surface), 0.6);
   transition: color 0.2s;
 
   &:hover {
-    color: #ffffff;
+    color: rgb(var(--v-theme-on-surface));
   }
 
   .hint-label {
@@ -629,8 +635,8 @@ export default {
 .home-content-section {
   position: relative;
   z-index: 6;
-  background: linear-gradient(180deg, #0b0f19 0%, #0f172a 100%);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgb(var(--v-theme-surface));
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   padding: 64px 20px 48px;
 
   .section-inner {
@@ -649,17 +655,17 @@ export default {
 
   .section-tagline {
     font-size: 12px;
-    font-weight: 400;
+    font-weight: 700;
     letter-spacing: 0.16em;
-    color: #38bdf8;
+    color: rgb(var(--v-theme-primary));
     margin-bottom: 8px;
     text-transform: uppercase;
   }
 
   .section-heading {
     font-size: clamp(1.6rem, 3.8vw, 2.4rem);
-    font-weight: 400;
-    color: #ffffff;
+    font-weight: 700;
+    color: rgb(var(--v-theme-on-surface));
     line-height: 1.35;
     margin-bottom: 16px;
   }
@@ -667,7 +673,7 @@ export default {
   .section-lead {
     font-size: clamp(0.95rem, 1.8vw, 1.05rem);
     line-height: 1.8;
-    color: #94a3b8;
+    color: rgba(var(--v-theme-on-surface), 0.72);
     margin: 0;
   }
 }
@@ -679,19 +685,19 @@ export default {
   gap: 20px;
 
   .work-card {
-    background: rgba(30, 41, 59, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(var(--v-theme-on-surface), 0.03);
+    border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
     border-radius: 20px;
     padding: 28px 24px;
     display: flex;
     flex-direction: column;
-    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 
     &:hover {
       transform: translateY(-4px);
-      border-color: rgba(56, 189, 248, 0.4);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+      border-color: rgba(var(--v-theme-primary), 0.5);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
     }
 
     .card-icon-wrap {
@@ -717,7 +723,7 @@ export default {
     .card-title {
       font-size: 1.15rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: rgb(var(--v-theme-on-surface));
       margin-bottom: 12px;
       line-height: 1.4;
     }
@@ -725,7 +731,7 @@ export default {
     .card-desc {
       font-size: 0.9rem;
       line-height: 1.7;
-      color: #94a3b8;
+      color: rgba(var(--v-theme-on-surface), 0.7);
       margin-bottom: 20px;
     }
   }
@@ -733,15 +739,14 @@ export default {
 
 // 引用バナー
 .quote-banner {
-  background: linear-gradient(
-    135deg,
-    rgba(30, 41, 59, 0.8),
-    rgba(15, 23, 42, 0.9)
-  );
+  background: rgba(var(--v-theme-on-surface), 0.03);
   border-left: 4px solid #f59e0b;
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.06);
+  border-right: 1px solid rgba(var(--v-theme-on-surface), 0.06);
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.06);
   border-radius: 0 16px 16px 0;
   padding: 28px 32px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 
   .quote-icon {
     margin-bottom: 8px;
@@ -750,16 +755,16 @@ export default {
   .quote-text {
     font-size: clamp(1rem, 2.2vw, 1.25rem);
     font-style: italic;
-    font-weight: 400;
+    font-weight: 500;
     line-height: 1.8;
-    color: #fde68a;
+    color: rgb(var(--v-theme-on-surface));
     margin: 0 0 12px 0;
   }
 
   .quote-author {
     font-size: 0.9rem;
     font-weight: 400;
-    color: #cbd5e1;
+    color: rgba(var(--v-theme-on-surface), 0.65);
     margin: 0;
     text-align: right;
   }
@@ -776,32 +781,33 @@ export default {
   }
 
   .why-item {
-    background: rgba(30, 41, 59, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(var(--v-theme-on-surface), 0.03);
+    border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
     border-radius: 16px;
     padding: 24px;
     display: flex;
     gap: 18px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 
     .why-num {
       font-size: 2rem;
       font-weight: 900;
-      color: #38bdf8;
-      opacity: 0.85;
+      color: rgb(var(--v-theme-primary));
+      opacity: 0.9;
       line-height: 1;
     }
 
     .why-title {
       font-size: 1.05rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: rgb(var(--v-theme-on-surface));
       margin-bottom: 8px;
     }
 
     .why-desc {
       font-size: 0.88rem;
       line-height: 1.7;
-      color: #94a3b8;
+      color: rgba(var(--v-theme-on-surface), 0.7);
       margin: 0;
     }
   }
@@ -814,7 +820,7 @@ export default {
   .links-heading {
     font-size: 1.1rem;
     font-weight: 700;
-    color: #e2e8f0;
+    color: rgb(var(--v-theme-on-surface));
     margin-bottom: 20px;
   }
 
@@ -829,6 +835,7 @@ export default {
       text-transform: none;
       letter-spacing: 0.02em;
       padding: 6px 18px;
+      color: #ffffff !important;
     }
   }
 }
@@ -837,13 +844,13 @@ export default {
 .site-footer {
   text-align: center;
   padding-top: 32px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 
   .footer-logo {
     font-size: 1.3rem;
-    font-weight: 300;
+    font-weight: 500;
     letter-spacing: 0.05em;
-    color: #ffffff;
+    color: rgb(var(--v-theme-on-surface));
     margin-bottom: 4px;
   }
 
@@ -851,13 +858,13 @@ export default {
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.12em;
-    color: #64748b;
+    color: rgba(var(--v-theme-on-surface), 0.5);
     margin-bottom: 12px;
   }
 
   .footer-copy {
     font-size: 12px;
-    color: #94a3b8;
+    color: rgba(var(--v-theme-on-surface), 0.6);
   }
 }
 
