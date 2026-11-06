@@ -21,7 +21,6 @@ v-card.home-page-root(
       .hero-content
         //- バッジ
         .hero-badge
-          v-icon(size="16" color="primary") mdi-lightning-bolt
           span.badge-text エノキ電気 / ENOKI ELECTRONICS
 
         //- ページの一番大きい文字
@@ -477,13 +476,13 @@ export default {
     gap: 8px;
     padding: 6px 18px;
     border-radius: 9999px;
-    background: rgba(var(--v-theme-surface), 0.85);
-    backdrop-filter: blur(10px);
+    background: rgba(var(--v-theme-surface), 0.35);
+    backdrop-filter: blur(4px);
     border: 1px solid rgba(var(--v-theme-on-surface), 0.12);
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.08em;
-    color: rgb(var(--v-theme-primary));
+    //color: rgb(var(--v-theme-primary));
     margin-bottom: 24px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   }
