@@ -241,12 +241,9 @@ v-card.home-page-root(
       //- ボトムナビ用余白
       .bottom-nav-spacer
 
-  //- ================= ボトムナビゲーション =================
-  BottomNav(v-model="optionsDialog")
 </template>
 
 <script lang="ts">
-import BottomNav from '@/components/common/BottomNav.vue'
 import Setup from '@/js/setup'
 import mixins from '@/mixins/mixins'
 import { useSettingsStore } from '@/stores/settings'
@@ -266,14 +263,11 @@ const BACKGROUND_IMAGES = [
 
 export default {
   name: 'HomePage',
-  components: {
-    BottomNav,
-  },
+  components: {},
   mixins: [mixins],
   data() {
     return {
       settings: useSettingsStore(),
-      optionsDialog: false,
       images: BACKGROUND_IMAGES,
       currentImageIndex: 0,
       nextImageIndex: 0,
@@ -523,7 +517,7 @@ export default {
     font-weight: 500;
     line-height: 1.7;
     color: #cbd5e1;
-    margin: 0 0 32px 0;
+    margin: 0 0 16px 0;
     max-width: 680px;
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
   }
@@ -570,6 +564,18 @@ export default {
         border-color: rgba(255, 255, 255, 0.35) !important;
         backdrop-filter: blur(8px);
         color: #ffffff !important;
+      }
+    }
+  }
+
+  @media (max-width: 600px) {
+    .hero-actions {
+      display: inline-grid;
+      grid-auto-flow: row;
+      gap: 8px;
+      width: fit-content;
+      .hero-btn {
+        width: 100%;
       }
     }
   }

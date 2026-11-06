@@ -110,7 +110,7 @@ export default {
   .about-page-content {
     flex: 1;
     overflow-y: auto;
-    padding: 8px 4px 60px;
+    padding: 8px 4px 80px;
     -webkit-overflow-scrolling: touch;
   }
 }

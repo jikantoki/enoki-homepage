@@ -20,7 +20,7 @@ v-card.music-page-root(
       )
       .account-avatar(
         v-ripple
-        @click="optionsDialog = true"
+        @click="navStore.openOptions()"
       )
         img(
           :src="myProfile && myProfile.icon ? myProfile.icon : '/icon.png'"
@@ -92,13 +92,11 @@ v-card.music-page-root(
     initialTab="music"
   )
 
-  //- ボトムナビゲーション
-  BottomNav(v-model="optionsDialog")
 </template>
 
 <script lang="ts">
 import HeroProfile from '@/components/common/HeroProfile.vue'
-import BottomNav from '@/components/common/BottomNav.vue'
+import { useNavigationStore } from '@/stores/navigation'
 import MusicView from '@/components/music/MusicView.vue'
 import MusicTrackRow from '@/components/music/MusicTrackRow.vue'
 import AdminRegisterModal from '@/components/admin/AdminRegisterModal.vue'
@@ -112,7 +110,6 @@ export default {
   name: 'MusicPage',
   components: {
     HeroProfile,
-    BottomNav,
     MusicView,
     MusicTrackRow,
     AdminRegisterModal,
@@ -121,7 +118,7 @@ export default {
   data() {
     return {
       searchQuery: '',
-      optionsDialog: false,
+      navStore: useNavigationStore(),
       adminRegisterModalOpen: false,
       musicStore: useMusicStore(),
       myProfile: useMyProfileStore(),

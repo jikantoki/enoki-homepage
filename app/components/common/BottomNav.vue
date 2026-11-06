@@ -141,6 +141,7 @@ import { useSettingsStore } from '@/stores/settings'
 import { useAppStore } from '@/stores/app'
 import { useMusicStore } from '@/stores/music'
 import { useMyProfileStore } from '@/stores/myProfile'
+import { useNavigationStore } from '@/stores/navigation'
 
 export default {
   name: 'BottomNav',
@@ -158,18 +159,24 @@ export default {
       appStore: useAppStore(),
       musicStore: useMusicStore(),
       myProfile: useMyProfileStore(),
-      optionsDialog: this.modelValue,
+      navStore: useNavigationStore(),
     }
   },
   watch: {
     modelValue(val) {
-      this.optionsDialog = val
-    },
-    optionsDialog(val) {
-      this.$emit('update:modelValue', val)
+      this.navStore.optionsDialog = val
     },
   },
   computed: {
+    optionsDialog: {
+      get(): boolean {
+        return this.navStore.optionsDialog || this.modelValue
+      },
+      set(val: boolean) {
+        this.navStore.optionsDialog = val
+        this.$emit('update:modelValue', val)
+      },
+    },
     isAdmin(): boolean {
       return Boolean(
         this.myProfile.isAdmin ||
@@ -239,13 +246,13 @@ export default {
 
 <style lang="scss" scoped>
 .store-bottom-nav {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   background-color: rgb(var(--v-theme-surface));
   border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  z-index: 20;
+  z-index: 40;
 
   .nav-buttons {
     display: flex;

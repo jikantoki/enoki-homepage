@@ -71,6 +71,7 @@ v-card(
         auto-grow
         v-model="myProfile.message"
       )
+      .my-16
       p(
         v-show="settings.developerOptions.enabled"
       ) 開発者オプション

@@ -23,15 +23,12 @@ v-card.profile-page-root(
     AboutView(initialTab="profile")
     .bottom-nav-spacer
 
-  //- ボトムナビゲーション
-  BottomNav
 </template>
 
 <script lang="ts">
 import { Share } from '@capacitor/share'
 import { Toast } from '@capacitor/toast'
 import AboutView from '@/components/about/AboutView.vue'
-import BottomNav from '@/components/common/BottomNav.vue'
 import { useSettingsStore } from '@/stores/settings'
 import Setup from '@/js/setup'
 import mixins from '@/mixins/mixins'
@@ -40,7 +37,6 @@ export default {
   name: 'ProfilePage',
   components: {
     AboutView,
-    BottomNav,
   },
   mixins: [mixins],
   data() {

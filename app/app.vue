@@ -9,6 +9,7 @@ v-app
       :bottomOffset="miniPlayerBottomOffset"
     )
     NowPlayingModal
+    BottomNav
     .nav-bar-padding(:class="settings.hidden.isAndroid15OrHigher ? 'android-15-or-higher' : ''")
 </template>
 
@@ -18,6 +19,7 @@ import { StatusBar, Style } from '@capacitor/status-bar'
 import commonSplashVue from '@/components/common/commonSplash.vue'
 import MiniPlayer from '@/components/music/MiniPlayer.vue'
 import NowPlayingModal from '@/components/music/NowPlayingModal.vue'
+import BottomNav from '@/components/common/BottomNav.vue'
 import mixins from '@/mixins/mixins'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
@@ -28,6 +30,7 @@ export default {
     commonSplashVue,
     MiniPlayer,
     NowPlayingModal,
+    BottomNav,
   },
   mixins: [mixins],
   data() {
@@ -39,15 +42,11 @@ export default {
   },
   computed: {
     hasBottomNav(): boolean {
-      const p = this.$route.path
-      return p === '/' || p === '/apps' || p === '/music' || p === '/profile'
+      return true
     },
     miniPlayerBottomOffset(): number {
       const isA15 = this.settings.hidden.isAndroid15OrHigher
-      if (this.hasBottomNav) {
-        return isA15 ? 72 : 56
-      }
-      return isA15 ? 16 : 0
+      return isA15 ? 72 : 56
     },
     shouldShowMiniPlayer(): boolean {
       const p = this.$route.path
@@ -402,5 +401,9 @@ $breakpoints: (
 .v-chip {
   padding: 0.5em 0.7em;
   margin: 0 0.2em;
+}
+
+html {
+  overflow: auto;
 }
 </style>

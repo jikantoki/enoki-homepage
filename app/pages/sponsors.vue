@@ -285,7 +285,7 @@ export default {
   .sponsors-page-content {
     flex: 1;
     overflow-y: auto;
-    padding: 20px 16px 40px;
+    padding: 20px 16px 80px;
     -webkit-overflow-scrolling: touch;
 
     .content-wrapper {

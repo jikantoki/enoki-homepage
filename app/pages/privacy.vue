@@ -339,7 +339,7 @@ export default {
   .privacy-page-content {
     flex: 1;
     overflow-y: auto;
-    padding: 16px 20px;
+    padding: 16px 20px 80px;
     line-height: 1.8;
 
     .content-wrapper {

@@ -21,7 +21,7 @@ v-card.playstore-root(
       //- 右端のアカウントアバター
       .account-avatar(
         v-ripple
-        @click="optionsDialog = true"
+        @click="navStore.openOptions()"
       )
         img(
           :src="myProfile && myProfile.icon ? myProfile.icon : '/icon.png'"
@@ -244,8 +244,6 @@ v-card.playstore-root(
     initialTab="app"
   )
 
-  //- ================= ボトムナビゲーション =================
-  BottomNav(v-model="optionsDialog")
 </template>
 
 <script lang="ts">
@@ -261,7 +259,7 @@ import {
 } from '@/stores/app'
 import Setup from '@/js/setup'
 import HeroProfile from '@/components/common/HeroProfile.vue'
-import BottomNav from '@/components/common/BottomNav.vue'
+import { useNavigationStore } from '@/stores/navigation'
 import AppCard from '@/components/store/AppCard.vue'
 import AppRankItem from '@/components/store/AppRankItem.vue'
 import AppShelf from '@/components/store/AppShelf.vue'
@@ -272,7 +270,6 @@ export default {
   name: 'AppsPage',
   components: {
     HeroProfile,
-    BottomNav,
     AppCard,
     AppRankItem,
     AppShelf,
@@ -282,7 +279,7 @@ export default {
   mixins: [mixins],
   data() {
     return {
-      optionsDialog: false,
+      navStore: useNavigationStore(),
       adminRegisterModalOpen: false,
       myProfile: useMyProfileStore(),
       settings: useSettingsStore(),
@@ -450,8 +447,8 @@ export default {
 
     /** バックボタンのリスナーを追加 */
     App.addListener('backButton', () => {
-      if (this.optionsDialog) {
-        this.optionsDialog = false
+      if (this.navStore.optionsDialog) {
+        this.navStore.closeOptions()
       } else if (this.selectedCategory) {
         this.selectedCategory = null
       } else if (this.searchQuery) {

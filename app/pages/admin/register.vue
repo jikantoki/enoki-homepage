@@ -24,14 +24,11 @@ v-card.admin-register-page(
       @registered="onRegistered"
     )
 
-  //- ボトムナビ
-  BottomNav
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import AdminRegisterModal from '@/components/admin/AdminRegisterModal.vue'
-import BottomNav from '@/components/common/BottomNav.vue'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
 import Setup from '@/js/setup'
@@ -41,7 +38,6 @@ export default defineComponent({
   name: 'AdminRegisterPage',
   components: {
     AdminRegisterModal,
-    BottomNav,
   },
   mixins: [mixins],
   data() {

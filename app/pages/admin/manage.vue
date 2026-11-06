@@ -367,14 +367,11 @@ v-card.admin-manage-page(
   v-snackbar(v-model="snackbar.show" :color="snackbar.color" :timeout="4000")
     | {{ snackbar.message }}
 
-  //- ボトムナビゲーション
-  BottomNav
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import AdminRegisterModal from '@/components/admin/AdminRegisterModal.vue'
-import BottomNav from '@/components/common/BottomNav.vue'
 import { useAppStore, type AppOrMusicItem } from '@/stores/app'
 import { useMusicStore, type MusicItem } from '@/stores/music'
 import { useMyProfileStore } from '@/stores/myProfile'
@@ -386,7 +383,6 @@ export default defineComponent({
   name: 'AdminManagePage',
   components: {
     AdminRegisterModal,
-    BottomNav,
   },
   mixins: [mixins],
   data() {
