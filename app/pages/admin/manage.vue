@@ -81,7 +81,7 @@ v-card.admin-manage-page(
           prepend-icon="mdi-plus-circle-outline"
           color="primary"
           @click="openCreateModal('app')"
-        ) アプリを追加
+        ) アプリ・ゲームを追加
 
       //- アプリリスト
       .items-list.mt-2

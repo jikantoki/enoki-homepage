@@ -15,7 +15,7 @@ v-dialog(
     //- ヘッダー
     v-card-title.d-flex.align-center.modal-header.py-3.px-4
       v-icon.mr-2(color="primary") {{ isEditMode ? 'mdi-pencil-box-outline' : 'mdi-shield-plus-outline' }}
-      span(style="overflow: hidden;") {{ isEditMode ? (currentTab === 'app' ? `アプリの編集 (${appData.name || appData.id})` : `音楽の編集 (${musicData.title || musicData.id})`) : '管理者コンテンツ登録' }}
+      span(style="overflow: hidden;") {{ isEditMode ? (currentTab === 'app' ? `${appData.type === 'game' ? 'ゲーム' : 'アプリ'}の編集 (${appData.name || appData.id})` : `音楽の編集 (${musicData.title || musicData.id})`) : (currentTab === 'app' ? `管理者コンテンツ登録 (${appData.type === 'game' ? 'ゲーム' : 'アプリ'})` : '管理者コンテンツ登録 (音楽)') }}
       v-spacer
       v-btn(
         icon="mdi-close"
@@ -34,7 +34,7 @@ v-dialog(
     )
       v-tab(value="app")
         v-icon.mr-2 mdi-apps
-        | アプリ登録
+        | アプリ・ゲーム登録
       v-tab(value="music")
         v-icon.mr-2 mdi-music
         | 音楽登録
@@ -50,25 +50,40 @@ v-dialog(
             .form-section-title 基本情報
             .mb-3
               label.v-label.mb-1 種別
-              v-btn-toggle.w-100(
+              v-btn-toggle.w-100.app-type-toggle(
                 v-model="appData.type"
                 color="primary"
                 mandatory
                 density="comfortable"
                 rounded="lg"
+                variant="outlined"
+                divided
+                selected-class="app-type-btn--selected"
               )
-                v-btn(value="app" style="flex: 1")
-                  v-icon.mr-1 mdi-application
+                v-btn(
+                  value="app"
+                  style="flex: 1"
+                  :style="appData.type === 'app' ? { backgroundColor: 'var(--accent-color) !important', color: 'var(--accent-text-color, #ffffff) !important' } : {}"
+                )
+                  v-icon.mr-1(
+                    :style="appData.type === 'app' ? { color: 'var(--accent-text-color, #ffffff) !important' } : {}"
+                  ) mdi-application
                   | アプリ (App)
-                v-btn(value="game" style="flex: 1")
-                  v-icon.mr-1 mdi-gamepad-variant
+                v-btn(
+                  value="game"
+                  style="flex: 1"
+                  :style="appData.type === 'game' ? { backgroundColor: 'var(--accent-color) !important', color: 'var(--accent-text-color, #ffffff) !important' } : {}"
+                )
+                  v-icon.mr-1(
+                    :style="appData.type === 'game' ? { color: 'var(--accent-text-color, #ffffff) !important' } : {}"
+                  ) mdi-gamepad-variant
                   | ゲーム (Game)
 
             v-row(dense)
               v-col(cols="12" md="8")
                 v-text-field(
                   v-model="appData.name"
-                  label="アプリ名 *"
+                  :label="appData.type === 'game' ? 'ゲーム名 *' : 'アプリ名 *'"
                   placeholder="例: サイバーブレード 2088"
                   variant="outlined"
                   density="comfortable"
@@ -78,7 +93,7 @@ v-dialog(
               v-col(cols="12" md="4")
                 v-text-field(
                   v-model="appData.id"
-                  label="アプリID (スラッグ) *"
+                  :label="appData.type === 'game' ? 'ゲームID (スラッグ) *' : 'アプリID (スラッグ) *'"
                   placeholder="例: cyberblade-2088"
                   variant="outlined"
                   density="comfortable"
@@ -261,7 +276,7 @@ v-dialog(
                 v-switch(
                   v-model="appData.featured"
                   color="primary"
-                  label="注目 / ピックアップアプリに設定する"
+                  :label="appData.type === 'game' ? '注目 / ピックアップゲームに設定する' : '注目 / ピックアップアプリに設定する'"
                   hide-details
                 )
               v-col(cols="12" md="6")
@@ -281,7 +296,7 @@ v-dialog(
                 size="large"
                 rounded="pill"
                 :prepend-icon="isEditMode ? 'mdi-content-save' : 'mdi-check'"
-              ) {{ isEditMode ? 'アプリ情報を更新' : 'アプリを登録' }}
+              ) {{ isEditMode ? (appData.type === 'game' ? 'ゲーム情報を更新' : 'アプリ情報を更新') : (appData.type === 'game' ? 'ゲームを登録' : 'アプリを登録') }}
 
         //- ==================== 2. 音楽登録フォーム ====================
         v-window-item(value="music")
@@ -1423,5 +1438,18 @@ export default defineComponent({
 }
 .gap-3 {
   gap: 12px;
+}
+.app-type-toggle {
+  :deep(.v-btn) {
+    &.app-type-btn--selected,
+    &.v-btn--active {
+      background-color: var(--accent-color) !important;
+      color: var(--accent-text-color, #ffffff) !important;
+
+      .v-icon {
+        color: var(--accent-text-color, #ffffff) !important;
+      }
+    }
+  }
 }
 </style>

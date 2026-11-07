@@ -10,7 +10,7 @@ v-card.admin-register-page(
       variant="text"
       @click="handleBack"
     )
-    p.header-title.ml-2.font-weight-bold アプリ・音楽の新規登録
+    p.header-title.ml-2.font-weight-bold アプリ・ゲーム・音楽の新規登録
     v-spacer
     v-chip(color="primary" size="small" variant="flat")
       v-icon.mr-1(size="14") mdi-shield-check
