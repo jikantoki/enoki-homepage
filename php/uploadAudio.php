@@ -23,16 +23,27 @@ if (!is_dir($upload_dir)) {
 
 // 許可する拡張子
 $allowed_exts = ['mp3', 'wav', 'm4a', 'ogg', 'flac', 'aac', 'webm'];
-$base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/' . $upload_rel_dir;
+// リバースプロキシ / トンネル経由でも https を正しく判定する
+// （http:// のURLを返すと https のサイトからは混在コンテンツとしてブロックされ再生できない）
+$is_https = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
+  || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower(explode(',', $_SERVER['HTTP_X_FORWARDED_PROTO'])[0]) === 'https')
+  || (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && strtolower($_SERVER['HTTP_X_FORWARDED_SSL']) === 'on')
+  || (isset($_SERVER['HTTP_CF_VISITOR']) && strpos($_SERVER['HTTP_CF_VISITOR'], 'https') !== false)
+  || (isset($_SERVER['SERVER_PORT']) && intval($_SERVER['SERVER_PORT']) === 443);
+$script_dir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+$base_url = ($is_https ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $script_dir . '/' . $upload_rel_dir;
 
 // 1. 通常の multipart/form-data によるファイルアップロードの場合
 if (isset($_FILES['audio']) || isset($_FILES['file'])) {
   $file = isset($_FILES['audio']) ? $_FILES['audio'] : $_FILES['file'];
 
   if ($file['error'] !== UPLOAD_ERR_OK) {
+    $size_errors = [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE];
     echo json_encode([
       'status' => 'error',
-      'reason' => 'ファイルアップロードエラーコード: ' . $file['error'],
+      'reason' => in_array($file['error'], $size_errors)
+        ? 'ファイルサイズがサーバーの上限 (upload_max_filesize=' . ini_get('upload_max_filesize') . ') を超えています。'
+        : 'ファイルアップロードエラーコード: ' . $file['error'],
     ], JSON_UNESCAPED_UNICODE);
     exit;
   }
@@ -113,7 +124,10 @@ if (isset($body_data['audioBase64'])) {
   }
 }
 
+$content_length = isset($_SERVER['CONTENT_LENGTH']) ? intval($_SERVER['CONTENT_LENGTH']) : 0;
 echo json_encode([
   'status' => 'error',
-  'reason' => '音声ファイルデータが見つかりません。',
+  'reason' => $content_length > 0
+    ? '音声ファイルデータが見つかりません。ファイルサイズがサーバーの上限 (post_max_size=' . ini_get('post_max_size') . ') を超えている可能性があります。'
+    : '音声ファイルデータが見つかりません。',
 ], JSON_UNESCAPED_UNICODE);

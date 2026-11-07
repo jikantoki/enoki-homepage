@@ -10,3 +10,17 @@
 # CORS 許可
 Header append Access-Control-Allow-Origin: "*"
 Header append Access-Control-Allow-Headers: "*"
+
+# 音声ファイル (mp3 等) アップロード用の上限設定（mod_php 環境用）
+<IfModule mod_php.c>
+  php_value upload_max_filesize 100M
+  php_value post_max_size 110M
+  php_value max_execution_time 300
+  php_value max_input_time 300
+</IfModule>
+<IfModule mod_php7.c>
+  php_value upload_max_filesize 100M
+  php_value post_max_size 110M
+  php_value max_execution_time 300
+  php_value max_input_time 300
+</IfModule>

@@ -68,6 +68,8 @@ export interface MusicItem {
 
 // 実際の音声ファイル再生用（mp3 / wav 等）
 let audioElement: HTMLAudioElement | null = null
+/** audioElement が読み込んでいる楽曲のID */
+let audioTrackId: string | null = null
 
 // Web Audio API によるシンセプレビューエンジン（簡易シンセサイザー）
 let audioCtx: AudioContext | null = null
@@ -249,6 +251,8 @@ export const useMusicStore = defineStore('music', {
     queue: [] as MusicItem[],
     nowPlayingModalOpen: false,
     playbackTimer: null as number | null,
+    /** 音声ファイルの再生に失敗したときのメッセージ */
+    playError: null as string | null,
   }),
 
   getters: {
@@ -372,12 +376,15 @@ export const useMusicStore = defineStore('music', {
       if (audioElement) {
         audioElement.pause()
         audioElement.currentTime = 0
+        audioElement.removeAttribute('src')
+        audioElement.load()
         audioElement = null
       }
+      audioTrackId = null
       this.stopTimer()
     },
 
-    play(track: MusicItem, newQueue?: MusicItem[]) {
+    play(track: MusicItem, newQueue?: MusicItem[], startAt = 0) {
       if (newQueue && newQueue.length > 0) {
         this.queue = [...newQueue]
       } else if (!this.queue.some(t => t.id === track.id)) {
@@ -386,48 +393,66 @@ export const useMusicStore = defineStore('music', {
 
       this.stopAudio()
 
+      // DBから読み込んだ最新データを優先（古いモックデータで再生しないように）
+      const latest = this.list.find(t => t.id === track.id)
+      if (latest) track = latest
+
       this.currentTrack = track
-      this.currentTime = 0
+      this.currentTime = startAt
       this.isPlaying = true
+      this.playError = null
 
       // 実際の音声ファイル (mp3 / wav 等) がある場合は HTMLAudioElement で再生
-      if (track.audioUrl && typeof window !== 'undefined') {
-        try {
-          audioElement = new Audio(track.audioUrl)
-          audioElement.volume = this.isMuted ? 0 : this.volume
-          audioElement.currentTime = 0
+      // ※ 失敗してもデモ用シンセには切り替えない（アップロードした曲が鳴らない原因を隠してしまうため）
+      if (track.audioUrl) {
+        if (typeof window === 'undefined') return
+        const audio = new Audio(track.audioUrl)
+        audioElement = audio
+        audioTrackId = track.id
+        audio.preload = 'auto'
+        audio.volume = this.isMuted ? 0 : this.volume
+        if (startAt > 0) audio.currentTime = startAt
 
-          audioElement.ontimeupdate = () => {
-            if (audioElement) {
-              this.currentTime = Math.floor(audioElement.currentTime)
-            }
-          }
-
-          audioElement.onloadedmetadata = () => {
-            if (audioElement && audioElement.duration && !isNaN(audioElement.duration)) {
-              this.currentTrack!.duration = Math.floor(audioElement.duration)
-              const mins = Math.floor(audioElement.duration / 60)
-              const secs = Math.floor(audioElement.duration % 60)
-              this.currentTrack!.durationFormatted = `${mins}:${secs < 10 ? '0' : ''}${secs}`
-            }
-          }
-
-          audioElement.onended = () => {
-            this.next()
-          }
-
-          audioElement.play().catch((err) => {
-            console.warn('Audio element play failed, falling back to synth:', err)
-            startSynth(track.audioPreset || 'citypop', track.bpm || 120)
-            this.startTimer()
-          })
-          return
-        } catch (e) {
-          console.warn('Could not initialize Audio element:', e)
+        const fail = (reason: string) => {
+          if (audioElement !== audio) return
+          console.warn(`音声ファイルを再生できませんでした (${track.audioUrl}):`, reason)
+          this.playError = '音声ファイルを再生できませんでした'
+          this.isPlaying = false
         }
+
+        audio.ontimeupdate = () => {
+          if (audioElement === audio) {
+            this.currentTime = Math.floor(audio.currentTime)
+          }
+        }
+
+        audio.onloadedmetadata = () => {
+          if (audioElement === audio && this.currentTrack && audio.duration && !isNaN(audio.duration)) {
+            this.currentTrack.duration = Math.floor(audio.duration)
+            const mins = Math.floor(audio.duration / 60)
+            const secs = Math.floor(audio.duration % 60)
+            this.currentTrack.durationFormatted = `${mins}:${secs < 10 ? '0' : ''}${secs}`
+          }
+        }
+
+        audio.onerror = () => {
+          const code = audio.error?.code
+          fail(`MediaError code ${code ?? 'unknown'}`)
+        }
+
+        audio.onended = () => {
+          if (audioElement === audio) this.next()
+        }
+
+        audio.play().catch((err) => {
+          // 自動再生ブロック等。onerror 側で拾えないケースのみ扱う
+          if (err?.name === 'AbortError') return
+          fail(String(err?.message || err))
+        })
+        return
       }
 
-      // 音声ファイルがない場合は従来のシンセサイザーで再生
+      // 音声ファイルが未登録の曲のみ、デモ用シンセサイザーで再生
       startSynth(track.audioPreset || 'citypop', track.bpm || 120)
       this.startTimer()
     },
@@ -449,10 +474,18 @@ export const useMusicStore = defineStore('music', {
         }
         this.stopTimer()
       } else {
+        // まだ音声が読み込まれていない（曲を選択しただけ / 別の曲の音声が残っている）場合は、
+        // その曲の音声ファイルを読み込んで再生する
+        if (this.currentTrack.audioUrl && (!audioElement || audioTrackId !== this.currentTrack.id)) {
+          this.play(this.currentTrack, undefined, this.currentTime)
+          return
+        }
         this.isPlaying = true
         if (audioElement) {
           audioElement.play().catch((err) => {
             console.warn('Audio resume failed:', err)
+            this.playError = '音声ファイルを再生できませんでした'
+            this.isPlaying = false
           })
         } else {
           startSynth(this.currentTrack.audioPreset || 'citypop', this.currentTrack.bpm || 120)

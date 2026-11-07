@@ -915,33 +915,44 @@ export default defineComponent({
         let uploadSuccess = false
         let resultUrl = ''
 
-        // (A) Nitro API へのアップロード試行
+        let phpError = ''
+
+        // (A) PHP API サーバーへアップロード（本番・他端末からも再生できる絶対URLが返る）
         try {
-          const res = await fetch('/api/upload-audio', {
-            method: 'POST',
-            body: formData,
-          })
-          if (res.ok) {
-            const data = await res.json()
-            if (data.status === 'ok' && data.url) {
-              resultUrl = data.url
-              uploadSuccess = true
-            }
+          const data = await uploadAudioToPHP(formData)
+          if (data.url) {
+            resultUrl = data.url
+            uploadSuccess = true
           }
-        } catch (nitroErr) {
-          console.warn('Nitro upload failed, trying PHP fallback:', nitroErr)
+        } catch (phpErr: any) {
+          phpError = phpErr?.message || String(phpErr)
+          console.warn('PHP upload failed, trying Nitro fallback:', phpErr)
         }
 
-        // (B) Nitro がダメな場合の PHP フォールバック試行
+        // (B) PHP がダメな場合のみ Nitro API (ローカル開発サーバー) へ保存
+        //     ※ この場合のURLは開発中のPCでしか再生できない
         if (!uploadSuccess) {
           try {
-            const data = await uploadAudioToPHP(formData)
-            if (data.url) {
-              resultUrl = data.url
-              uploadSuccess = true
+            const res = await fetch('/api/upload-audio', {
+              method: 'POST',
+              body: formData,
+            })
+            if (res.ok) {
+              const data = await res.json()
+              if (data.status === 'ok' && data.url) {
+                resultUrl = data.url
+                uploadSuccess = true
+                this.showToast(
+                  `APIサーバーへのアップロードに失敗したため、ローカルに保存しました（本番では再生できません）: ${phpError}`,
+                  'warning',
+                )
+                this.musicData.audioUrl = resultUrl
+                this.initPreviewAudio(resultUrl)
+                return
+              }
             }
-          } catch (phpErr) {
-            console.warn('PHP upload failed:', phpErr)
+          } catch (nitroErr) {
+            console.warn('Nitro upload failed:', nitroErr)
           }
         }
 
@@ -957,7 +968,10 @@ export default defineComponent({
           const localUrl = URL.createObjectURL(file)
           this.musicData.audioUrl = localUrl
           this.initPreviewAudio(localUrl)
-          this.showToast('ローカル音声として設定しました。', 'info')
+          this.showToast(
+            `音声ファイルをアップロードできませんでした。このまま保存しても音声は登録されません: ${phpError}`,
+            'error',
+          )
         }
       } catch (err: any) {
         console.error('Upload failed:', err)
@@ -979,6 +993,9 @@ export default defineComponent({
     // 試聴用プレイヤー操作
     initPreviewAudio(url: string) {
       this.stopPreviewAudio()
+      // SSR (サーバー側描画) 中は Audio が存在しないため、ブラウザでのみ生成する
+      // （サーバー側でスキップしても、試聴ボタン押下時に togglePreviewAudio で生成される）
+      if (typeof window === 'undefined' || typeof Audio === 'undefined') return
       this.previewAudioObj = new Audio(url)
       this.previewAudioObj.ontimeupdate = () => {
         if (this.previewAudioObj) {

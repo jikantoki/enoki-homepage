@@ -25,7 +25,7 @@
             variant="flat"
             density="compact"
           ) 未完成
-        .track-artist {{ currentTrack.artist }}
+        .track-artist(:class="{ 'text-error': !!playError }") {{ playError || currentTrack.artist }}
 
     //- 右側: コントロール
     .player-controls(@click.stop)
@@ -93,6 +93,9 @@ export default {
     },
     isUnfinished() {
       return isTrackUnfinished(this.currentTrack)
+    },
+    playError() {
+      return this.musicStore.playError
     },
     progressPercent() {
       if (!this.currentTrack || !this.currentTrack.duration) return 0
