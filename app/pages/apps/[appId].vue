@@ -160,6 +160,11 @@ v-card.app-detail-page-root(
 
     .bottom-spacer
 
+  //- データベースから読み込み中
+  .not-found-view(v-else-if="appStore.dbLoading")
+    v-progress-circular(indeterminate color="primary" size="48")
+    p 読み込み中...
+
   //- アプリが見つからなかった場合
   .not-found-view(v-else)
     v-icon(size="64" color="grey") mdi-application-outline
@@ -220,6 +225,7 @@ import { useMyProfileStore } from '@/stores/myProfile'
 import AppCard from '@/components/store/AppCard.vue'
 import AdminRegisterModal from '@/components/admin/AdminRegisterModal.vue'
 import Setup from '@/js/setup'
+import { deleteAppFromDB } from '@/js/contentApi'
 import mixins from '@/mixins/mixins'
 
 export default {
@@ -292,12 +298,9 @@ export default {
       }
     },
   },
-  created() {
-    if (!this.appStore.list || this.appStore.list.length === 0) {
-      this.appStore.loadMockData(true)
-    }
-  },
   mounted() {
+    // データベース (MySQL) から最新のアプリ情報を読み込み
+    this.appStore.fetchFromDatabase()
     if (this.app) {
       this.setTitle(this.app.name)
     }
@@ -333,39 +336,13 @@ export default {
     async handleDeleteApp() {
       if (!this.app || !this.app.id) return
       this.deleteDialogLoading = true
-      const authHeaders: Record<string, string> = {
-        'Content-Type': 'application/json',
-      }
-      if (this.myProfile.userId) authHeaders['id'] = this.myProfile.userId
-      if (this.myProfile.userToken)
-        authHeaders['token'] = this.myProfile.userToken
-
       const appId = this.app.id
       const appName = this.app.name
       try {
-        // 1. PHP MySQL 削除
-        try {
-          await fetch('/php/deleteApp.php', {
-            method: 'POST',
-            headers: authHeaders,
-            body: JSON.stringify({ appId, id: appId }),
-          })
-        } catch (phpErr) {
-          console.warn('PHP deleteApp error:', phpErr)
-        }
+        // 1. PHP 経由で MySQL (app_list) から削除（失敗時は throw）
+        await deleteAppFromDB(appId)
 
-        // 2. Nitro JSON 永続化ファイル削除
-        try {
-          await fetch('/api/delete-app', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ appId, id: appId }),
-          })
-        } catch (nitroErr) {
-          console.warn('Nitro delete-app error:', nitroErr)
-        }
-
-        // 3. Pinia Store から削除
+        // 2. Pinia Store から削除
         this.appStore.removeById(appId)
         try {
           await Toast.show({ text: `「${appName}」を削除しました` })
@@ -375,6 +352,12 @@ export default {
         this.$router.push('/apps')
       } catch (err: any) {
         console.error('Delete app error:', err)
+        try {
+          await Toast.show({
+            text: `削除に失敗しました: ${err?.message || err}`,
+            duration: 'long',
+          })
+        } catch (_) {}
       } finally {
         this.deleteDialogLoading = false
       }

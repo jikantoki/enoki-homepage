@@ -571,6 +571,7 @@ import { defineComponent } from 'vue'
 import { useAppStore, type AppInfo } from '@/stores/app'
 import { useMusicStore, type MusicItem } from '@/stores/music'
 import { useMyProfileStore } from '@/stores/myProfile'
+import { saveAppToDB, saveMusicToDB, uploadAudioToPHP } from '@/js/contentApi'
 
 export default defineComponent({
   name: 'AdminRegisterModal',
@@ -934,16 +935,10 @@ export default defineComponent({
         // (B) Nitro がダメな場合の PHP フォールバック試行
         if (!uploadSuccess) {
           try {
-            const phpRes = await fetch('/php/uploadAudio.php', {
-              method: 'POST',
-              body: formData,
-            })
-            if (phpRes.ok) {
-              const data = await phpRes.json()
-              if (data.status === 'ok' && data.url) {
-                resultUrl = data.url
-                uploadSuccess = true
-              }
+            const data = await uploadAudioToPHP(formData)
+            if (data.url) {
+              resultUrl = data.url
+              uploadSuccess = true
             }
           } catch (phpErr) {
             console.warn('PHP upload failed:', phpErr)
@@ -1154,37 +1149,11 @@ export default defineComponent({
       }
 
       try {
-        // 1. フロントエンドストアに即時反映
+        // 1. PHP 経由で MySQL (app_list) へ登録・更新（失敗時は throw）
+        await saveAppToDB(newApp)
+
+        // 2. 保存に成功したらフロントエンドストアへ反映
         this.appStore.registerApp(newApp)
-
-        // 2. PHP バックエンド (MySQL) への保存
-        try {
-          const authHeaders: Record<string, string> = {
-            'Content-Type': 'application/json',
-          }
-          if (this.myProfile.userId) authHeaders['id'] = this.myProfile.userId
-          if (this.myProfile.userToken)
-            authHeaders['token'] = this.myProfile.userToken
-
-          await fetch('/php/registerApp.php', {
-            method: 'POST',
-            headers: authHeaders,
-            body: JSON.stringify(newApp),
-          })
-        } catch (phpErr) {
-          console.warn('PHP MySQL registerApp error:', phpErr)
-        }
-
-        // 3. サーバー側永続化APIへ送信
-        try {
-          await fetch('/api/register-app', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newApp),
-          })
-        } catch (serverErr) {
-          console.warn('Server persist api error (app):', serverErr)
-        }
 
         if (isEdit) {
           this.showToast(
@@ -1206,9 +1175,7 @@ export default defineComponent({
       } catch (err: any) {
         console.error('App registration error:', err)
         this.showToast(
-          isEdit
-            ? 'アプリ更新中にエラーが発生しました'
-            : 'アプリ登録中にエラーが発生しました',
+          `${isEdit ? 'アプリ更新' : 'アプリ登録'}に失敗しました: ${err?.message || err}`,
           'error',
         )
       } finally {
@@ -1272,41 +1239,19 @@ export default defineComponent({
         lyricist: this.musicData.lyricist || this.musicData.artist,
         price: Number(this.musicData.price) || 0,
         type: 'music',
-        audioUrl: this.musicData.audioUrl || undefined,
+        // blob: のローカルURLは他の端末で再生できないためDBには保存しない
+        audioUrl:
+          this.musicData.audioUrl && !this.musicData.audioUrl.startsWith('blob:')
+            ? this.musicData.audioUrl
+            : existing?.audioUrl || undefined,
       }
 
       try {
-        // 1. フロントエンドストアに即時反映
+        // 1. PHP 経由で MySQL (music_list) へ登録・更新（音声ファイルURL含む、失敗時は throw）
+        await saveMusicToDB(newTrack)
+
+        // 2. 保存に成功したらフロントエンドストアへ反映
         this.musicStore.updateTrack(newTrack)
-
-        // 2. PHP バックエンド (MySQL) への保存（音声ファイルURL含む）
-        try {
-          const authHeaders: Record<string, string> = {
-            'Content-Type': 'application/json',
-          }
-          if (this.myProfile.userId) authHeaders['id'] = this.myProfile.userId
-          if (this.myProfile.userToken)
-            authHeaders['token'] = this.myProfile.userToken
-
-          await fetch('/php/registerMusic.php', {
-            method: 'POST',
-            headers: authHeaders,
-            body: JSON.stringify(newTrack),
-          })
-        } catch (phpErr) {
-          console.warn('PHP MySQL registerMusic error:', phpErr)
-        }
-
-        // 3. サーバー側永続化APIへ送信
-        try {
-          await fetch('/api/register-music', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newTrack),
-          })
-        } catch (serverErr) {
-          console.warn('Server persist api error (music):', serverErr)
-        }
 
         if (isEdit) {
           this.showToast(
@@ -1328,9 +1273,7 @@ export default defineComponent({
       } catch (err: any) {
         console.error('Music registration error:', err)
         this.showToast(
-          isEdit
-            ? '音楽更新中にエラーが発生しました'
-            : '音楽登録中にエラーが発生しました',
+          `${isEdit ? '音楽更新' : '音楽登録'}に失敗しました: ${err?.message || err}`,
           'error',
         )
       } finally {

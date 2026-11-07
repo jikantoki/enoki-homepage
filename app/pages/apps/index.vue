@@ -442,8 +442,11 @@ export default {
   async mounted() {
     this.setTitle('ソフトウェア')
 
-    this.appStore.loadMockData()
+    // キャッシュ済みの一覧を即表示 → データベース (MySQL) の最新一覧で置き換え
     this.initRandomPickups()
+    this.appStore.fetchFromDatabase().then(() => {
+      this.initRandomPickups()
+    })
 
     /** バックボタンのリスナーを追加 */
     App.addListener('backButton', () => {

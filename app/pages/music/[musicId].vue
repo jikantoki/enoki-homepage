@@ -244,6 +244,11 @@ v-card.music-detail-page-root(
 
     .bottom-spacer
 
+  //- データベースから読み込み中
+  .not-found-view(v-else-if="musicStore.dbLoading")
+    v-progress-circular(indeterminate color="primary" size="48")
+    p 読み込み中...
+
   //- 楽曲が見つからなかった場合
   .not-found-view(v-else)
     v-icon(size="64" color="grey") mdi-music-note-off
@@ -303,6 +308,7 @@ import MusicCard from '@/components/music/MusicCard.vue'
 import AdminRegisterModal from '@/components/admin/AdminRegisterModal.vue'
 import { useMyProfileStore } from '@/stores/myProfile'
 import Setup from '@/js/setup'
+import { deleteMusicFromDB } from '@/js/contentApi'
 import mixins from '@/mixins/mixins'
 
 export default {
@@ -382,12 +388,17 @@ export default {
     track(newTrack) {
       if (newTrack && typeof document !== 'undefined') {
         this.setTitle(newTrack.title)
+        // DB読み込み後に曲が見つかった場合も再生対象としてセット
+        if (!this.musicStore.currentTrack) {
+          this.musicStore.currentTrack = newTrack
+        }
       }
     },
   },
   created() {
-    if (!this.musicStore.list || this.musicStore.list.length === 0) {
-      this.musicStore.loadMockData(true)
+    // データベース (MySQL) から最新の楽曲情報を読み込み
+    if (typeof window !== 'undefined') {
+      this.musicStore.fetchFromDatabase()
     }
   },
   mounted() {
@@ -453,39 +464,13 @@ export default {
     async handleDeleteTrack() {
       if (!this.track || !this.track.id) return
       this.deleteDialogLoading = true
-      const authHeaders: Record<string, string> = {
-        'Content-Type': 'application/json',
-      }
-      if (this.myProfile.userId) authHeaders['id'] = this.myProfile.userId
-      if (this.myProfile.userToken)
-        authHeaders['token'] = this.myProfile.userToken
-
       const trackId = this.track.id
       const trackTitle = this.track.title
       try {
-        // 1. PHP MySQL 削除
-        try {
-          await fetch('/php/deleteMusic.php', {
-            method: 'POST',
-            headers: authHeaders,
-            body: JSON.stringify({ musicId: trackId, id: trackId }),
-          })
-        } catch (phpErr) {
-          console.warn('PHP deleteMusic error:', phpErr)
-        }
+        // 1. PHP 経由で MySQL (music_list) から削除（失敗時は throw）
+        await deleteMusicFromDB(trackId)
 
-        // 2. Nitro JSON 永続化ファイル削除
-        try {
-          await fetch('/api/delete-music', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ musicId: trackId, id: trackId }),
-          })
-        } catch (nitroErr) {
-          console.warn('Nitro delete-music error:', nitroErr)
-        }
-
-        // 3. Pinia Store から削除
+        // 2. Pinia Store から削除
         this.musicStore.removeTrack(trackId)
         try {
           await Toast.show({ text: `「${trackTitle}」を削除しました` })
@@ -495,6 +480,12 @@ export default {
         this.$router.push('/music')
       } catch (err: any) {
         console.error('Delete track error:', err)
+        try {
+          await Toast.show({
+            text: `削除に失敗しました: ${err?.message || err}`,
+            duration: 'long',
+          })
+        } catch (_) {}
       } finally {
         this.deleteDialogLoading = false
       }

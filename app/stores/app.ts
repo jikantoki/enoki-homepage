@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import mockAppsData from '../data/apps.json'
+import { fetchAppList } from '@/js/contentApi'
 
 /**
  * サポートされているプラットフォーム種別
@@ -254,6 +255,12 @@ export const useAppStore = defineStore('app', {
      * 初期値として100個のモックデータを取り込み
      */
     list: [...(mockAppsData as AppOrMusicItem[])] as AppOrMusicItem[],
+    /** データベース (MySQL) から読み込み中か */
+    dbLoading: false,
+    /** データベースから一度でも読み込めたか */
+    dbLoaded: false,
+    /** 最後に発生した読み込みエラー */
+    dbError: null as string | null,
   }),
   getters: {
     /** ゲーム一覧 */
@@ -304,6 +311,30 @@ export const useAppStore = defineStore('app', {
     },
   },
   actions: {
+    /**
+     * PHP 経由で MySQL (app_list) からアプリ一覧を読み込み、リストを置き換える
+     * 失敗した場合は現在のリストを維持（空ならモックデータを表示）
+     * @returns 読み込みに成功したら true
+     */
+    async fetchFromDatabase(): Promise<boolean> {
+      this.dbLoading = true
+      try {
+        const list = await fetchAppList<AppOrMusicItem>()
+        this.list = list
+        this.dbLoaded = true
+        this.dbError = null
+        return true
+      } catch (err: any) {
+        this.dbError = err?.message || String(err)
+        console.warn('アプリ一覧のDB読み込みに失敗しました:', this.dbError)
+        if (!this.list || this.list.length === 0) {
+          this.loadMockData(true)
+        }
+        return false
+      } finally {
+        this.dbLoading = false
+      }
+    },
     /**
      * ランダムピックアップアプリを取得
      * @param count 取得件数 (デフォルト12)

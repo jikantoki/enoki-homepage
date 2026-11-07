@@ -10,6 +10,7 @@ header('Content-Type: application/json; charset=UTF-8');
 try {
   $pdo = SQLConnect();
   if ($pdo) {
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $stmt = $pdo->query("SELECT * FROM `app_list` ORDER BY `createdAt` DESC");
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -43,28 +44,18 @@ try {
 
     echo json_encode([
       'status' => 'ok',
+      'source' => 'mysql',
       'count' => count($apps),
       'data' => $apps,
     ], JSON_UNESCAPED_UNICODE);
     exit;
   }
 } catch (\Throwable $th) {
+  $dbError = $th->getMessage();
   error_log("getApps Error: " . $th->getMessage());
-}
-
-// フォールバック: JSONファイルから読み込み
-$jsonFile = DIR_ROOT . '/app/data/apps.json';
-if (file_exists($jsonFile)) {
-  $apps = json_decode(file_get_contents($jsonFile), true) ?: [];
-  echo json_encode([
-    'status' => 'ok',
-    'count' => count($apps),
-    'data' => $apps,
-  ], JSON_UNESCAPED_UNICODE);
-  exit;
 }
 
 echo json_encode([
   'status' => 'error',
-  'reason' => 'アプリ情報の取得に失敗しました。',
+  'reason' => 'アプリ情報をデータベースから取得できませんでした。' . (!empty($dbError) ? " ({$dbError})" : ''),
 ], JSON_UNESCAPED_UNICODE);

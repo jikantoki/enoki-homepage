@@ -382,6 +382,7 @@ import { useMusicStore, isTrackUnfinished, type MusicItem } from '@/stores/music
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
 import Setup from '@/js/setup'
+import { deleteAppFromDB, deleteMusicFromDB } from '@/js/contentApi'
 import mixins from '@/mixins/mixins'
 
 export default defineComponent({
@@ -506,8 +507,23 @@ export default defineComponent({
     } else if (tabParam === 'app' || tabParam === 'apps') {
       this.currentTab = 'apps'
     }
+
+    // データベース (MySQL) から最新の一覧を読み込み
+    this.reloadFromDatabase()
   },
   methods: {
+    async reloadFromDatabase() {
+      const [appOk, musicOk] = await Promise.all([
+        this.appStore.fetchFromDatabase(),
+        this.musicStore.fetchFromDatabase(),
+      ])
+      if (!appOk || !musicOk) {
+        this.showToast(
+          `データベースからの読み込みに失敗しました: ${this.appStore.dbError || this.musicStore.dbError}`,
+          'error',
+        )
+      }
+    },
     isUnfinishedItem(item: any): boolean {
       return isItemUnfinished(item)
     },
@@ -597,67 +613,23 @@ export default defineComponent({
       if (!item || !item.id) return
 
       this.deleteDialog.loading = true
-      const authHeaders: Record<string, string> = {
-        'Content-Type': 'application/json',
-      }
-      if (this.myProfile.userId) authHeaders['id'] = this.myProfile.userId
-      if (this.myProfile.userToken)
-        authHeaders['token'] = this.myProfile.userToken
 
       try {
         if (type === 'app') {
-          // 1. PHP バックエンド (MySQL) から削除
-          try {
-            await fetch('/php/deleteApp.php', {
-              method: 'POST',
-              headers: authHeaders,
-              body: JSON.stringify({ appId: item.id, id: item.id }),
-            })
-          } catch (phpErr) {
-            console.warn('PHP deleteApp error:', phpErr)
-          }
+          // 1. PHP 経由で MySQL (app_list) から削除（失敗時は throw）
+          await deleteAppFromDB(item.id)
 
-          // 2. Nitro サーバー側 (JSONファイル) から削除
-          try {
-            await fetch('/api/delete-app', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ appId: item.id, id: item.id }),
-            })
-          } catch (nitroErr) {
-            console.warn('Nitro delete-app error:', nitroErr)
-          }
-
-          // 3. Pinia ストアから削除
+          // 2. Pinia ストアから削除
           this.appStore.removeById(item.id)
           this.showToast(
             `アプリ「${item.name || item.id}」を削除しました`,
             'success',
           )
         } else {
-          // 1. PHP バックエンド (MySQL) から削除
-          try {
-            await fetch('/php/deleteMusic.php', {
-              method: 'POST',
-              headers: authHeaders,
-              body: JSON.stringify({ musicId: item.id, id: item.id }),
-            })
-          } catch (phpErr) {
-            console.warn('PHP deleteMusic error:', phpErr)
-          }
+          // 1. PHP 経由で MySQL (music_list) から削除（失敗時は throw）
+          await deleteMusicFromDB(item.id)
 
-          // 2. Nitro サーバー側 (JSONファイル) から削除
-          try {
-            await fetch('/api/delete-music', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ musicId: item.id, id: item.id }),
-            })
-          } catch (nitroErr) {
-            console.warn('Nitro delete-music error:', nitroErr)
-          }
-
-          // 3. Pinia ストアから削除
+          // 2. Pinia ストアから削除
           this.musicStore.removeTrack(item.id)
           this.showToast(
             `楽曲「${item.title || item.name || item.id}」を削除しました`,

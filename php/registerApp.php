@@ -8,6 +8,17 @@ require_once DIR_ROOT . '/php/functions/database.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
+// ==================== 管理者権限チェック ====================
+// $secretId は authAccountforUse.php で設定される
+if (!isUserAdmin($secretId)) {
+  echo json_encode([
+    'status' => 'forbidden',
+    'reason' => '管理者アカウントのみ実行できます。',
+    'errCode' => 403,
+  ], JSON_UNESCAPED_UNICODE);
+  exit;
+}
+
 $input = file_get_contents('php://input');
 $data = json_decode($input, true) ?: $_POST;
 
@@ -48,96 +59,85 @@ $mysqlError = null;
 // ==================== MySQL データベースへの保存 ====================
 try {
   $pdo = SQLConnect();
-  if ($pdo) {
-    $sql = "INSERT INTO `app_list` (
-      `appId`, `name`, `type`, `category`, `price`, `icon`, `thumbnail`,
-      `description`, `summary`, `platforms`, `languages`, `links`,
-      `githubUrl`, `videoUrl`, `images`, `rating`, `downloads`, `developer`,
-      `featured`, `isUnfinished`, `tags`, `createdAt`, `updatedAt`
-    ) VALUES (
-      :appId, :name, :type, :category, :price, :icon, :thumbnail,
-      :description, :summary, :platforms, :languages, :links,
-      :githubUrl, :videoUrl, :images, :rating, :downloads, :developer,
-      :featured, :isUnfinished, :tags, :createdAt, :updatedAt
-    ) ON DUPLICATE KEY UPDATE
-      `name` = VALUES(`name`),
-      `type` = VALUES(`type`),
-      `category` = VALUES(`category`),
-      `price` = VALUES(`price`),
-      `icon` = VALUES(`icon`),
-      `thumbnail` = VALUES(`thumbnail`),
-      `description` = VALUES(`description`),
-      `summary` = VALUES(`summary`),
-      `platforms` = VALUES(`platforms`),
-      `languages` = VALUES(`languages`),
-      `links` = VALUES(`links`),
-      `githubUrl` = VALUES(`githubUrl`),
-      `videoUrl` = VALUES(`videoUrl`),
-      `images` = VALUES(`images`),
-      `featured` = VALUES(`featured`),
-      `isUnfinished` = VALUES(`isUnfinished`),
-      `tags` = VALUES(`tags`),
-      `updatedAt` = VALUES(`updatedAt`)";
-
-    $stmt = $pdo->prepare($sql);
-    $mysqlSaved = $stmt->execute([
-      ':appId' => $appId,
-      ':name' => $name,
-      ':type' => $type,
-      ':category' => $category,
-      ':price' => $price,
-      ':icon' => $icon,
-      ':thumbnail' => $thumbnail,
-      ':description' => $description,
-      ':summary' => $summary,
-      ':platforms' => $platforms,
-      ':languages' => $languages,
-      ':links' => $links,
-      ':githubUrl' => $githubUrl,
-      ':videoUrl' => $videoUrl,
-      ':images' => $images,
-      ':rating' => $rating,
-      ':downloads' => $downloads,
-      ':developer' => $developer,
-      ':featured' => $featured,
-      ':isUnfinished' => $isUnfinished,
-      ':tags' => $tags,
-      ':createdAt' => $now,
-      ':updatedAt' => $now,
-    ]);
+  if (!$pdo) {
+    throw new \RuntimeException('MySQLに接続できませんでした。');
   }
+  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $sql = "INSERT INTO `app_list` (
+    `appId`, `name`, `type`, `category`, `price`, `icon`, `thumbnail`,
+    `description`, `summary`, `platforms`, `languages`, `links`,
+    `githubUrl`, `videoUrl`, `images`, `rating`, `downloads`, `developer`,
+    `featured`, `isUnfinished`, `tags`, `createdAt`, `updatedAt`
+  ) VALUES (
+    :appId, :name, :type, :category, :price, :icon, :thumbnail,
+    :description, :summary, :platforms, :languages, :links,
+    :githubUrl, :videoUrl, :images, :rating, :downloads, :developer,
+    :featured, :isUnfinished, :tags, :createdAt, :updatedAt
+  ) ON DUPLICATE KEY UPDATE
+    `name` = VALUES(`name`),
+    `type` = VALUES(`type`),
+    `category` = VALUES(`category`),
+    `price` = VALUES(`price`),
+    `icon` = VALUES(`icon`),
+    `thumbnail` = VALUES(`thumbnail`),
+    `description` = VALUES(`description`),
+    `summary` = VALUES(`summary`),
+    `platforms` = VALUES(`platforms`),
+    `languages` = VALUES(`languages`),
+    `links` = VALUES(`links`),
+    `githubUrl` = VALUES(`githubUrl`),
+    `videoUrl` = VALUES(`videoUrl`),
+    `images` = VALUES(`images`),
+    `developer` = VALUES(`developer`),
+    `featured` = VALUES(`featured`),
+    `isUnfinished` = VALUES(`isUnfinished`),
+    `tags` = VALUES(`tags`),
+    `updatedAt` = VALUES(`updatedAt`)";
+
+  $stmt = $pdo->prepare($sql);
+  $mysqlSaved = $stmt->execute([
+    ':appId' => $appId,
+    ':name' => $name,
+    ':type' => $type,
+    ':category' => $category,
+    ':price' => $price,
+    ':icon' => $icon,
+    ':thumbnail' => $thumbnail,
+    ':description' => $description,
+    ':summary' => $summary,
+    ':platforms' => $platforms,
+    ':languages' => $languages,
+    ':links' => $links,
+    ':githubUrl' => $githubUrl,
+    ':videoUrl' => $videoUrl,
+    ':images' => $images,
+    ':rating' => $rating,
+    ':downloads' => $downloads,
+    ':developer' => $developer,
+    ':featured' => $featured,
+    ':isUnfinished' => $isUnfinished,
+    ':tags' => $tags,
+    ':createdAt' => $now,
+    ':updatedAt' => $now,
+  ]);
 } catch (\Throwable $th) {
   $mysqlError = $th->getMessage();
   error_log("MySQL App Save Error: " . $mysqlError);
 }
 
-// ==================== JSON ファイルへの同期保存 ====================
-$files = [
-  DIR_ROOT . '/app/data/apps.json',
-  DIR_ROOT . '/public/data/apps.json',
-];
-
-foreach ($files as $filePath) {
-  if (file_exists($filePath)) {
-    $existing = json_decode(file_get_contents($filePath), true) ?: [];
-    $found = false;
-    foreach ($existing as $k => $item) {
-      if ($item['id'] === $data['id']) {
-        $existing[$k] = array_merge($item, $data);
-        $found = true;
-        break;
-      }
-    }
-    if (!$found) {
-      array_unshift($existing, $data);
-    }
-    file_put_contents($filePath, json_encode($existing, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-  }
+if (!$mysqlSaved) {
+  echo json_encode([
+    'status' => 'error',
+    'reason' => 'アプリ情報をデータベースに保存できませんでした。' . ($mysqlError ? " ({$mysqlError})" : ''),
+    'mysqlSaved' => false,
+    'mysqlError' => $mysqlError,
+  ], JSON_UNESCAPED_UNICODE);
+  exit;
 }
 
 echo json_encode([
   'status' => 'ok',
-  'message' => 'アプリ情報をMySQLに登録・更新しました。',
+  'message' => 'アプリ情報をデータベースに登録・更新しました。',
   'mysqlSaved' => $mysqlSaved,
   'mysqlError' => $mysqlError,
   'appId' => $appId,

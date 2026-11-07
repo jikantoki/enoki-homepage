@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import mockMusicData from '../data/music.json'
+import { fetchMusicList } from '@/js/contentApi'
 
 /**
  * 音楽ジャンル定数（「歌モノ」「インスト」「AI楽曲」の3つ）
@@ -231,6 +232,12 @@ function startSynth(presetName: string, bpm: number) {
 export const useMusicStore = defineStore('music', {
   state: () => ({
     list: [...(mockMusicData as MusicItem[])] as MusicItem[],
+    /** データベース (MySQL) から読み込み中か */
+    dbLoading: false,
+    /** データベースから一度でも読み込めたか */
+    dbLoaded: false,
+    /** 最後に発生した読み込みエラー */
+    dbError: null as string | null,
     currentTrack: null as MusicItem | null,
     isPlaying: false,
     currentTime: 0,
@@ -273,6 +280,37 @@ export const useMusicStore = defineStore('music', {
   },
 
   actions: {
+    /**
+     * PHP 経由で MySQL (music_list) から楽曲一覧を読み込み、リストを置き換える
+     * 失敗した場合は現在のリストを維持（空ならモックデータを表示）
+     * @returns 読み込みに成功したら true
+     */
+    async fetchFromDatabase(): Promise<boolean> {
+      this.dbLoading = true
+      try {
+        const list = await fetchMusicList<MusicItem>()
+        this.list = list
+        // 再生中の曲がDBで更新・削除されていたら反映
+        if (this.currentTrack) {
+          const latest = list.find(t => t.id === this.currentTrack?.id)
+          if (latest) this.currentTrack = latest
+        }
+        this.queue = this.queue.filter(q => list.some(t => t.id === q.id))
+        this.dbLoaded = true
+        this.dbError = null
+        return true
+      } catch (err: any) {
+        this.dbError = err?.message || String(err)
+        console.warn('楽曲一覧のDB読み込みに失敗しました:', this.dbError)
+        if (!this.list || this.list.length === 0) {
+          this.loadMockData(true)
+        }
+        return false
+      } finally {
+        this.dbLoading = false
+      }
+    },
+
     getRandomPickups(count = 10): MusicItem[] {
       if (!this.list || this.list.length === 0) return []
       const shuffled = [...this.list].sort(() => Math.random() - 0.5)

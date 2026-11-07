@@ -10,6 +10,7 @@ header('Content-Type: application/json; charset=UTF-8');
 try {
   $pdo = SQLConnect();
   if ($pdo) {
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $stmt = $pdo->query("SELECT * FROM `music_list` ORDER BY `createdAt` DESC");
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -52,28 +53,18 @@ try {
 
     echo json_encode([
       'status' => 'ok',
+      'source' => 'mysql',
       'count' => count($musics),
       'data' => $musics,
     ], JSON_UNESCAPED_UNICODE);
     exit;
   }
 } catch (\Throwable $th) {
+  $dbError = $th->getMessage();
   error_log("getMusic Error: " . $th->getMessage());
-}
-
-// フォールバック: JSONファイルから読み込み
-$jsonFile = DIR_ROOT . '/app/data/music.json';
-if (file_exists($jsonFile)) {
-  $musics = json_decode(file_get_contents($jsonFile), true) ?: [];
-  echo json_encode([
-    'status' => 'ok',
-    'count' => count($musics),
-    'data' => $musics,
-  ], JSON_UNESCAPED_UNICODE);
-  exit;
 }
 
 echo json_encode([
   'status' => 'error',
-  'reason' => '楽曲情報の取得に失敗しました。',
+  'reason' => '楽曲情報をデータベースから取得できませんでした。' . (!empty($dbError) ? " ({$dbError})" : ''),
 ], JSON_UNESCAPED_UNICODE);

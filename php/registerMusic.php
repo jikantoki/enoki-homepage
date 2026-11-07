@@ -8,6 +8,17 @@ require_once DIR_ROOT . '/php/functions/database.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
+// ==================== 管理者権限チェック ====================
+// $secretId は authAccountforUse.php で設定される
+if (!isUserAdmin($secretId)) {
+  echo json_encode([
+    'status' => 'forbidden',
+    'reason' => '管理者アカウントのみ実行できます。',
+    'errCode' => 403,
+  ], JSON_UNESCAPED_UNICODE);
+  exit;
+}
+
 $input = file_get_contents('php://input');
 $data = json_decode($input, true) ?: $_POST;
 
@@ -57,117 +68,105 @@ $mysqlError = null;
 // ==================== MySQL データベースへの保存 ====================
 try {
   $pdo = SQLConnect();
-  if ($pdo) {
-    $sql = "INSERT INTO `music_list` (
-      `musicId`, `title`, `name`, `artist`, `album`, `albumType`,
-      `genre`, `bpm`, `price`, `audioUrl`, `cover`, `icon`, `thumbnail`,
-      `duration`, `durationFormatted`, `releaseDate`, `releaseDateFormatted`,
-      `plays`, `rating`, `featured`, `isTrending`, `isUnfinished`, `tags`, `themeColor`, `accentColor`,
-      `audioPreset`, `description`, `lyrics`, `composer`, `lyricist`,
-      `createdAt`, `updatedAt`
-    ) VALUES (
-      :musicId, :title, :name, :artist, :album, :albumType,
-      :genre, :bpm, :price, :audioUrl, :cover, :icon, :thumbnail,
-      :duration, :durationFormatted, :releaseDate, :releaseDateFormatted,
-      :plays, :rating, :featured, :isTrending, :isUnfinished, :tags, :themeColor, :accentColor,
-      :audioPreset, :description, :lyrics, :composer, :lyricist,
-      :createdAt, :updatedAt
-    ) ON DUPLICATE KEY UPDATE
-      `title` = VALUES(`title`),
-      `name` = VALUES(`name`),
-      `artist` = VALUES(`artist`),
-      `album` = VALUES(`album`),
-      `albumType` = VALUES(`albumType`),
-      `genre` = VALUES(`genre`),
-      `bpm` = VALUES(`bpm`),
-      `price` = VALUES(`price`),
-      `audioUrl` = VALUES(`audioUrl`),
-      `cover` = VALUES(`cover`),
-      `icon` = VALUES(`icon`),
-      `thumbnail` = VALUES(`thumbnail`),
-      `duration` = VALUES(`duration`),
-      `durationFormatted` = VALUES(`durationFormatted`),
-      `featured` = VALUES(`featured`),
-      `isTrending` = VALUES(`isTrending`),
-      `isUnfinished` = VALUES(`isUnfinished`),
-      `tags` = VALUES(`tags`),
-      `themeColor` = VALUES(`themeColor`),
-      `accentColor` = VALUES(`accentColor`),
-      `audioPreset` = VALUES(`audioPreset`),
-      `description` = VALUES(`description`),
-      `lyrics` = VALUES(`lyrics`),
-      `composer` = VALUES(`composer`),
-      `lyricist` = VALUES(`lyricist`),
-      `updatedAt` = VALUES(`updatedAt`)";
-
-    $stmt = $pdo->prepare($sql);
-    $mysqlSaved = $stmt->execute([
-      ':musicId' => $musicId,
-      ':title' => $title,
-      ':name' => $name,
-      ':artist' => $artist,
-      ':album' => $album,
-      ':albumType' => $albumType,
-      ':genre' => $genre,
-      ':bpm' => $bpm,
-      ':price' => $price,
-      ':audioUrl' => $audioUrl,
-      ':cover' => $cover,
-      ':icon' => $icon,
-      ':thumbnail' => $thumbnail,
-      ':duration' => $duration,
-      ':durationFormatted' => $durationFormatted,
-      ':releaseDate' => $releaseDate,
-      ':releaseDateFormatted' => $releaseDateFormatted,
-      ':plays' => $plays,
-      ':rating' => $rating,
-      ':featured' => $featured,
-      ':isTrending' => $isTrending,
-      ':isUnfinished' => $isUnfinished,
-      ':tags' => $tags,
-      ':themeColor' => $themeColor,
-      ':accentColor' => $accentColor,
-      ':audioPreset' => $audioPreset,
-      ':description' => $description,
-      ':lyrics' => $lyrics,
-      ':composer' => $composer,
-      ':lyricist' => $lyricist,
-      ':createdAt' => $now,
-      ':updatedAt' => $now,
-    ]);
+  if (!$pdo) {
+    throw new \RuntimeException('MySQLに接続できませんでした。');
   }
+  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $sql = "INSERT INTO `music_list` (
+    `musicId`, `title`, `name`, `artist`, `album`, `albumType`,
+    `genre`, `bpm`, `price`, `audioUrl`, `cover`, `icon`, `thumbnail`,
+    `duration`, `durationFormatted`, `releaseDate`, `releaseDateFormatted`,
+    `plays`, `rating`, `featured`, `isTrending`, `isUnfinished`, `tags`, `themeColor`, `accentColor`,
+    `audioPreset`, `description`, `lyrics`, `composer`, `lyricist`,
+    `createdAt`, `updatedAt`
+  ) VALUES (
+    :musicId, :title, :name, :artist, :album, :albumType,
+    :genre, :bpm, :price, :audioUrl, :cover, :icon, :thumbnail,
+    :duration, :durationFormatted, :releaseDate, :releaseDateFormatted,
+    :plays, :rating, :featured, :isTrending, :isUnfinished, :tags, :themeColor, :accentColor,
+    :audioPreset, :description, :lyrics, :composer, :lyricist,
+    :createdAt, :updatedAt
+  ) ON DUPLICATE KEY UPDATE
+    `title` = VALUES(`title`),
+    `name` = VALUES(`name`),
+    `artist` = VALUES(`artist`),
+    `album` = VALUES(`album`),
+    `albumType` = VALUES(`albumType`),
+    `genre` = VALUES(`genre`),
+    `bpm` = VALUES(`bpm`),
+    `price` = VALUES(`price`),
+    `audioUrl` = VALUES(`audioUrl`),
+    `cover` = VALUES(`cover`),
+    `icon` = VALUES(`icon`),
+    `thumbnail` = VALUES(`thumbnail`),
+    `duration` = VALUES(`duration`),
+    `durationFormatted` = VALUES(`durationFormatted`),
+    `featured` = VALUES(`featured`),
+    `isTrending` = VALUES(`isTrending`),
+    `isUnfinished` = VALUES(`isUnfinished`),
+    `tags` = VALUES(`tags`),
+    `themeColor` = VALUES(`themeColor`),
+    `accentColor` = VALUES(`accentColor`),
+    `audioPreset` = VALUES(`audioPreset`),
+    `description` = VALUES(`description`),
+    `lyrics` = VALUES(`lyrics`),
+    `composer` = VALUES(`composer`),
+    `lyricist` = VALUES(`lyricist`),
+    `updatedAt` = VALUES(`updatedAt`)";
+
+  $stmt = $pdo->prepare($sql);
+  $mysqlSaved = $stmt->execute([
+    ':musicId' => $musicId,
+    ':title' => $title,
+    ':name' => $name,
+    ':artist' => $artist,
+    ':album' => $album,
+    ':albumType' => $albumType,
+    ':genre' => $genre,
+    ':bpm' => $bpm,
+    ':price' => $price,
+    ':audioUrl' => $audioUrl,
+    ':cover' => $cover,
+    ':icon' => $icon,
+    ':thumbnail' => $thumbnail,
+    ':duration' => $duration,
+    ':durationFormatted' => $durationFormatted,
+    ':releaseDate' => $releaseDate,
+    ':releaseDateFormatted' => $releaseDateFormatted,
+    ':plays' => $plays,
+    ':rating' => $rating,
+    ':featured' => $featured,
+    ':isTrending' => $isTrending,
+    ':isUnfinished' => $isUnfinished,
+    ':tags' => $tags,
+    ':themeColor' => $themeColor,
+    ':accentColor' => $accentColor,
+    ':audioPreset' => $audioPreset,
+    ':description' => $description,
+    ':lyrics' => $lyrics,
+    ':composer' => $composer,
+    ':lyricist' => $lyricist,
+    ':createdAt' => $now,
+    ':updatedAt' => $now,
+  ]);
 } catch (\Throwable $th) {
   $mysqlError = $th->getMessage();
   error_log("MySQL Music Save Error: " . $mysqlError);
 }
 
-// ==================== JSON ファイルへの同期保存 ====================
-$files = [
-  DIR_ROOT . '/app/data/music.json',
-  DIR_ROOT . '/public/data/music.json',
-];
-
-foreach ($files as $filePath) {
-  if (file_exists($filePath)) {
-    $existing = json_decode(file_get_contents($filePath), true) ?: [];
-    $found = false;
-    foreach ($existing as $k => $item) {
-      if ($item['id'] === $data['id']) {
-        $existing[$k] = array_merge($item, $data);
-        $found = true;
-        break;
-      }
-    }
-    if (!$found) {
-      array_unshift($existing, $data);
-    }
-    file_put_contents($filePath, json_encode($existing, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-  }
+if (!$mysqlSaved) {
+  echo json_encode([
+    'status' => 'error',
+    'reason' => '楽曲情報をデータベースに保存できませんでした。' . ($mysqlError ? " ({$mysqlError})" : ''),
+    'mysqlSaved' => false,
+    'mysqlError' => $mysqlError,
+  ], JSON_UNESCAPED_UNICODE);
+  exit;
 }
 
 echo json_encode([
   'status' => 'ok',
-  'message' => '楽曲情報および音声ファイルURLをMySQLに登録・更新しました。',
+  'message' => '楽曲情報をデータベースに登録・更新しました。',
   'mysqlSaved' => $mysqlSaved,
   'mysqlError' => $mysqlError,
   'musicId' => $musicId,

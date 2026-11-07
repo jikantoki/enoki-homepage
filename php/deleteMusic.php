@@ -8,6 +8,17 @@ require_once DIR_ROOT . '/php/functions/database.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
+// ==================== 管理者権限チェック ====================
+// $secretId は authAccountforUse.php で設定される
+if (!isUserAdmin($secretId)) {
+  echo json_encode([
+    'status' => 'forbidden',
+    'reason' => '管理者アカウントのみ実行できます。',
+    'errCode' => 403,
+  ], JSON_UNESCAPED_UNICODE);
+  exit;
+}
+
 $input = file_get_contents('php://input');
 $data = json_decode($input, true) ?: $_POST;
 
@@ -22,38 +33,37 @@ if (empty($musicId)) {
 }
 
 $mysqlDeleted = false;
+$deletedRows = 0;
 $mysqlError = null;
 
 // ==================== MySQL からの削除 ====================
 try {
   $pdo = SQLConnect();
-  if ($pdo) {
-    $stmt = $pdo->prepare("DELETE FROM `music_list` WHERE `musicId` = :musicId");
-    $mysqlDeleted = $stmt->execute([':musicId' => $musicId]);
+  if (!$pdo) {
+    throw new \RuntimeException('MySQLに接続できませんでした。');
   }
+  $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $stmt = $pdo->prepare("DELETE FROM `music_list` WHERE `musicId` = :musicId");
+  $mysqlDeleted = $stmt->execute([':musicId' => $musicId]);
+  $deletedRows = $stmt->rowCount();
 } catch (\Throwable $th) {
   $mysqlError = $th->getMessage();
   error_log("MySQL Music Delete Error: " . $mysqlError);
 }
 
-// ==================== JSON ファイルからの削除 ====================
-$files = [
-  DIR_ROOT . '/app/data/music.json',
-  DIR_ROOT . '/public/data/music.json',
-];
-
-foreach ($files as $filePath) {
-  if (file_exists($filePath)) {
-    $existing = json_decode(file_get_contents($filePath), true) ?: [];
-    $filtered = array_values(array_filter($existing, function ($item) use ($musicId) {
-      return ($item['id'] ?? '') !== $musicId;
-    }));
-    file_put_contents($filePath, json_encode($filtered, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-  }
+if (!$mysqlDeleted) {
+  echo json_encode([
+    'status' => 'error',
+    'reason' => '楽曲をデータベースから削除できませんでした。' . ($mysqlError ? " ({$mysqlError})" : ''),
+    'mysqlDeleted' => false,
+    'mysqlError' => $mysqlError,
+  ], JSON_UNESCAPED_UNICODE);
+  exit;
 }
 
 echo json_encode([
   'status' => 'ok',
+  'deletedRows' => $deletedRows,
   'message' => "楽曲 (ID: {$musicId}) を削除しました。",
   'mysqlDeleted' => $mysqlDeleted,
   'mysqlError' => $mysqlError,

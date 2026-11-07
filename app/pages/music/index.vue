@@ -155,9 +155,8 @@ export default {
   },
   mounted() {
     this.setTitle('音楽')
-    if (!this.musicStore.list || this.musicStore.list.length === 0) {
-      this.musicStore.loadMockData(true)
-    }
+    // データベース (MySQL) から最新の楽曲一覧を読み込み
+    this.musicStore.fetchFromDatabase()
   },
   methods: {
     openTrackDetail(item: MusicItem) {
