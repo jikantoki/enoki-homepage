@@ -143,3 +143,34 @@ export function uploadAudioToPHP(formData: FormData) {
     withAccount: true,
   })
 }
+
+// ==================== 認証・アカウント ====================
+
+/**
+ * 管理者/ユーザーのログアウト処理
+ * - PHP バックエンド (logoutAccount.php) へリクエストして DB 上のアクセストークンを削除
+ * - 完了後に Pinia の myProfile ストアをリセット
+ */
+export async function logoutAccountFromPHP(): Promise<void> {
+  const myProfile = useMyProfileStore()
+  const userId = myProfile.userId
+  const userToken = myProfile.userToken
+
+  if (userId && userToken) {
+    try {
+      await requestContentApi('/logoutAccount.php', {
+        method: 'POST',
+        body: { id: userId, token: userToken },
+        withAccount: true,
+      })
+    } catch (e) {
+      console.warn(
+        'PHP ログアウト API 呼び出し中にエラーが発生しましたが、クライアントセッションをリセットします:',
+        e,
+      )
+    }
+  }
+
+  // クライアント側ストアを初期化
+  myProfile.reset()
+}

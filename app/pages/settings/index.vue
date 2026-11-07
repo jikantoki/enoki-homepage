@@ -142,9 +142,9 @@ v-dialog(
   max-width="400"
   )
   v-card
-    v-card-title(class="headline") 管理者ログアウトしますか？
+    v-card-title(class="headline font-weight-bold") 管理者ログアウトしますか？
     v-card-text
-      | ログアウトすると管理者セッションが解除されます。
+      | ログアウトすると管理者セッションが解除され、ゲスト状態に戻ります。
     v-card-actions
       v-spacer
       v-btn(
@@ -156,6 +156,7 @@ v-dialog(
         text
         style="background: rgba(var(--v-theme-error), 1); color: white;"
         append-icon="mdi-logout"
+        :loading="loggingOut"
         @click="logout"
         ) ログアウト
 </template>
@@ -169,6 +170,7 @@ import {
 } from 'capacitor-native-settings'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
+import { logoutAccountFromPHP } from '@/js/contentApi'
 import Setup from '@/js/setup'
 import mixins from '@/mixins/mixins'
 import { Capacitor } from '@capacitor/core'
@@ -180,6 +182,7 @@ export default {
   data() {
     return {
       logoutDialog: false,
+      loggingOut: false,
       myProfile: useMyProfileStore(),
       settings: useSettingsStore(),
     }
@@ -196,10 +199,19 @@ export default {
     logoutRequest() {
       this.logoutDialog = true
     },
-    logout() {
-      this.logoutDialog = false
-      this.myProfile.reset()
-      this.$router.push('/login')
+    async logout() {
+      this.loggingOut = true
+      try {
+        await logoutAccountFromPHP()
+        Toast.show({ text: '管理者からログアウトしました' })
+      } catch (error) {
+        console.error('Logout error:', error)
+        Toast.show({ text: 'ログアウトしました' })
+      } finally {
+        this.loggingOut = false
+        this.logoutDialog = false
+        this.$router.push('/login')
+      }
     },
     async openNotificationSettings() {
       if (Capacitor.isNativePlatform()) {

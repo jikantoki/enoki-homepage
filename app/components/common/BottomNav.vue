@@ -71,17 +71,23 @@
         )
       v-card-text.dialog-content
         .account-details(
-          style="display: flex; flex-direction: column; align-items: center; gap: 1em; margin-bottom: 1em;"
+          style="display: flex; flex-direction: column; align-items: center; gap: 0.6em; margin-bottom: 1.2em;"
         )
           .account-img
             img(
-              src="/icon.png"
-              style="height: 8em; width: 8em; border-radius: 9999px;"
+              :src="isAdmin && myProfile.icon ? myProfile.icon : '/icon.png'"
+              style="height: 7.5em; width: 7.5em; border-radius: 9999px; object-fit: cover;"
               onerror="this.src='/account_default.jpg'"
             )
           .account-info(style="text-align: center;")
-            p(style="font-size: 1.2em; margin: 0; padding: 0;") エノキ電気
-            p(style="margin: 0; padding: 0;") ENOKI ELECTRONICS
+            p(style="font-size: 1.2em; font-weight: bold; margin: 0; padding: 0;") {{ isAdmin && myProfile.name ? myProfile.name : 'エノキ電気' }}
+            p.text-caption.text-medium-emphasis(style="margin: 0; padding: 0;") {{ isAdmin ? (myProfile.userId ? `@${myProfile.userId}` : '管理者') : 'ENOKI ELECTRONICS' }}
+            v-chip.mt-1(
+              v-if="isAdmin"
+              size="x-small"
+              color="primary"
+              variant="flat"
+            ) 管理者ログイン中
 
         v-list.options-list
           v-list-item.item(@click="optionsDialog = false; $router.push('/')")
@@ -124,6 +130,14 @@
             .icon-and-text
               v-icon(color="primary") mdi-shield-plus-outline
               v-list-item-title.font-weight-bold(style="color: rgb(var(--v-theme-primary));") アプリ・音楽を登録
+          v-list-item.item(
+            v-if="isAdmin"
+            @click="logoutDialog = true"
+            style="background: rgba(var(--v-theme-error), 0.08); border-radius: 8px; margin-top: 4px;"
+          )
+            .icon-and-text
+              v-icon(color="error") mdi-logout
+              v-list-item-title.font-weight-bold(style="color: rgb(var(--v-theme-error));") 管理者ログアウト
           v-list-item.item(@click="optionsDialog = false; $router.push('/settings')")
             .icon-and-text
               v-icon mdi-cog
@@ -132,6 +146,25 @@
             .icon-and-text
               v-icon mdi-share-variant
               v-list-item-title シェア
+
+  //- ================= ログアウト確認ダイアログ =================
+  v-dialog(v-model="logoutDialog" max-width="400")
+    v-card(style="border-radius: 16px;")
+      v-card-title(class="headline font-weight-bold") 管理者ログアウトしますか？
+      v-card-text ログアウトすると管理者セッションが解除され、ゲスト状態に戻ります。
+      v-card-actions
+        v-spacer
+        v-btn(
+          variant="text"
+          @click="logoutDialog = false"
+        ) キャンセル
+        v-btn(
+          variant="flat"
+          color="error"
+          append-icon="mdi-logout"
+          :loading="loggingOut"
+          @click="logout"
+        ) ログアウト
 </template>
 
 <script lang="ts">
@@ -142,6 +175,7 @@ import { useAppStore } from '@/stores/app'
 import { useMusicStore } from '@/stores/music'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useNavigationStore } from '@/stores/navigation'
+import { logoutAccountFromPHP } from '@/js/contentApi'
 
 export default {
   name: 'BottomNav',
@@ -160,6 +194,8 @@ export default {
       musicStore: useMusicStore(),
       myProfile: useMyProfileStore(),
       navStore: useNavigationStore(),
+      logoutDialog: false,
+      loggingOut: false,
     }
   },
   watch: {
@@ -227,6 +263,23 @@ export default {
         if (navigator.clipboard) {
           await navigator.clipboard.writeText('https://enoki.xyz')
           await Toast.show({ text: 'URLをコピーしました' })
+        }
+      }
+    },
+    async logout() {
+      this.loggingOut = true
+      try {
+        await logoutAccountFromPHP()
+        Toast.show({ text: '管理者からログアウトしました' })
+      } catch (error) {
+        console.error('Logout error:', error)
+        Toast.show({ text: 'ログアウトしました' })
+      } finally {
+        this.loggingOut = false
+        this.logoutDialog = false
+        this.optionsDialog = false
+        if (this.currentPath.startsWith('/admin')) {
+          this.$router.push('/')
         }
       }
     },
