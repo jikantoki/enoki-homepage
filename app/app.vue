@@ -406,4 +406,13 @@ $breakpoints: (
 html {
   overflow: auto;
 }
+
+.wrapper {
+  .toast {
+    z-index: 99999;
+  }
+}
+pwa-toast {
+  z-index: 99999;
+}
 </style>
