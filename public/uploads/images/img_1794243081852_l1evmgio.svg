@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <defs>
+    <linearGradient id="thumb_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#0284C7"/>
+    </linearGradient>
+    <linearGradient id="thumb_overlay" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.85"/>
+      <stop offset="55%" stop-color="#000000" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" rx="16" fill="url(#thumb_bg)"/>
+  <circle cx="540" cy="90" r="130" fill="#ffffff" opacity="0.08"/>
+  <circle cx="100" cy="70" r="110" fill="#ffffff" opacity="0.05"/>
+  <circle cx="580" cy="270" r="160" fill="#000000" opacity="0.15"/>
+  <rect width="640" height="360" rx="16" fill="url(#thumb_overlay)"/>
+  <rect x="36" y="32" width="100" height="24" rx="12" fill="#2DD4BF" opacity="0.9"/>
+  <text x="86" y="48" font-family="system-ui, sans-serif" font-weight="700" font-size="11" fill="#000000" text-anchor="middle">便利ツール</text>
+  <text x="36" y="270" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="28" fill="#ffffff">ENOKIOSK</text>
+  <text x="36" y="305" font-family="system-ui, -apple-system, sans-serif" font-weight="500" font-size="15" fill="#e0e0e0">公式ハイライト • ENOKI APPS</text>
+</svg>

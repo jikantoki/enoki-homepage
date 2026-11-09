@@ -143,9 +143,10 @@ v-dialog(
                   .d-flex.align-center.justify-space-between.mb-2
                     span.font-weight-medium アプリアイコン (正方形)
                     v-chip(v-if="appData.icon" size="x-small" color="success") 設定済み
+                    v-chip(v-else-if="previewIconSrc" size="x-small" color="primary" variant="outlined") アプリ名から自動生成
                   .d-flex.align-center.gap-3
                     .preview-box.square
-                      img(v-if="appData.icon" :src="appData.icon" alt="icon")
+                      img(v-if="previewIconSrc" :src="previewIconSrc" alt="icon")
                       v-icon(v-else size="32" color="grey") mdi-image-outline
                     .flex-grow-1
                       v-file-input(
@@ -172,9 +173,10 @@ v-dialog(
                   .d-flex.align-center.justify-space-between.mb-2
                     span.font-weight-medium サムネイル (16:9)
                     v-chip(v-if="appData.thumbnail" size="x-small" color="success") 設定済み
+                    v-chip(v-else-if="previewThumbnailSrc" size="x-small" color="primary" variant="outlined") アプリ名から自動生成
                   .d-flex.align-center.gap-3
                     .preview-box.landscape
-                      img(v-if="appData.thumbnail" :src="appData.thumbnail" alt="thumbnail")
+                      img(v-if="previewThumbnailSrc" :src="previewThumbnailSrc" alt="thumbnail")
                       v-icon(v-else size="32" color="grey") mdi-image-outline
                     .flex-grow-1
                       v-file-input(
@@ -760,6 +762,22 @@ export default defineComponent({
     isEditMode(): boolean {
       return Boolean(this.editItem)
     },
+    previewIconSrc(): string {
+      if (this.appData.icon) return this.appData.icon
+      if (this.appData.name) {
+        const svg = this.generateAppIconSvg(this.appData.name)
+        return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+      }
+      return ''
+    },
+    previewThumbnailSrc(): string {
+      if (this.appData.thumbnail) return this.appData.thumbnail
+      if (this.appData.name) {
+        const svg = this.generateAppThumbnailSvg(this.appData.name, this.appData.category)
+        return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`
+      }
+      return ''
+    },
   },
   mounted() {
     if (this.editItem) {
@@ -1187,6 +1205,97 @@ export default defineComponent({
       }
     },
 
+    generateAppIconSvg(name: string): string {
+      const safeName = (name || 'App').trim()
+      const char = Array.from(safeName)[0] || 'A'
+      const palettes = [
+        { c1: '#4F46E5', c2: '#06B6D4', accent: '#38BDF8' },
+        { c1: '#7C3AED', c2: '#DB2777', accent: '#F472B6' },
+        { c1: '#059669', c2: '#10B981', accent: '#34D399' },
+        { c1: '#D97706', c2: '#EA580C', accent: '#FBBF24' },
+        { c1: '#2563EB', c2: '#4F46E5', accent: '#60A5FA' },
+        { c1: '#DC2626', c2: '#E11D48', accent: '#FB7185' },
+        { c1: '#0D9488', c2: '#0284C7', accent: '#2DD4BF' },
+      ]
+      let hash = 0
+      for (let i = 0; i < safeName.length; i++) {
+        hash = (hash << 5) - hash + safeName.charCodeAt(i)
+        hash |= 0
+      }
+      const p = palettes[Math.abs(hash) % palettes.length]
+      const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="icon_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${p.c1}"/>
+      <stop offset="100%" stop-color="${p.c2}"/>
+    </linearGradient>
+    <filter id="icon_shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#icon_bg)"/>
+  <circle cx="128" cy="128" r="90" fill="none" stroke="${p.accent}" stroke-width="3" opacity="0.25"/>
+  <text x="128" y="162" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="96" fill="#ffffff" filter="url(#icon_shadow)">${escape(char)}</text>
+</svg>`
+    },
+
+    generateAppThumbnailSvg(name: string, category: string = 'アプリ'): string {
+      const safeName = (name || 'App').trim()
+      const safeCat = (category || 'アプリ').trim()
+      const palettes = [
+        { c1: '#4F46E5', c2: '#06B6D4', accent: '#38BDF8' },
+        { c1: '#7C3AED', c2: '#DB2777', accent: '#F472B6' },
+        { c1: '#059669', c2: '#10B981', accent: '#34D399' },
+        { c1: '#D97706', c2: '#EA580C', accent: '#FBBF24' },
+        { c1: '#2563EB', c2: '#4F46E5', accent: '#60A5FA' },
+        { c1: '#DC2626', c2: '#E11D48', accent: '#FB7185' },
+        { c1: '#0D9488', c2: '#0284C7', accent: '#2DD4BF' },
+      ]
+      let hash = 0
+      for (let i = 0; i < safeName.length; i++) {
+        hash = (hash << 5) - hash + safeName.charCodeAt(i)
+        hash |= 0
+      }
+      const p = palettes[Math.abs(hash) % palettes.length]
+      const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
+  <defs>
+    <linearGradient id="thumb_bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${p.c1}"/>
+      <stop offset="100%" stop-color="${p.c2}"/>
+    </linearGradient>
+    <linearGradient id="thumb_overlay" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.85"/>
+      <stop offset="55%" stop-color="#000000" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" rx="16" fill="url(#thumb_bg)"/>
+  <circle cx="540" cy="90" r="130" fill="#ffffff" opacity="0.08"/>
+  <circle cx="100" cy="70" r="110" fill="#ffffff" opacity="0.05"/>
+  <circle cx="580" cy="270" r="160" fill="#000000" opacity="0.15"/>
+  <rect width="640" height="360" rx="16" fill="url(#thumb_overlay)"/>
+  <rect x="36" y="32" width="100" height="24" rx="12" fill="${p.accent}" opacity="0.9"/>
+  <text x="86" y="48" font-family="system-ui, sans-serif" font-weight="700" font-size="11" fill="#000000" text-anchor="middle">${escape(safeCat)}</text>
+  <text x="36" y="270" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="28" fill="#ffffff">${escape(safeName)}</text>
+  <text x="36" y="305" font-family="system-ui, -apple-system, sans-serif" font-weight="500" font-size="15" fill="#e0e0e0">公式ハイライト • ENOKI APPS</text>
+</svg>`
+    },
+
+    async uploadSvgString(svg: string, filename: string): Promise<string | null> {
+      try {
+        const blob = new Blob([svg], { type: 'image/svg+xml' })
+        const file = new File([blob], filename, { type: 'image/svg+xml' })
+        return await this.uploadSingleFile(file)
+      } catch (err) {
+        console.warn('SVG upload error:', err)
+        return null
+      }
+    },
+
     // ==================== アプリ登録送信 ====================
     async submitApp() {
       if (!this.appData.name || !this.appData.id) {
@@ -1220,12 +1329,18 @@ export default defineComponent({
         })
       }
 
-      // デフォルト画像の用意 (実体ファイルへのURL)
-      const fallbackIcon =
-        this.appData.icon || '/uploads/images/apps/default_app_icon.svg'
+      // 画像がアップロードされていない場合、アプリ名から生成してサーバーへ保存
+      let finalIcon = this.appData.icon
+      if (!finalIcon) {
+        const svg = this.generateAppIconSvg(this.appData.name)
+        finalIcon = (await this.uploadSvgString(svg, `icon_${Date.now()}.svg`)) || ''
+      }
 
-      const fallbackThumbnail =
-        this.appData.thumbnail || '/uploads/images/apps/default_app_thumb.svg'
+      let finalThumbnail = this.appData.thumbnail
+      if (!finalThumbnail) {
+        const svg = this.generateAppThumbnailSvg(this.appData.name, this.appData.category)
+        finalThumbnail = (await this.uploadSvgString(svg, `thumb_${Date.now()}.svg`)) || ''
+      }
 
       const isEdit = this.isEditMode
       const existing = isEdit ? this.editItem : null
@@ -1235,14 +1350,14 @@ export default defineComponent({
           ? this.appData.images
           : existing?.images && existing.images.length > 0
             ? existing.images
-            : [fallbackThumbnail]
+            : (finalThumbnail ? [finalThumbnail] : [])
 
       const newApp: AppInfo = {
         name: this.appData.name,
         id: this.appData.id,
         releaseDate: existing?.releaseDate || Date.now(),
-        icon: fallbackIcon,
-        thumbnail: fallbackThumbnail,
+        icon: finalIcon,
+        thumbnail: finalThumbnail,
         description: this.appData.description || `${this.appData.name} の紹介`,
         price: Number(this.appData.price) || 0,
         platforms: [...this.appData.platforms],

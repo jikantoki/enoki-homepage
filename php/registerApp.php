@@ -39,14 +39,42 @@ $type = !empty($data['type']) ? $data['type'] : 'app';
 $category = !empty($data['category']) ? $data['category'] : '便利ツール';
 $price = isset($data['price']) ? intval($data['price']) : 0;
 
-// 画像データ（Base64 / SVG Data URI）をファイルとして保存し、URL形式に変換
-$rawIcon = !empty($data['icon']) ? $data['icon'] : '';
-$rawThumbnail = !empty($data['thumbnail']) ? $data['thumbnail'] : '';
-$rawImages = isset($data['images']) ? $data['images'] : [];
+// ==================== アイコン画像の設定 ====================
+$rawIcon = !empty($data['icon']) ? trim($data['icon']) : '';
+if ($rawIcon === '') {
+  // 画像が未アップロードの場合はアプリ名からアイコンSVGを生成・保存
+  $iconSvg = generateAppIconSvgPHP($name);
+  $icon = saveSvgContentToFile($iconSvg, "icon_{$safeId}") ?: '';
+} else {
+  // Data URI で送られてきた場合はファイル保存して URL に置換
+  $icon = saveImageUriToFile($rawIcon, "icon_{$safeId}");
+}
 
-$icon = saveImageUriToFile($rawIcon, 'apps', "{$safeId}_icon");
-$thumbnail = saveImageUriToFile($rawThumbnail, 'apps', "{$safeId}_thumb");
-$processedImages = processAppImagesList($rawImages, $safeId);
+// ==================== サムネイル画像の設定 ====================
+$rawThumbnail = !empty($data['thumbnail']) ? trim($data['thumbnail']) : '';
+if ($rawThumbnail === '') {
+  // 画像が未アップロードの場合はアプリ名からサムネイルSVGを生成・保存
+  $thumbSvg = generateAppThumbnailSvgPHP($name, $category);
+  $thumbnail = saveSvgContentToFile($thumbSvg, "thumb_{$safeId}") ?: '';
+} else {
+  // Data URI で送られてきた場合はファイル保存して URL に置換
+  $thumbnail = saveImageUriToFile($rawThumbnail, "thumb_{$safeId}");
+}
+
+// ==================== スクリーンショット画像一覧 ====================
+$rawImages = isset($data['images']) ? $data['images'] : [];
+$imagesList = is_string($rawImages) ? (json_decode($rawImages, true) ?: []) : (array)$rawImages;
+$processedImages = [];
+if (!empty($imagesList)) {
+  $idx = 1;
+  foreach ($imagesList as $img) {
+    if (!empty($img) && is_string($img)) {
+      $processedImages[] = saveImageUriToFile($img, "screen_{$safeId}_{$idx}");
+      $idx++;
+    }
+  }
+}
+$images = json_encode(!empty($processedImages) ? $processedImages : ($thumbnail ? [$thumbnail] : []), JSON_UNESCAPED_UNICODE);
 
 $description = !empty($data['description']) ? $data['description'] : '';
 $summary = !empty($data['summary']) ? $data['summary'] : '';
@@ -55,7 +83,6 @@ $languages = isset($data['languages']) ? (is_array($data['languages']) ? json_en
 $links = isset($data['links']) ? (is_array($data['links']) ? json_encode($data['links'], JSON_UNESCAPED_UNICODE) : $data['links']) : '[]';
 $githubUrl = !empty($data['githubUrl']) ? $data['githubUrl'] : null;
 $videoUrl = !empty($data['videoUrl']) ? $data['videoUrl'] : null;
-$images = json_encode($processedImages, JSON_UNESCAPED_UNICODE);
 $rating = isset($data['rating']) ? floatval($data['rating']) : 5.0;
 $downloads = !empty($data['downloads']) ? $data['downloads'] : 'NEW';
 $developer = !empty($data['developer']) ? $data['developer'] : 'エノキ電気';
@@ -150,7 +177,7 @@ $responseData = array_merge($data, [
   'id' => $appId,
   'icon' => $icon,
   'thumbnail' => $thumbnail,
-  'images' => $processedImages,
+  'images' => !empty($processedImages) ? $processedImages : ($thumbnail ? [$thumbnail] : []),
 ]);
 
 echo json_encode([
