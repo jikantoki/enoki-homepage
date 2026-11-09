@@ -298,7 +298,10 @@ export default {
       }
     },
   },
-  mounted() {
+  async mounted() {
+    if (!this.appStore.list || this.appStore.list.length === 0) {
+      await this.appStore.loadFromCache()
+    }
     // データベース (MySQL) から最新のアプリ情報を読み込み
     this.appStore.fetchFromDatabase()
     if (this.app) {

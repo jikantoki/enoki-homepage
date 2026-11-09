@@ -3,6 +3,14 @@ v-card.playstore-root(
   style="width: 100%; height: 100%;"
   :class="settings.hidden.isAndroid15OrHigher ? 'top-android-15-or-higher' : ''"
 )
+  //- バックグラウンド再検証プログレスバー
+  v-progress-linear(
+    v-if="appStore.dbLoading && !isInitialLoading"
+    indeterminate
+    color="primary"
+    height="2"
+    style="position: absolute; top: 0; left: 0; right: 0; z-index: 99;"
+  )
   //- ================= トップ検索バーヘッダー =================
   .store-top-bar
     .search-pill
@@ -30,10 +38,10 @@ v-card.playstore-root(
         )
 
   //- ================= ヒーロー自己紹介エリア =================
-  HeroProfile
+  HeroProfile(v-if="!isInitialLoading")
 
   //- ================= サブナビバー（おすすめ / カテゴリ / プラットフォーム） =================
-  .store-sub-nav(v-if="!searchQuery")
+  .store-sub-nav(v-if="!searchQuery && !isInitialLoading")
     v-tabs(
       v-model="activeTab"
       color="primary"
@@ -48,8 +56,20 @@ v-card.playstore-root(
   //- ================= メインスクロールエリア =================
   .store-scroll-content(ref="scrollContainer")
 
+    //- ---------------- 0. 初回データ取得中画面 ----------------
+    .store-initial-loading(v-if="isInitialLoading")
+      v-progress-circular(
+        indeterminate
+        color="primary"
+        size="56"
+        width="4"
+      )
+      .loading-text-wrap
+        .loading-title ソフトウェア一覧を取得中...
+        .loading-subtitle 最新のアプリ・ゲーム・ツール情報を読み込んでいます
+
     //- ---------------- 1. 検索結果表示モード ----------------
-    .search-results-view(v-if="searchQuery")
+    .search-results-view(v-else-if="searchQuery")
       .search-header
         .search-title 「{{ searchQuery }}」の検索結果 ({{ searchResults.length }}件)
         .filter-chips
@@ -278,7 +298,9 @@ export default {
   },
   mixins: [mixins],
   data() {
+    const appStore = useAppStore()
     return {
+      isInitialLoading: !appStore.list || appStore.list.length === 0,
       navStore: useNavigationStore(),
       adminRegisterModalOpen: false,
       myProfile: useMyProfileStore(),
@@ -454,11 +476,36 @@ export default {
   async mounted() {
     this.setTitle('ソフトウェア')
 
-    // キャッシュ済みの一覧を即表示 → データベース (MySQL) の最新一覧で置き換え
-    this.initRandomPickups()
-    this.appStore.fetchFromDatabase().then(() => {
+    // 1. IndexedDB からキャッシュ済みデータを読み込み
+    let hasCache = Boolean(this.appStore.list && this.appStore.list.length > 0)
+    if (!hasCache) {
+      const cached = await this.appStore.loadFromCache()
+      if (cached && cached.length > 0) {
+        hasCache = true
+      }
+    }
+
+    if (hasCache) {
+      // 【二回目以降（キャッシュあり）】
+      // 一旦 IndexedDB の中身を表示
+      this.isInitialLoading = false
       this.initRandomPickups()
-    })
+
+      // バックグラウンドで最新データを取得し、完了したら新しいデータに置き換える
+      this.appStore.fetchFromDatabase().then(() => {
+        this.initRandomPickups()
+      })
+    } else {
+      // 【初回読み込み時（キャッシュなし）】
+      // アプリ一覧の取得が完了するまで取得中の画面を表示
+      this.isInitialLoading = true
+      try {
+        await this.appStore.fetchFromDatabase()
+        this.initRandomPickups()
+      } finally {
+        this.isInitialLoading = false
+      }
+    }
 
     /** バックボタンのリスナーを追加 */
     App.addListener('backButton', () => {
@@ -500,6 +547,34 @@ export default {
 
 <style lang="scss" scoped>
 .playstore-root {
+  .store-initial-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    height: 60vh;
+    gap: 20px;
+    text-align: center;
+    padding: 32px 16px;
+
+    .loading-text-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .loading-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: rgb(var(--v-theme-on-surface));
+    }
+
+    .loading-subtitle {
+      font-size: 0.88rem;
+      color: rgba(var(--v-theme-on-surface), 0.6);
+    }
+  }
   display: flex;
   flex-direction: column;
   overflow: hidden;

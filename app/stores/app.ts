@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import mockAppsData from '../data/apps.json'
 import { fetchAppList } from '@/js/contentApi'
+import { idbGet, idbSet, IDB_KEY_APPS } from '@/js/indexedDb'
 
 /**
  * サポートされているプラットフォーム種別
@@ -270,7 +271,8 @@ export const useAppStore = defineStore('app', {
      * アプリと楽曲が混在するリスト
      * 初期値として100個のモックデータを取り込み
      */
-    list: [...(mockAppsData as AppOrMusicItem[])] as AppOrMusicItem[],
+    list: [] as AppOrMusicItem[],
+    cacheLoaded: false,
     /** データベース (MySQL) から読み込み中か */
     dbLoading: false,
     /** データベースから一度でも読み込めたか */
@@ -332,12 +334,32 @@ export const useAppStore = defineStore('app', {
      * 失敗した場合は現在のリストを維持（空ならモックデータを表示）
      * @returns 読み込みに成功したら true
      */
+    /**
+     * IndexedDB からキャッシュ済みアプリ一覧を読み込む
+     */
+    async loadFromCache(): Promise<AppOrMusicItem[] | null> {
+      try {
+        const cached = await idbGet<AppOrMusicItem[]>(IDB_KEY_APPS)
+        if (Array.isArray(cached) && cached.length > 0) {
+          if (!this.dbLoaded || this.list.length === 0) {
+            this.list = cached
+          }
+          this.cacheLoaded = true
+          return cached
+        }
+      } catch (err) {
+        console.warn('IndexedDB からのアプリ読み込みに失敗:', err)
+      }
+      return null
+    },
+
     async fetchFromDatabase(): Promise<boolean> {
       this.dbLoading = true
       try {
         const list = await fetchAppList<AppOrMusicItem>()
         this.list = list
         this.dbLoaded = true
+        await idbSet(IDB_KEY_APPS, list)
         this.dbError = null
         return true
       } catch (err: any) {
@@ -384,6 +406,7 @@ export const useAppStore = defineStore('app', {
       } else {
         this.list.unshift(item)
       }
+      idbSet(IDB_KEY_APPS, this.list)
     },
     /**
      * 新しいアプリまたはアイテムを先頭に登録
@@ -408,6 +431,7 @@ export const useAppStore = defineStore('app', {
       if (index !== -1) {
         this.list.splice(index, 1)
       }
+      idbSet(IDB_KEY_APPS, this.list)
     },
     /**
      * リストをクリア
@@ -421,7 +445,8 @@ export const useAppStore = defineStore('app', {
      */
     setList(newList: AppOrMusicItem[]) {
       this.list = newList
+      idbSet(IDB_KEY_APPS, this.list)
     },
   },
-  persist: true,
+  persist: false,
 })

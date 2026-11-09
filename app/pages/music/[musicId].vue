@@ -401,7 +401,10 @@ export default {
       this.musicStore.fetchFromDatabase()
     }
   },
-  mounted() {
+  async mounted() {
+    if (!this.musicStore.list || this.musicStore.list.length === 0) {
+      await this.musicStore.loadFromCache()
+    }
     if (this.track) {
       this.setTitle(this.track.title)
       // もし現在再生中の曲と異なり、まだ何も再生していない場合は自動でこの曲をセット（再生はユーザー操作）

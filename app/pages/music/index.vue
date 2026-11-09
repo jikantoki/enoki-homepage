@@ -3,6 +3,14 @@ v-card.music-page-root(
   style="width: 100%; height: 100%;"
   :class="settings.hidden.isAndroid15OrHigher ? 'top-android-15-or-higher' : ''"
 )
+  //- バックグラウンド再検証プログレスバー
+  v-progress-linear(
+    v-if="musicStore.dbLoading && !isInitialLoading"
+    indeterminate
+    color="primary"
+    height="2"
+    style="position: absolute; top: 0; left: 0; right: 0; z-index: 99;"
+  )
   //- ================= トップ検索バーヘッダー =================
   .store-top-bar
     .search-pill
@@ -29,13 +37,25 @@ v-card.music-page-root(
         )
 
   //- ================= ヒーロー自己紹介エリア =================
-  HeroProfile
+  HeroProfile(v-if="!isInitialLoading")
 
   //- ================= メインスクロールエリア =================
   .store-scroll-content(ref="scrollContainer")
 
-    //- 検索結果表示モード
-    .search-results-view(v-if="searchQuery")
+    //- ---------------- 0. 初回データ取得中画面 ----------------
+    .music-initial-loading(v-if="isInitialLoading")
+      v-progress-circular(
+        indeterminate
+        color="primary"
+        size="56"
+        width="4"
+      )
+      .loading-text-wrap
+        .loading-title 楽曲一覧を取得中...
+        .loading-subtitle 最新の音楽・ボカロ楽曲を読み込んでいます
+
+    //- ---------------- 1. 検索結果表示モード ----------------
+    .search-results-view(v-else-if="searchQuery")
       .search-header
         .search-title 「{{ searchQuery }}」の楽曲検索結果 ({{ musicSearchResults.length }}件)
       .results-list(v-if="musicSearchResults.length > 0")
@@ -116,7 +136,9 @@ export default {
   },
   mixins: [mixins],
   data() {
+    const musicStore = useMusicStore()
     return {
+      isInitialLoading: !musicStore.list || musicStore.list.length === 0,
       searchQuery: '',
       navStore: useNavigationStore(),
       adminRegisterModalOpen: false,
@@ -153,10 +175,35 @@ export default {
       })
     },
   },
-  mounted() {
+  async mounted() {
     this.setTitle('音楽')
-    // データベース (MySQL) から最新の楽曲一覧を読み込み
-    this.musicStore.fetchFromDatabase()
+
+    // 1. IndexedDB からキャッシュ済みデータを読み込み
+    let hasCache = Boolean(this.musicStore.list && this.musicStore.list.length > 0)
+    if (!hasCache) {
+      const cached = await this.musicStore.loadFromCache()
+      if (cached && cached.length > 0) {
+        hasCache = true
+      }
+    }
+
+    if (hasCache) {
+      // 【二回目以降（キャッシュあり）】
+      // 一旦 IndexedDB の中身を表示
+      this.isInitialLoading = false
+
+      // バックグラウンドで最新データを取得し、完了したら新しいデータに置き換える
+      this.musicStore.fetchFromDatabase()
+    } else {
+      // 【初回読み込み時（キャッシュなし）】
+      // 楽曲一覧の取得が完了するまで取得中の画面を表示
+      this.isInitialLoading = true
+      try {
+        await this.musicStore.fetchFromDatabase()
+      } finally {
+        this.isInitialLoading = false
+      }
+    }
   },
   methods: {
     openTrackDetail(item: MusicItem) {
@@ -168,6 +215,34 @@ export default {
 
 <style lang="scss" scoped>
 .music-page-root {
+  .music-initial-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    height: 60vh;
+    gap: 20px;
+    text-align: center;
+    padding: 32px 16px;
+
+    .loading-text-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .loading-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: rgb(var(--v-theme-on-surface));
+    }
+
+    .loading-subtitle {
+      font-size: 0.88rem;
+      color: rgba(var(--v-theme-on-surface), 0.6);
+    }
+  }
   display: flex;
   flex-direction: column;
   overflow: hidden;

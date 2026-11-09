@@ -218,6 +218,16 @@ export default {
       return this.musicStore.aiTracks
     },
   },
+  watch: {
+    allTracks: {
+      immediate: true,
+      handler(newList) {
+        if (newList && newList.length > 0 && this.randomPickups.length === 0) {
+          this.initRandomPickups()
+        }
+      },
+    },
+  },
   mounted() {
     this.initRandomPickups()
   },

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import mockMusicData from '../data/music.json'
 import { fetchMusicList } from '@/js/contentApi'
+import { idbGet, idbSet, IDB_KEY_MUSIC } from '@/js/indexedDb'
 
 /**
  * 音楽ジャンル定数（「歌モノ」「インスト」「AI楽曲」の3つ）
@@ -233,7 +234,8 @@ function startSynth(presetName: string, bpm: number) {
 
 export const useMusicStore = defineStore('music', {
   state: () => ({
-    list: [...(mockMusicData as MusicItem[])] as MusicItem[],
+    list: [] as MusicItem[],
+    cacheLoaded: false,
     /** データベース (MySQL) から読み込み中か */
     dbLoading: false,
     /** データベースから一度でも読み込めたか */
@@ -289,6 +291,25 @@ export const useMusicStore = defineStore('music', {
      * 失敗した場合は現在のリストを維持（空ならモックデータを表示）
      * @returns 読み込みに成功したら true
      */
+    /**
+     * IndexedDB からキャッシュ済み楽曲一覧を読み込む
+     */
+    async loadFromCache(): Promise<MusicItem[] | null> {
+      try {
+        const cached = await idbGet<MusicItem[]>(IDB_KEY_MUSIC)
+        if (Array.isArray(cached) && cached.length > 0) {
+          if (!this.dbLoaded || this.list.length === 0) {
+            this.list = cached
+          }
+          this.cacheLoaded = true
+          return cached
+        }
+      } catch (err) {
+        console.warn('IndexedDB からの音楽読み込みに失敗:', err)
+      }
+      return null
+    },
+
     async fetchFromDatabase(): Promise<boolean> {
       this.dbLoading = true
       try {
@@ -301,6 +322,7 @@ export const useMusicStore = defineStore('music', {
         }
         this.queue = this.queue.filter(q => list.some(t => t.id === q.id))
         this.dbLoaded = true
+        await idbSet(IDB_KEY_MUSIC, list)
         this.dbError = null
         return true
       } catch (err: any) {
@@ -341,6 +363,7 @@ export const useMusicStore = defineStore('music', {
       } else {
         this.list.unshift(track)
       }
+      idbSet(IDB_KEY_MUSIC, this.list)
     },
 
     /**
@@ -365,6 +388,7 @@ export const useMusicStore = defineStore('music', {
       if (idx !== -1) {
         this.list.splice(idx, 1)
       }
+      idbSet(IDB_KEY_MUSIC, this.list)
       this.queue = this.queue.filter(t => t.id !== id)
     },
 
@@ -613,5 +637,7 @@ export const useMusicStore = defineStore('music', {
     },
   },
 
-  persist: true,
+  persist: {
+    paths: ['likedSongIds', 'volume', 'isMuted', 'shuffle', 'repeat'],
+  },
 })

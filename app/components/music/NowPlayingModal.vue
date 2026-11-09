@@ -1,8 +1,8 @@
 <template lang="pug">
-v-dialog(
+v-dialog.dialog(
   v-model="isOpen"
   transition="dialog-bottom-transition"
-  fullscreen
+  :fullscreen="isMobile"
 )
   .now-playing-container(
     v-if="track"
@@ -287,6 +287,10 @@ export default {
       }
       return -1
     },
+    isMobile(): boolean {
+      // 画面幅が600px未満（スマホ縦画面など）の場合は全画面ダイアログ
+      return Boolean(this.$vuetify?.display?.xs)
+    },
   },
   watch: {
     'musicStore.currentTime'(val: number) {
@@ -328,15 +332,34 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.dialog {
+  backdrop-filter: blur(4px);
+  :deep(.v-overlay__content) {
+    width: fit-content;
+    @media (max-width: 600px) {
+      width: 100%;
+    }
+  }
+}
 .now-playing-container {
   position: relative;
-  width: 100%;
-  height: 100dvh;
   color: #ffffff;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  backdrop-filter: blur(4px);
+  border-radius: 24px;
+  width: 500px;
+  max-width: 95vw;
+  height: 80dvh;
+  max-height: 90dvh;
+
+  @media (max-width: 600px) {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0px;
+    max-width: 100dvw;
+    max-height: 100dvh;
+  }
 
   .backdrop-gradient {
     position: absolute;
