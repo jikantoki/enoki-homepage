@@ -196,7 +196,6 @@ export default {
         rgba(2, 6, 23, 0.84) 100%
       );
       backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
     }
   }
 
@@ -302,7 +301,6 @@ export default {
           background: rgba(255, 255, 255, 0.16);
           color: #e2e8f0;
           backdrop-filter: blur(4px);
-          -webkit-backdrop-filter: blur(4px);
         }
       }
 
@@ -370,7 +368,6 @@ export default {
         );
         border: 1px solid rgba(56, 189, 248, 0.45);
         backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
         color: #ffffff;
         font-size: 12px;
         font-weight: 700;

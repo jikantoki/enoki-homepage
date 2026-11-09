@@ -195,7 +195,6 @@ export default {
         .exclusive-tag {
           background: rgba(255, 255, 255, 0.2);
           backdrop-filter: blur(4px);
-          -webkit-backdrop-filter: blur(4px);
           font-size: 11px;
           padding: 3px 8px;
           border-radius: 9999px;
