@@ -218,7 +218,11 @@ v-dialog(
 </template>
 
 <script lang="ts">
-import { useMusicStore, isTrackUnfinished, type MusicItem } from '@/stores/music'
+import {
+  useMusicStore,
+  isTrackUnfinished,
+  type MusicItem,
+} from '@/stores/music'
 
 export default {
   name: 'NowPlayingModal',
@@ -263,7 +267,7 @@ export default {
     },
     parsedLyrics(): Array<{ time: number; text: string }> {
       if (!this.track || !this.track.lyrics) return []
-      return this.track.lyrics.split('\n').map(line => {
+      return this.track.lyrics.split('\n').map((line) => {
         const match = line.match(/^\[(\d{2}):(\d{2}\.\d{2})\](.*)$/)
         if (match) {
           const mins = parseInt(match[1], 10)
@@ -327,13 +331,12 @@ export default {
 .now-playing-container {
   position: relative;
   width: 100%;
-  height: 100%;
   height: 100dvh;
-  background-color: #0b0b12;
   color: #ffffff;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  backdrop-filter: blur(6px);
 
   .backdrop-gradient {
     position: absolute;
@@ -343,7 +346,7 @@ export default {
     height: 140%;
     background: radial-gradient(
       circle at 50% 30%,
-      var(--track-theme, #4F46E5) 0%,
+      var(--track-theme, #4f46e5) 0%,
       rgba(15, 15, 26, 0.95) 60%,
       #09090f 100%
     );
@@ -576,8 +579,16 @@ export default {
           }
 
           .info-titles {
-            h3 { font-size: 18px; font-weight: 800; margin: 0; }
-            p { font-size: 13px; color: rgba(255, 255, 255, 0.7); margin: 2px 0 6px 0; }
+            h3 {
+              font-size: 18px;
+              font-weight: 800;
+              margin: 0;
+            }
+            p {
+              font-size: 13px;
+              color: rgba(255, 255, 255, 0.7);
+              margin: 2px 0 6px 0;
+            }
             .info-genre-chip {
               font-size: 11px;
               background: rgb(var(--v-theme-primary));
@@ -599,14 +610,28 @@ export default {
             justify-content: space-between;
             font-size: 13px;
 
-            .label { color: rgba(255, 255, 255, 0.6); }
-            .value { font-weight: 600; color: #ffffff; }
+            .label {
+              color: rgba(255, 255, 255, 0.6);
+            }
+            .value {
+              font-weight: 600;
+              color: #ffffff;
+            }
           }
         }
 
         .description-box {
-          h4 { font-size: 14px; font-weight: 700; margin: 0 0 6px 0; }
-          p { font-size: 13px; color: rgba(255, 255, 255, 0.8); line-height: 1.6; margin: 0; }
+          h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin: 0 0 6px 0;
+          }
+          p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin: 0;
+          }
         }
       }
     }

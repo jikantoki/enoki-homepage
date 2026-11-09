@@ -216,8 +216,8 @@ export default {
     isAdmin(): boolean {
       return Boolean(
         this.myProfile.isAdmin ||
-        this.myProfile.role === 'admin' ||
-        (!this.myProfile.guest && this.myProfile.canRegisterApp)
+          this.myProfile.role === 'admin' ||
+          (!this.myProfile.guest && this.myProfile.canRegisterApp),
       )
     },
     isMobile(): boolean {
@@ -303,9 +303,10 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgb(var(--v-theme-surface));
+  background-color: rgba(var(--v-theme-surface), 0.4);
   border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   z-index: 40;
+  backdrop-filter: blur(6px);
 
   .nav-buttons {
     display: flex;
@@ -357,7 +358,8 @@ export default {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  background-color: rgb(var(--v-theme-surface));
+  background-color: rgba(var(--v-theme-surface), 0.4);
+  backdrop-filter: blur(8px);
 
   &.is-pc {
     border-radius: 24px !important;
@@ -365,6 +367,7 @@ export default {
     max-height: 85dvh;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25) !important;
     border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+    backdrop-filter: blur(6px);
 
     .dialog-header {
       padding: 16px 16px 8px 24px;
