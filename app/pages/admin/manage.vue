@@ -113,7 +113,7 @@ v-card.admin-manage-page(
               .d-flex.align-center.gap-2.flex-wrap
                 .font-weight-bold.text-body-1.text-truncate {{ app.name }}
                 v-chip(size="x-small" variant="flat" color="primary") {{ app.type === 'game' ? 'ゲーム' : 'アプリ' }}
-                v-chip(size="x-small" variant="tonal") {{ app.category || 'ツール' }}
+                v-chip(size="x-small" variant="tonal") {{ app.category || '便利ツール' }}
                 v-chip(v-if="app.featured" size="x-small" color="primary" variant="flat")
                   v-icon(size="10" start) mdi-star
                   | 注目

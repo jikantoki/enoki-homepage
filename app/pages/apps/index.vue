@@ -381,46 +381,58 @@ export default {
       icon: string
       color: string
     }> {
-      const iconMap: Record<string, { icon: string; color: string }> = {
-        RPG: { icon: 'mdi-sword-cross', color: '#6366f1' },
-        アクション: { icon: 'mdi-lightning-bolt', color: '#ef4444' },
-        パズル: { icon: 'mdi-puzzle', color: '#f59e0b' },
-        シミュレーション: { icon: 'mdi-city', color: '#10b981' },
-        音楽ゲーム: { icon: 'mdi-music', color: '#ec4899' },
-        レース: { icon: 'mdi-car-sports', color: '#3b82f6' },
-        ストラテジー: { icon: 'mdi-shield-crown', color: '#8b5cf6' },
-        ツール: { icon: 'mdi-tools', color: '#06b6d4' },
-        仕事効率化: { icon: 'mdi-check-decagram', color: '#10b981' },
-        写真: { icon: 'mdi-camera', color: '#f97316' },
-        ファイナンス: { icon: 'mdi-wallet', color: '#14b8a6' },
-        教育: { icon: 'mdi-school', color: '#8b5cf6' },
-        '健康＆フィットネス': { icon: 'mdi-heart-pulse', color: '#ef4444' },
-        '音楽＆オーディオ': { icon: 'mdi-headphones', color: '#a855f7' },
-        天気: { icon: 'mdi-weather-partly-cloudy', color: '#0284c7' },
-        ライフスタイル: { icon: 'mdi-coffee', color: '#d97706' },
-        'マンガ＆書籍': {
-          icon: 'mdi-book-open-page-variant',
-          color: '#e11d48',
-        },
-        ビジネス: { icon: 'mdi-briefcase', color: '#475569' },
+      const predefinedCategories: Array<{ name: string; icon: string; color: string }> = [
+        { name: 'ゲーム', icon: 'mdi-gamepad-variant', color: '#6366f1' },
+        { name: 'メディア', icon: 'mdi-play-circle-outline', color: '#ec4899' },
+        { name: 'ポータルサイト', icon: 'mdi-compass-outline', color: '#3b82f6' },
+        { name: '便利ツール', icon: 'mdi-tools', color: '#06b6d4' },
+        { name: 'ソーシャル', icon: 'mdi-account-group', color: '#10b981' },
+        { name: 'Mod・拡張機能', icon: 'mdi-puzzle-outline', color: '#f59e0b' },
+        { name: '開発', icon: 'mdi-code-tags', color: '#8b5cf6' },
+        { name: 'その他', icon: 'mdi-dots-horizontal-circle-outline', color: '#64748b' },
+      ]
+
+      const iconMap: Record<string, { icon: string; color: string }> = {}
+      for (const cat of predefinedCategories) {
+        iconMap[cat.name] = { icon: cat.icon, color: cat.color }
       }
 
-      const map = new Map<string, number>()
+      const countMap = new Map<string, number>()
       this.allApps.forEach((item) => {
         if (item.category) {
-          map.set(item.category, (map.get(item.category) || 0) + 1)
+          countMap.set(item.category, (countMap.get(item.category) || 0) + 1)
         }
       })
 
-      return Array.from(map.entries()).map(([name, count]) => {
-        const meta = iconMap[name] || { icon: 'mdi-shape', color: '#64748b' }
-        return {
-          name,
+      // 新カテゴリの定義順を維持してリストを作成
+      const result: Array<{ name: string; count: number; icon: string; color: string }> = []
+      const processed = new Set<string>()
+
+      for (const cat of predefinedCategories) {
+        const count = countMap.get(cat.name) || 0
+        result.push({
+          name: cat.name,
           count,
-          icon: meta.icon,
-          color: meta.color,
+          icon: cat.icon,
+          color: cat.color,
+        })
+        processed.add(cat.name)
+      }
+
+      // 未定義のカテゴリがもしあれば末尾に追加
+      countMap.forEach((count, name) => {
+        if (!processed.has(name)) {
+          const meta = iconMap[name] || { icon: 'mdi-shape', color: '#64748b' }
+          result.push({
+            name,
+            count,
+            icon: meta.icon,
+            color: meta.color,
+          })
         }
       })
+
+      return result
     },
   },
   watch: {

@@ -257,7 +257,7 @@ CREATE TABLE `app_list` (
   `appId` varchar(64) NOT NULL COMMENT 'アプリの一意な識別ID (URLスラッグ)',
   `name` varchar(255) NOT NULL COMMENT 'アプリ名',
   `type` varchar(32) NOT NULL DEFAULT 'app' COMMENT '種別 (app / game)',
-  `category` varchar(64) DEFAULT NULL COMMENT 'カテゴリ・ジャンル',
+  `category` varchar(64) DEFAULT NULL COMMENT 'カテゴリ (ゲーム/メディア/ポータルサイト/便利ツール/ソーシャル/Mod・拡張機能/開発/その他)',
   `price` int(11) NOT NULL DEFAULT 0 COMMENT '価格 (0は無料)',
   `icon` mediumtext DEFAULT NULL COMMENT 'アプリアイコンURLまたはBase64',
   `thumbnail` mediumtext DEFAULT NULL COMMENT 'サムネイル画像URLまたはBase64',
@@ -421,6 +421,20 @@ ALTER TABLE `music_list`
 -- CREATE OR REPLACE VIEW `USER_PROFILE_VIEW` AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `createdAt`, `user_list`.`status` AS `status`, `user_list`.`role` AS `role`, `user_profile_list`.`icon` AS `icon`, `user_profile_list`.`coverImg` AS `coverImg`, `user_profile_list`.`name` AS `name`, `user_profile_list`.`message` AS `message` FROM (`user_list` join `user_profile_list`) WHERE (`user_list`.`secretId` = `user_profile_list`.`secretId`);
 -- CREATE OR REPLACE VIEW `USER_TOKEN_VIEW` AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `userCreatedAt`, `user_list`.`status` AS `status`, `user_list`.`role` AS `role`, `user_accesstoken_list`.`token` AS `token`, `user_accesstoken_list`.`createdAt` AS `tokenCreatedAt` FROM (`user_list` join `user_accesstoken_list`) WHERE (`user_list`.`secretId` = `user_accesstoken_list`.`secretId`);
 -- CREATE OR REPLACE VIEW `USER_MAIL_VIEW` AS SELECT `user_list`.`secretId` AS `secretId`, `user_list`.`userId` AS `userId`, `user_list`.`createdAt` AS `createdAt`, `user_list`.`status` AS `status`, `user_list`.`role` AS `role`, `user_mail_list`.`mailAddress` AS `mailAddress`, `user_mail_list`.`status` AS `mailStatus`, `user_mail_list`.`token` AS `mailToken` FROM (`user_mail_list` join `user_list`) WHERE (`user_mail_list`.`secretId` = `user_list`.`secretId`);
+
+-- --------------------------------------------------------
+--
+-- アプリ新カテゴリ対応マイグレーション (migration_app_categories.sql 参照)
+--
+-- --------------------------------------------------------
+-- UPDATE `app_list` SET `category` = 'ゲーム' WHERE `category` IN ('RPG', 'アクション', 'パズル', 'シミュレーション', '音楽ゲーム', 'レース', 'ストラテジー', 'アドベンチャー', 'カジュアル', 'テーブル', 'エンタメ') OR `type` = 'game';
+-- UPDATE `app_list` SET `category` = 'メディア' WHERE `category` IN ('写真', '動画再生＆編集', '音楽＆オーディオ', 'マンガ＆書籍', '音楽');
+-- UPDATE `app_list` SET `category` = 'ポータルサイト' WHERE `category` IN ('ポータルサイト', 'ポータル', '天気');
+-- UPDATE `app_list` SET `category` = '便利ツール' WHERE `category` IN ('ツール', 'ユーティリティ', '仕事効率化', 'ファイナンス', 'ビジネス', '生産性');
+-- UPDATE `app_list` SET `category` = 'ソーシャル' WHERE `category` IN ('ソーシャル', '通信');
+-- UPDATE `app_list` SET `category` = '開発' WHERE `category` IN ('教育', 'プログラミング', '開発');
+-- UPDATE `app_list` SET `category` = 'Mod・拡張機能' WHERE `category` IN ('Mod', '拡張機能', 'Mod・拡張機能');
+-- UPDATE `app_list` SET `category` = 'その他' WHERE `category` IN ('ライフスタイル', '健康＆フィットネス', 'アート＆デザイン') OR `category` IS NULL OR `category` NOT IN ('ゲーム', 'メディア', 'ポータルサイト', '便利ツール', 'ソーシャル', 'Mod・拡張機能', '開発', 'その他');
 
 COMMIT;
 

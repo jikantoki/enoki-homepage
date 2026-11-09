@@ -18,6 +18,22 @@ export const SUPPORTED_PLATFORMS = [
 export type SupportedPlatform = (typeof SUPPORTED_PLATFORMS)[number]
 
 /**
+ * サポートされているアプリカテゴリ種別
+ */
+export const APP_CATEGORIES = [
+  'ゲーム',
+  'メディア',
+  'ポータルサイト',
+  '便利ツール',
+  'ソーシャル',
+  'Mod・拡張機能',
+  '開発',
+  'その他',
+] as const
+
+export type AppCategory = (typeof APP_CATEGORIES)[number]
+
+/**
  * プラットフォーム一致判定ヘルパー関数
  * 表記ゆれ（大文字小文字、win/windows, mac/macos/osx, etc.）を柔軟に正規化して判定
  */

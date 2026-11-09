@@ -603,7 +603,7 @@ export default defineComponent({
         type: 'app' as 'app' | 'game',
         name: '',
         id: '',
-        category: 'ツール',
+        category: '便利ツール',
         price: 0,
         summary: '',
         icon: '',
@@ -631,16 +631,14 @@ export default defineComponent({
       ],
       availableLanguages: ['日本語', 'English', '中文', '한국어', 'Magyar'],
       suggestedAppCategories: [
-        'ツール',
-        'ユーティリティ',
-        'RPG',
-        'アクション',
-        'パズル',
-        'シミュレーション',
-        '音楽',
-        '生産性',
-        'エンタメ',
+        'ゲーム',
+        'メディア',
+        'ポータルサイト',
+        '便利ツール',
         'ソーシャル',
+        'Mod・拡張機能',
+        '開発',
+        'その他',
       ],
 
       // 音楽フォームデータ
@@ -776,7 +774,7 @@ export default defineComponent({
         this.appData.type = item.type === 'game' ? 'game' : 'app'
         this.appData.name = item.name || ''
         this.appData.id = item.id || ''
-        this.appData.category = item.category || 'ツール'
+        this.appData.category = item.category || '便利ツール'
         this.appData.price = item.price ?? 0
         this.appData.summary = item.summary || ''
         this.appData.icon = item.icon || ''
