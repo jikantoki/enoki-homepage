@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs'
 import path from 'path'
 import { defineEventHandler, createError, readMultipartFormData } from 'h3'
+import { parseServerAudioMetadata } from '../utils/audioMetadata'
 
 // 許可する音声拡張子とMIMEタイプ
 const ALLOWED_EXTENSIONS = ['.mp3', '.wav', '.m4a', '.ogg', '.flac', '.aac', '.webm']
@@ -86,6 +87,44 @@ export default defineEventHandler(async (event) => {
     // 公開URLパス
     const publicUrl = `/uploads/audio/${finalFilename}`
 
+    // ID3タグ・メタデータの自動解析およびジャケット画像の保存
+    let metadata: {
+      title?: string
+      artist?: string
+      album?: string
+      genre?: string
+      year?: string
+      coverUrl?: string
+    } | undefined = undefined
+
+    try {
+      const parsed = parseServerAudioMetadata(audioPart.data)
+      let coverUrl: string | undefined = undefined
+
+      if (parsed.cover && parsed.cover.data && parsed.cover.data.length > 0) {
+        const imgExt = parsed.cover.format === 'png' ? '.png' : parsed.cover.format === 'webp' ? '.webp' : '.jpg'
+        const coverFilename = `img_${timestamp}_${randomHex}_cover${imgExt}`
+        const imgDir = path.resolve(process.cwd(), 'public/uploads/images')
+        await fs.mkdir(imgDir, { recursive: true })
+        const coverPath = path.join(imgDir, coverFilename)
+        await fs.writeFile(coverPath, parsed.cover.data)
+        coverUrl = `/uploads/images/${coverFilename}`
+      }
+
+      if (parsed.title || parsed.artist || parsed.album || parsed.genre || coverUrl) {
+        metadata = {
+          title: parsed.title,
+          artist: parsed.artist,
+          album: parsed.album,
+          genre: parsed.genre,
+          year: parsed.year,
+          coverUrl,
+        }
+      }
+    } catch (metaErr) {
+      console.warn('Server audio metadata parsing error (skipped):', metaErr)
+    }
+
     return {
       status: 'ok',
       url: publicUrl,
@@ -93,6 +132,7 @@ export default defineEventHandler(async (event) => {
       originalName: audioPart.filename,
       size: audioPart.data.length,
       mimeType: audioPart.type || 'audio/mpeg',
+      metadata,
     }
   } catch (error: any) {
     console.error('Audio upload error:', error)

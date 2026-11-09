@@ -5,6 +5,7 @@ require_once DIR_ROOT . '/php/myAutoLoad.php';
 require_once DIR_ROOT . '/php/functions/authAPIforUse.php';
 require_once DIR_ROOT . '/php/functions/authAccountforUse.php';
 require_once DIR_ROOT . '/php/functions/database.php';
+require_once DIR_ROOT . '/php/functions/imageStorage.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
@@ -42,8 +43,11 @@ $bpm = isset($data['bpm']) ? intval($data['bpm']) : 120;
 $price = isset($data['price']) ? intval($data['price']) : 0;
 $audioUrl = !empty($data['audioUrl']) ? $data['audioUrl'] : null;
 $cover = !empty($data['cover']) ? $data['cover'] : '';
+$cover = saveImageUriToFile($cover, 'cover_' . $musicId);
 $icon = !empty($data['icon']) ? $data['icon'] : $cover;
+$icon = saveImageUriToFile($icon, 'cover_' . $musicId);
 $thumbnail = !empty($data['thumbnail']) ? $data['thumbnail'] : $cover;
+$thumbnail = saveImageUriToFile($thumbnail, 'cover_' . $musicId);
 $duration = isset($data['duration']) ? intval($data['duration']) : 180;
 $durationFormatted = !empty($data['durationFormatted']) ? $data['durationFormatted'] : '3:00';
 $releaseDate = isset($data['releaseDate']) ? $data['releaseDate'] : ($now * 1000);

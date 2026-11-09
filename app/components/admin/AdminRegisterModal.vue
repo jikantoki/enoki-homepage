@@ -351,6 +351,9 @@ v-dialog(
                 .flex-grow-1
                   .font-weight-bold(style="font-size: 1.05em") 音声ファイルをアップロード
                   .text-caption.text-grey mp3, wav, m4a, ogg, flac, aac 等（最大100MB）
+                  .text-caption.text-primary.mt-1(v-if="extractingAudioTags")
+                    v-icon(size="14" class="mr-1") mdi-loading mdi-spin
+                    | MP3タグ（タイトル・アーティスト・アルバム・ジャケット）を自動入力中...
 
               //- ファイル選択 input
               .mt-3
@@ -504,7 +507,8 @@ v-dialog(
             v-card.pa-3.mb-3(variant="outlined" rounded="lg")
               .d-flex.align-center.gap-3
                 .preview-box.square
-                  img(v-if="musicData.cover" :src="musicData.cover" alt="cover")
+                  v-progress-circular(v-if="uploadingCover" indeterminate size="24" color="primary")
+                  img(v-else-if="musicData.cover" :src="musicData.cover" alt="cover")
                   v-icon(v-else size="32" color="grey") mdi-album
                 .flex-grow-1
                   v-file-input(
@@ -514,6 +518,7 @@ v-dialog(
                     density="compact"
                     prepend-icon=""
                     prepend-inner-icon="mdi-upload"
+                    :loading="uploadingCover"
                     hide-details
                     @change="handleImageUpload($event, 'music_cover')"
                   )
@@ -608,6 +613,7 @@ import { useAppStore, type AppInfo } from '@/stores/app'
 import { useMusicStore, type MusicItem } from '@/stores/music'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { saveAppToDB, saveMusicToDB, uploadAudioToPHP, uploadImageToPHP } from '@/js/contentApi'
+import { parseAudioMetadata, coverToFile, coverToObjectUrl } from '@/js/audioMetadata'
 
 export default defineComponent({
   name: 'AdminRegisterModal',
@@ -702,6 +708,8 @@ export default defineComponent({
       },
       uploadedAudioName: '',
       uploadingAudio: false,
+      extractingAudioTags: false,
+      uploadingCover: false,
 
       // 試聴用プレイヤー
       previewAudioObj: null as HTMLAudioElement | null,
@@ -964,13 +972,92 @@ export default defineComponent({
         console.warn('Audio metadata inspection failed:', e)
       }
 
-      // 2. サーバー側へアップロード
+      // 2. 音声タグ（ID3タグ: タイトル、アーティスト、アルバム、ジャケット）の自動解析と入力
+      const autoFillPromise = (async () => {
+        try {
+          this.extractingAudioTags = true
+          const tag = await parseAudioMetadata(file)
+          const autoFilled: string[] = []
+
+          // タイトル
+          if (tag.title) {
+            this.musicData.title = tag.title
+            autoFilled.push('タイトル')
+            this.autoGenerateMusicId()
+          } else if (!this.musicData.title) {
+            // タグにタイトルがない場合はファイル名から推測
+            const base = file.name.replace(/\.[^/.]+$/, '').replace(/^[\d\s\-_.]+/, '').trim()
+            if (base) {
+              this.musicData.title = base
+              this.autoGenerateMusicId()
+            }
+          }
+
+          // アーティスト
+          if (tag.artist) {
+            this.musicData.artist = tag.artist
+            autoFilled.push('アーティスト')
+            if (!this.musicData.composer) this.musicData.composer = tag.artist
+            if (!this.musicData.lyricist) this.musicData.lyricist = tag.artist
+          }
+
+          // アルバム
+          if (tag.album) {
+            this.musicData.album = tag.album
+            autoFilled.push('アルバム')
+          }
+
+          // ジャンル
+          if (tag.genre && !this.musicData.genre) {
+            this.musicData.genre = tag.genre
+          }
+
+          // カバー・ジャケット画像
+          if (tag.cover) {
+            autoFilled.push('ジャケット')
+            // (1) 即座にプレビュー表示 (Object URL)
+            const previewUrl = coverToObjectUrl(tag.cover)
+            this.musicData.cover = previewUrl
+
+            // (2) 画像ファイルとしてサーバーへ保存
+            this.uploadingCover = true
+            try {
+              const coverFile = coverToFile(
+                tag.cover,
+                this.musicData.id || tag.title || 'music_cover',
+              )
+              const savedUrl = await this.uploadSingleFile(coverFile)
+              if (savedUrl) {
+                this.musicData.cover = savedUrl
+              }
+            } catch (covErr) {
+              console.warn('Cover upload error:', covErr)
+            } finally {
+              this.uploadingCover = false
+            }
+          }
+
+          if (autoFilled.length > 0) {
+            this.showToast(
+              `タグから「${autoFilled.join('・')}」を自動入力しました！`,
+              'info',
+            )
+          }
+        } catch (tagErr) {
+          console.warn('Audio tag extraction failed:', tagErr)
+        } finally {
+          this.extractingAudioTags = false
+        }
+      })()
+
+      // 3. サーバー側へ音声ファイルをアップロード
       const formData = new FormData()
       formData.append('audio', file)
 
       try {
         let uploadSuccess = false
         let resultUrl = ''
+        let serverMetadata: any = null
 
         let phpError = ''
 
@@ -979,6 +1066,7 @@ export default defineComponent({
           const data = await uploadAudioToPHP(formData)
           if (data.url) {
             resultUrl = data.url
+            serverMetadata = (data as any)?.metadata
             uploadSuccess = true
           }
         } catch (phpErr: any) {
@@ -998,6 +1086,7 @@ export default defineComponent({
               const data = await res.json()
               if (data.status === 'ok' && data.url) {
                 resultUrl = data.url
+                serverMetadata = data.metadata
                 uploadSuccess = true
                 this.showToast(
                   `APIサーバーへのアップロードに失敗したため、ローカルに保存しました（本番では再生できません）: ${phpError}`,
@@ -1005,11 +1094,37 @@ export default defineComponent({
                 )
                 this.musicData.audioUrl = resultUrl
                 this.initPreviewAudio(resultUrl)
-                return
               }
             }
           } catch (nitroErr) {
             console.warn('Nitro upload failed:', nitroErr)
+          }
+        }
+
+        // クライアント側のタグ解析・ジャケット保存完了を待機
+        await autoFillPromise
+
+        // サーバー側からメタデータが返ってきており、クライアント側で空または補完可能な場合は反映
+        if (serverMetadata) {
+          if (!this.musicData.title && serverMetadata.title) {
+            this.musicData.title = serverMetadata.title
+            this.autoGenerateMusicId()
+          }
+          if (!this.musicData.artist && serverMetadata.artist) {
+            this.musicData.artist = serverMetadata.artist
+          }
+          if (!this.musicData.album && serverMetadata.album) {
+            this.musicData.album = serverMetadata.album
+          }
+          if (!this.musicData.genre && serverMetadata.genre) {
+            this.musicData.genre = serverMetadata.genre
+          }
+          // ジャケット画像が未設定またはBlob URLのままなら、サーバー保存済みの画像URLを採用
+          if (
+            serverMetadata.coverUrl &&
+            (!this.musicData.cover || this.musicData.cover.startsWith('blob:'))
+          ) {
+            this.musicData.cover = serverMetadata.coverUrl
           }
         }
 
@@ -1020,7 +1135,7 @@ export default defineComponent({
             'success',
           )
           this.initPreviewAudio(resultUrl)
-        } else {
+        } else if (!this.musicData.audioUrl) {
           // フォールバック: Blob / Object URL でローカル保持
           const localUrl = URL.createObjectURL(file)
           this.musicData.audioUrl = localUrl

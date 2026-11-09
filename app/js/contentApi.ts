@@ -137,7 +137,17 @@ export function deleteMusicFromDB(id: string) {
 
 /** 音声ファイルを PHP サーバーへアップロード */
 export function uploadAudioToPHP(formData: FormData) {
-  return requestContentApi<{ url: string }>('/uploadAudio.php', {
+  return requestContentApi<{
+    url: string
+    filename?: string
+    metadata?: {
+      title?: string
+      artist?: string
+      album?: string
+      genre?: string
+      coverUrl?: string
+    }
+  }>('/uploadAudio.php', {
     method: 'POST',
     body: formData,
     withAccount: true,

@@ -4,6 +4,7 @@ require_once './settings.php'; // ルートディレクトリ読み込み
 require_once DIR_ROOT . '/php/myAutoLoad.php'; // 自動読み込み
 require_once DIR_ROOT . '/php/functions/authAPIforUse.php'; // API有効判定
 require_once DIR_ROOT . '/php/functions/authAccountforUse.php'; // ログイン認証判定
+require_once DIR_ROOT . '/php/functions/id3Parser.php'; // ID3タグ解析・ジャケット保存
 
 header('Content-Type: application/json; charset=UTF-8');
 
@@ -24,7 +25,6 @@ if (!is_dir($upload_dir)) {
 // 許可する拡張子
 $allowed_exts = ['mp3', 'wav', 'm4a', 'ogg', 'flac', 'aac', 'webm'];
 // リバースプロキシ / トンネル経由でも https を正しく判定する
-// （http:// のURLを返すと https のサイトからは混在コンテンツとしてブロックされ再生できない）
 $is_https = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
   || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower(explode(',', $_SERVER['HTTP_X_FORWARDED_PROTO'])[0]) === 'https')
   || (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && strtolower($_SERVER['HTTP_X_FORWARDED_SSL']) === 'on')
@@ -32,6 +32,7 @@ $is_https = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off
   || (isset($_SERVER['SERVER_PORT']) && intval($_SERVER['SERVER_PORT']) === 443);
 $script_dir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
 $base_url = ($is_https ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $script_dir . '/' . $upload_rel_dir;
+$origin_url = ($is_https ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
 
 // 1. 通常の multipart/form-data によるファイルアップロードの場合
 if (isset($_FILES['audio']) || isset($_FILES['file'])) {
@@ -65,12 +66,29 @@ if (isset($_FILES['audio']) || isset($_FILES['file'])) {
   $dest_path = $upload_dir . $file_name;
 
   if (move_uploaded_file($file['tmp_name'], $dest_path)) {
+    // ID3タグ解析とジャケット保存
+    $metadata = null;
+    if ($ext === 'mp3') {
+      try {
+        $parsed = extractMp3MetadataAndCover($dest_path);
+        if (!empty($parsed)) {
+          if (!empty($parsed['coverUrl']) && !str_starts_with($parsed['coverUrl'], 'http')) {
+            $parsed['coverUrl'] = $origin_url . $parsed['coverUrl'];
+          }
+          $metadata = $parsed;
+        }
+      } catch (\Throwable $th) {
+        error_log('ID3 extraction error: ' . $th->getMessage());
+      }
+    }
+
     echo json_encode([
       'status' => 'ok',
       'url' => $base_url . $file_name,
       'filename' => $file_name,
       'originalName' => $orig_name,
       'size' => $file['size'],
+      'metadata' => $metadata,
     ], JSON_UNESCAPED_UNICODE);
     exit;
   } else {
@@ -114,11 +132,28 @@ if (isset($body_data['audioBase64'])) {
   $dest_path = $upload_dir . $file_name;
 
   if (file_put_contents($dest_path, $decoded) !== false) {
+    // ID3タグ解析とジャケット保存
+    $metadata = null;
+    if ($ext === 'mp3') {
+      try {
+        $parsed = extractMp3MetadataAndCover($dest_path);
+        if (!empty($parsed)) {
+          if (!empty($parsed['coverUrl']) && !str_starts_with($parsed['coverUrl'], 'http')) {
+            $parsed['coverUrl'] = $origin_url . $parsed['coverUrl'];
+          }
+          $metadata = $parsed;
+        }
+      } catch (\Throwable $th) {
+        error_log('ID3 extraction error: ' . $th->getMessage());
+      }
+    }
+
     echo json_encode([
       'status' => 'ok',
       'url' => $base_url . $file_name,
       'filename' => $file_name,
       'size' => strlen($decoded),
+      'metadata' => $metadata,
     ], JSON_UNESCAPED_UNICODE);
     exit;
   }
