@@ -58,17 +58,15 @@ v-card.home-page-root(
           )
             span.mx-2 音楽を聴く
 
-          v-btn.hero-btn.btn-youtube(
+          v-btn.hero-btn.btn-download(
             size="large"
             rounded="pill"
-            prepend-icon="mdi-youtube"
-            color="red-darken-2"
+            prepend-icon="mdi-download-box-outline"
+            color="indigo"
             elevation="4"
-            @click="openURL('https://www.youtube.com/@jikantoki')"
-            target="_blank"
-            rel="noopener noreferrer"
+            @click="$router.push('/download')"
           )
-            span.mx-2 YouTube
+            span.mx-2 ダウンロード
 
           v-btn.hero-btn.btn-profile(
             size="large"
@@ -78,15 +76,6 @@ v-card.home-page-root(
             @click="$router.push('/profile')"
           )
             span.mx-2 プロフィール・実績
-
-          v-btn.hero-btn.btn-profile(
-            size="large"
-            rounded="pill"
-            prepend-icon="mdi-download-box-outline"
-            variant="outlined"
-            @click="$router.push('/download')"
-          )
-            span.mx-2 ダウンロード
 
           v-btn.hero-btn.btn-profile(
             size="large"
@@ -576,10 +565,10 @@ export default {
         box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4) !important;
       }
 
-      &.btn-youtube {
-        background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+      &.btn-download {
+        background: linear-gradient(135deg, #26b2dc, #5ab8cf) !important;
         color: #ffffff !important;
-        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4) !important;
+        box-shadow: 0 8px 24px rgba(38, 169, 220, 0.4) !important;
       }
 
       &.btn-profile {
