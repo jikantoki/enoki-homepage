@@ -110,7 +110,19 @@ export default defineNuxtConfig({
           rel: 'stylesheet',
           href: 'https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap',
         },
+        {
+          rel: 'alternate',
+          type: 'application/rss+xml',
+          title: 'エノキ電気 公式ホームページ RSSフィード',
+          href: '/rssfeed.xml',
+        },
       ],
+    },
+  },
+
+  nitro: {
+    prerender: {
+      routes: ['/sitemap.xml', '/rssfeed.xml', '/feed.xml'],
     },
   },
 

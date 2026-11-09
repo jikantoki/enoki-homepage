@@ -67,6 +67,10 @@
   - ダークテーマ / ライトテーマ / システム連動の動的切り替え
   - **Android 15+ のエッジ・トゥ・エッジ (Edge-to-Edge) 対応**: ステータスバーやノッチ切り欠きに応じたパディング制御
 - 🌐 **多言語対応 (i18n)**: `@nuxtjs/i18n` による日本語・英語のローカライズ対応
+- 🔍 **SEO & クロール・購読最適化**:
+  - `robots.txt` による検索エンジンクローラーの全ページ巡回許可およびサイトマップ指定
+  - 動的 XML サイトマップ（`/sitemap.xml`）による全静的ページ・多言語 alternate link・動的コンテンツ（アプリ/音楽）のリアルタイム自動集約
+  - 動的 RSS 2.0 フィード（`/rssfeed.xml`, `/feed.xml`）によるアプリ・音楽・ダウンロード最新情報の自動配信
 - 📚 **コンテンツ管理**: `@nuxt/content` (v3) による Markdown ページのコレクション管理
 - 🛠️ **管理者向けコンテンツ管理 (CMS)**:
   - 管理者ログイン時（`/login`）のアプリ登録・音楽登録・編集・削除機能（FAB・設定・メニュー連動）
@@ -278,15 +282,24 @@ enoki-homepage/
 │   ├── manifest.json                   # PWA Web App Manifest
 │   ├── sw.js                           # PWA / WebPush 用 Service Worker
 │   ├── favicon.ico                     # ファビコン
-│   └── icon.png                        # メインアプリアイコン
+│   ├── icon.png                        # メインアプリアイコン
+│   └── robots.txt                      # クローラー許可・サイトマップ参照設定
 ├── server/                             # Nitro サーバーエンドポイント
-│   └── api/
-│       ├── upload-audio.post.ts        # 音声ファイル (mp3/wav) アップロード API
-│       ├── upload-image.post.ts        # 画像ファイル アップロード API
-│       ├── register-app.post.ts        # アプリ登録 API (ローカル JSON 反映)
-│       ├── register-music.post.ts      # 音楽登録 API (ローカル JSON 反映)
-│       ├── delete-app.post.ts          # アプリ削除 API (ローカル JSON 反映)
-│       └── delete-music.post.ts        # 音楽削除 API (ローカル JSON 反映)
+│   ├── api/
+│   │   ├── upload-audio.post.ts        # 音声ファイル (mp3/wav) アップロード API
+│   │   ├── upload-image.post.ts        # 画像ファイル アップロード API
+│   │   ├── register-app.post.ts        # アプリ登録 API (ローカル JSON 反映)
+│   │   ├── register-music.post.ts      # 音楽登録 API (ローカル JSON 反映)
+│   │   ├── delete-app.post.ts          # アプリ削除 API (ローカル JSON 反映)
+│   │   └── delete-music.post.ts        # 音楽削除 API (ローカル JSON 反映)
+│   ├── routes/
+│   │   ├── sitemap.xml.ts              # 動的サイトマップ XML 生成エンドポイント
+│   │   ├── rssfeed.xml.ts              # 動的 RSS 2.0 フィード生成エンドポイント
+│   │   ├── feed.xml.ts                 # RSS フィード エイリアス
+│   │   └── rss.xml.ts                  # RSS フィード エイリアス
+│   └── utils/
+│       ├── audioMetadata.ts            # 音声メタデータ抽出ユーティリティ
+│       └── siteData.ts                 # サイトコンテンツ・日付・XML生成ユーティリティ
 ├── capacitor.config.ts                 # Capacitor 8 設定ファイル
 ├── content.config.ts                   # @nuxt/content (v3) コレクション定義
 ├── eslint.config.mjs                   # ESLint Flat Config 設定

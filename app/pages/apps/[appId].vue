@@ -59,9 +59,6 @@ v-card.app-detail-page-root(
         .header-main
           .icon-box
             img.app-icon(:src="app.icon" :alt="app.name" onerror="this.src='/icon.png'")
-            .wip-corner-badge(v-if="isUnfinished")
-              v-icon(size="11") mdi-progress-wrench
-              span 未完成
           .meta-box
             h1.app-name {{ app.name }}
             p.app-dev {{ app.developer || 'エノキ電気' }}
@@ -285,10 +282,10 @@ export default {
     const appId = (route.params.appId as string) || ''
     const item = appStore.list.find((i) => i.id === appId)
     if (item) {
-      Setup.setTitle(`${item.name} - ソフトウェア詳細`)
+      Setup.setTitle(`${item.name}`)
       Setup.setDescription(item.summary || item.description || '')
     } else {
-      Setup.setTitle('ソフトウェア詳細 - エノキ電気')
+      Setup.setTitle('ソフトウェア詳細')
     }
   },
   watch: {
@@ -470,6 +467,8 @@ export default {
         font-size: 14.5px;
         letter-spacing: 0.3px;
         height: 48px;
+        background-color: rgba(var(--v-theme-primary), 0.6);
+        color: white;
       }
     }
   }
