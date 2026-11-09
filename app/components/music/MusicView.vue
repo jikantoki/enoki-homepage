@@ -158,7 +158,11 @@ export default {
   data() {
     return {
       selectedGenre: 'all',
-      randomPickups: [] as MusicItem[],
+      displayFeaturedTracks: [] as MusicItem[],
+      displayRecommendedTracks: [] as MusicItem[],
+      displayRandomPickups: [] as MusicItem[],
+      displayVocalTracks: [] as MusicItem[],
+      displayAiTracks: [] as MusicItem[],
       genreTiles: [
         {
           name: '歌モノ',
@@ -202,38 +206,74 @@ export default {
       return this.musicStore.byGenre(this.selectedGenre)
     },
     featuredTracks(): MusicItem[] {
+      if (this.displayFeaturedTracks.length > 0) return this.displayFeaturedTracks
       return this.musicStore.featuredTracks.slice(0, 5)
     },
     recommendedTracks(): MusicItem[] {
-      return this.musicStore.recommendedTracks
+      if (this.displayRecommendedTracks.length > 0) return this.displayRecommendedTracks
+      return this.musicStore.recommendedTracks.slice(0, 25)
     },
     randomPickupTracks(): MusicItem[] {
-      if (this.randomPickups.length > 0) return this.randomPickups
-      return this.musicStore.getRandomPickups(10)
+      if (this.displayRandomPickups.length > 0) return this.displayRandomPickups
+      return this.musicStore.getRandomPickups(25)
     },
     vocalTracks(): MusicItem[] {
-      return this.musicStore.vocalTracks
+      if (this.displayVocalTracks.length > 0) return this.displayVocalTracks
+      return this.musicStore.vocalTracks.slice(0, 25)
     },
     aiTracks(): MusicItem[] {
-      return this.musicStore.aiTracks
+      if (this.displayAiTracks.length > 0) return this.displayAiTracks
+      return this.musicStore.aiTracks.slice(0, 25)
     },
   },
   watch: {
     allTracks: {
       immediate: true,
       handler(newList) {
-        if (newList && newList.length > 0 && this.randomPickups.length === 0) {
-          this.initRandomPickups()
+        if (newList && newList.length > 0 && this.displayRecommendedTracks.length === 0) {
+          this.initRandomSections()
         }
       },
     },
   },
   mounted() {
-    this.initRandomPickups()
+    this.initRandomSections()
   },
   methods: {
-    initRandomPickups() {
-      this.randomPickups = this.musicStore.getRandomPickups(10)
+    shuffle<T>(array: T[]): T[] {
+      const result = [...array]
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]]
+      }
+      return result
+    },
+    initRandomSections() {
+      if (!this.allTracks || this.allTracks.length === 0) return
+
+      // 注目トラック (最大5曲)
+      const featured = this.musicStore.featuredTracks
+      const featuredSource = featured.length > 0 ? featured : this.allTracks
+      this.displayFeaturedTracks = this.shuffle(featuredSource).slice(0, 5)
+
+      // おすすめ (最大25曲: 注目曲優先＋その他からランダム抽出)
+      const featuredList = this.allTracks.filter((t) => t.featured)
+      const otherList = this.allTracks.filter((t) => !t.featured)
+      this.displayRecommendedTracks = [
+        ...this.shuffle(featuredList),
+        ...this.shuffle(otherList),
+      ].slice(0, 25)
+
+      // ランダムピックアップ (最大25曲)
+      this.displayRandomPickups = this.shuffle(this.allTracks).slice(0, 25)
+
+      // 歌モノ (最大25曲)
+      const vocal = this.musicStore.vocalTracks
+      this.displayVocalTracks = this.shuffle(vocal).slice(0, 25)
+
+      // AI楽曲 (最大25曲)
+      const ai = this.musicStore.aiTracks
+      this.displayAiTracks = this.shuffle(ai).slice(0, 25)
     },
     getGenreCount(genreName: string): number {
       return this.musicStore.genreCounts[genreName] || 0

@@ -4,21 +4,37 @@
     .title-group
       h3.shelf-title {{ title }}
       p.shelf-subtitle(v-if="subtitle") {{ subtitle }}
-    v-btn(
-      v-if="showMore"
-      variant="text"
-      density="comfortable"
-      color="primary"
-      append-icon="mdi-arrow-right"
-      @click="$emit('more')"
-      rounded="pill"
-      size="small"
-    ) もっと見る
-  .shelf-scroll-container
+    .header-actions
+      v-btn(
+        v-if="showMore"
+        variant="text"
+        density="comfortable"
+        color="primary"
+        append-icon="mdi-arrow-right"
+        @click="$emit('more')"
+        rounded="pill"
+        size="small"
+      ) もっと見る
+      .scroll-controls.is-not-mobile
+        v-btn.scroll-btn(
+          icon="mdi-chevron-left"
+          size="x-small"
+          variant="tonal"
+          @click="scrollLeft"
+        )
+        v-btn.scroll-btn(
+          icon="mdi-chevron-right"
+          size="x-small"
+          variant="tonal"
+          @click="scrollRight"
+        )
+  .shelf-scroll-container(ref="scrollContainer")
     slot
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 defineProps<{
   title: string
   subtitle?: string
@@ -28,6 +44,20 @@ defineProps<{
 defineEmits<{
   (e: 'more'): void
 }>()
+
+const scrollContainer = ref<HTMLElement | null>(null)
+
+function scrollLeft() {
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollBy({ left: -320, behavior: 'smooth' })
+  }
+}
+
+function scrollRight() {
+  if (scrollContainer.value) {
+    scrollContainer.value.scrollBy({ left: 320, behavior: 'smooth' })
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -56,6 +86,23 @@ defineEmits<{
         font-size: 12px;
         color: rgba(var(--v-theme-on-surface), 0.6);
         margin: 2px 0 0 0;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .scroll-controls {
+        display: flex;
+        gap: 6px;
+
+        .scroll-btn {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+        }
       }
     }
   }

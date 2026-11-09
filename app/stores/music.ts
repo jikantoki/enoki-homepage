@@ -263,7 +263,7 @@ export const useMusicStore = defineStore('music', {
     recommendedTracks: (state) => {
       const featured = state.list.filter(item => item.featured)
       const others = state.list.filter(item => !item.featured)
-      return [...featured, ...others].slice(0, 10)
+      return [...featured, ...others].slice(0, 25)
     },
     vocalTracks: (state) => state.list.filter(item => item.genre === '歌モノ'),
     instrumentalTracks: (state) => state.list.filter(item => item.genre === 'インスト'),
@@ -337,7 +337,7 @@ export const useMusicStore = defineStore('music', {
       }
     },
 
-    getRandomPickups(count = 10): MusicItem[] {
+    getRandomPickups(count = 25): MusicItem[] {
       if (!this.list || this.list.length === 0) return []
       const shuffled = [...this.list].sort(() => Math.random() - 0.5)
       return shuffled.slice(0, count)

@@ -311,7 +311,11 @@ export default {
       activeTab: 'foryou',
       selectedCategory: null as string | null,
       selectedPlatform: 'Windows',
-      randomPickups: [] as AppOrMusicItem[],
+      displayFeaturedApps: [] as AppOrMusicItem[],
+      displayRecommendedApps: [] as AppOrMusicItem[],
+      displayRandomPickups: [] as AppOrMusicItem[],
+      displayWebApps: [] as AppOrMusicItem[],
+      displayAndroidApps: [] as AppOrMusicItem[],
       platformList: [
         {
           id: 'Windows',
@@ -350,20 +354,24 @@ export default {
       return this.appStore.list
     },
     featuredApps(): AppOrMusicItem[] {
+      if (this.displayFeaturedApps.length > 0) return this.displayFeaturedApps
       return this.appStore.featuredApps.slice(0, 6)
     },
     recommendedApps(): AppOrMusicItem[] {
-      return this.appStore.recommendedApps
+      if (this.displayRecommendedApps.length > 0) return this.displayRecommendedApps
+      return this.appStore.recommendedApps.slice(0, 25)
     },
     randomPickupApps(): AppOrMusicItem[] {
-      if (this.randomPickups.length > 0) return this.randomPickups
-      return this.appStore.getRandomPickups(12)
+      if (this.displayRandomPickups.length > 0) return this.displayRandomPickups
+      return this.appStore.getRandomPickups(25)
     },
     webServiceApps(): AppOrMusicItem[] {
-      return this.appStore.webServices.slice(0, 12)
+      if (this.displayWebApps.length > 0) return this.displayWebApps
+      return this.appStore.webServices.slice(0, 25)
     },
     androidApps(): AppOrMusicItem[] {
-      return this.appStore.androidApps.slice(0, 12)
+      if (this.displayAndroidApps.length > 0) return this.displayAndroidApps
+      return this.appStore.androidApps.slice(0, 25)
     },
     currentPlatformApps(): AppOrMusicItem[] {
       return this.appStore.byPlatform(this.selectedPlatform)
@@ -461,8 +469,8 @@ export default {
     allApps: {
       immediate: true,
       handler(newList) {
-        if (newList && newList.length > 0 && this.randomPickups.length === 0) {
-          this.initRandomPickups()
+        if (newList && newList.length > 0 && this.displayRecommendedApps.length === 0) {
+          this.initRandomSections()
         }
       },
     },
@@ -489,11 +497,11 @@ export default {
       // 【二回目以降（キャッシュあり）】
       // 一旦 IndexedDB の中身を表示
       this.isInitialLoading = false
-      this.initRandomPickups()
+      this.initRandomSections()
 
       // バックグラウンドで最新データを取得し、完了したら新しいデータに置き換える
       this.appStore.fetchFromDatabase().then(() => {
-        this.initRandomPickups()
+        this.initRandomSections()
       })
     } else {
       // 【初回読み込み時（キャッシュなし）】
@@ -501,7 +509,7 @@ export default {
       this.isInitialLoading = true
       try {
         await this.appStore.fetchFromDatabase()
-        this.initRandomPickups()
+        this.initRandomSections()
       } finally {
         this.isInitialLoading = false
       }
@@ -532,8 +540,40 @@ export default {
     openDetail(item: AppOrMusicItem) {
       this.$router.push(`/apps/${item.id}`)
     },
-    initRandomPickups() {
-      this.randomPickups = this.appStore.getRandomPickups(12)
+    shuffle<T>(array: T[]): T[] {
+      const result = [...array]
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]]
+      }
+      return result
+    },
+    initRandomSections() {
+      if (!this.allApps || this.allApps.length === 0) return
+
+      // 注目アプリ (最大6個)
+      const featured = this.appStore.featuredApps
+      const featuredSource = featured.length > 0 ? featured : this.allApps
+      this.displayFeaturedApps = this.shuffle(featuredSource).slice(0, 6)
+
+      // あなたへのおすすめ (最大25個: 注目アプリ優先＋その他からランダム抽出)
+      const featuredList = this.allApps.filter((item) => item.featured)
+      const otherList = this.allApps.filter((item) => !item.featured)
+      this.displayRecommendedApps = [
+        ...this.shuffle(featuredList),
+        ...this.shuffle(otherList),
+      ].slice(0, 25)
+
+      // ランダムピックアップ (最大25個)
+      this.displayRandomPickups = this.shuffle(this.allApps).slice(0, 25)
+
+      // Webサービス (最大25個)
+      const web = this.appStore.webServices
+      this.displayWebApps = this.shuffle(web).slice(0, 25)
+
+      // Androidアプリ (最大25個)
+      const android = this.appStore.androidApps
+      this.displayAndroidApps = this.shuffle(android).slice(0, 25)
     },
     getPlatformCount(platId: string): number {
       return this.appStore.platformCounts[platId] || 0

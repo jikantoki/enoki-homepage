@@ -291,7 +291,7 @@ export const useAppStore = defineStore('app', {
     recommendedApps: (state) => {
       const featured = state.list.filter(item => item.featured)
       const others = state.list.filter(item => !item.featured)
-      return [...featured, ...others].slice(0, 12)
+      return [...featured, ...others].slice(0, 25)
     },
     /** Webサービス一覧 */
     webServices: (state) => state.list.filter(item => isPlatformMatch(item.platforms, 'Web')),
@@ -375,9 +375,9 @@ export const useAppStore = defineStore('app', {
     },
     /**
      * ランダムピックアップアプリを取得
-     * @param count 取得件数 (デフォルト12)
+     * @param count 取得件数 (デフォルト25)
      */
-    getRandomPickups(count = 12): AppOrMusicItem[] {
+    getRandomPickups(count = 25): AppOrMusicItem[] {
       if (!this.list || this.list.length === 0) return []
       const shuffled = [...this.list].sort(() => Math.random() - 0.5)
       return shuffled.slice(0, count)
