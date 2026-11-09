@@ -99,6 +99,10 @@
             .icon-and-text
               v-icon mdi-qrcode-scan
               v-list-item-title QRコードで探す
+          v-list-item.item(@click="optionsDialog = false; $router.push('/download')")
+            .icon-and-text
+              v-icon mdi-download-box-outline
+              v-list-item-title ダウンロード
           v-list-item.item(@click="optionsDialog = false; $router.push('/profile')")
             .icon-and-text
               v-icon mdi-account-circle-outline

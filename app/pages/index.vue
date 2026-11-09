@@ -82,6 +82,15 @@ v-card.home-page-root(
           v-btn.hero-btn.btn-profile(
             size="large"
             rounded="pill"
+            prepend-icon="mdi-download-box-outline"
+            variant="outlined"
+            @click="$router.push('/download')"
+          )
+            span.mx-2 ダウンロード
+
+          v-btn.hero-btn.btn-profile(
+            size="large"
+            rounded="pill"
             prepend-icon="mdi-handshake-outline"
             variant="outlined"
             @click="$router.push('/sponsors')"
@@ -154,6 +163,22 @@ v-card.home-page-root(
               prepend-icon="mdi-account-details-outline"
               @click="$router.push('/profile')"
             ) 経歴・実績を見る
+
+          //- ダウンロードセンター
+          .work-card
+            .card-icon-wrap.download-icon-bg
+              v-icon(size="32" color="#6366f1") mdi-download-box-outline
+            h4.card-title 制作物・データ無料配布
+            p.card-desc
+              | 自作オリジナル楽曲のオフボーカル・歌詞データ、Linux OSイメージ、架空鉄道路線図Excel、電光掲示板制御ファイルなどを無料公開しています。
+            v-btn.mt-auto(
+              variant="tonal"
+              color="indigo"
+              rounded="pill"
+              size="small"
+              prepend-icon="mdi-download"
+              @click="$router.push('/download')"
+            ) ダウンロードへ
 
         //- セクション2: 時間は有限でも、希望は無限
         .quote-banner
@@ -716,6 +741,9 @@ export default {
       }
       &.create-icon-bg {
         background: rgba(16, 185, 129, 0.15);
+      }
+      &.download-icon-bg {
+        background: rgba(99, 102, 241, 0.15);
       }
     }
 
