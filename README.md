@@ -5,13 +5,15 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Nuxt-4.6+-00DC82?logo=nuxtdotjs&logoColor=white" alt="Nuxt 4">
+  <img src="https://img.shields.io/badge/Nuxt-4.3+-00DC82?logo=nuxtdotjs&logoColor=white" alt="Nuxt 4">
   <img src="https://img.shields.io/badge/Vue.js-3.5+-4FC08D?logo=vuedotjs&logoColor=white" alt="Vue 3">
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white" alt="TypeScript">
   <img src="https://img.shields.io/badge/Vuetify-3.x-1867C0?logo=vuetify&logoColor=white" alt="Vuetify 3">
   <img src="https://img.shields.io/badge/Capacitor-8.x-119EFF?logo=capacitor&logoColor=white" alt="Capacitor 8">
   <img src="https://img.shields.io/badge/PWA-Enabled-5A0FC8?logo=pwa&logoColor=white" alt="PWA">
+  <img src="https://img.shields.io/badge/IndexedDB-Cache-FF6F00?logo=databricks&logoColor=white" alt="IndexedDB">
   <img src="https://img.shields.io/badge/PHP-7.4%20%7C%208.x-777BB4?logo=php&logoColor=white" alt="PHP">
+  <img src="https://img.shields.io/badge/MySQL-5.7+-4479A1?logo=mysql&logoColor=white" alt="MySQL">
 </p>
 
 ---
@@ -32,55 +34,78 @@
    - [4. データベースの用意 (MySQL)](#4-データベースの用意-mysql)
    - [5. 初回管理者 API トークンの発行](#5-初回管理者-api-トークンの発行)
 9. [コンテンツ管理機能 (CMS: アプリ・音楽の一覧・編集・削除・ログアウト)](#コンテンツ管理機能-cms-アプリ音楽の一覧編集削除ログアウト)
-10. [開発・コマンドリファレンス](#開発コマンドリファレンス)
-11. [モバイルアプリ開発 (Capacitor 8)](#モバイルアプリ開発-capacitor-8)
-12. [PWA (Progressive Web Apps)](#pwa-progressive-web-apps)
-13. [バックエンド API エンドポイント一覧](#バックエンド-api-エンドポイント一覧)
-14. [主要な設定箇所](#主要な設定箇所)
-15. [デプロイガイド](#デプロイガイド)
-16. [参考リンク・クレジット](#参考リンククレジット)
+10. [ダウンロードセンター (Download Center)](#ダウンロードセンター-download-center)
+11. [開発・コマンドリファレンス](#開発コマンドリファレンス)
+    - [npm / yarn スクリプト](#npm--yarn-スクリプト)
+    - [ユーティリティスクリプト (scripts/)](#ユーティリティスクリプト-scripts)
+12. [モバイルアプリ開発 (Capacitor 8)](#モバイルアプリ開発-capacitor-8)
+13. [PWA & オフラインキャッシュ (Progressive Web Apps & IndexedDB)](#pwa--オフラインキャッシュ-progressive-web-apps--indexeddb)
+14. [バックエンド API エンドポイント一覧](#バックエンド-api-エンドポイント一覧)
+    - [PHP バックエンド (php/)](#php-バックエンド-php)
+    - [Nitro サーバーエンドポイント (server/api/)](#nitro-サーバーエンドポイント-serverapi)
+15. [主要な設定箇所](#主要な設定箇所)
+16. [デプロイガイド](#デプロイガイド)
+17. [参考リンク・クレジット](#参考リンククレジット)
 
 ---
 
 ## 概要
 
-**エノキ電気 公式ホームページ** は、ときえのき（エノキ電気）が運営するエノキ電気のホームページです。  
-ユーザー登録・プロフィール管理・友達申請・QR コードによる友達追加・リアルタイムプッシュ通知（WebPush）などの多彩なソーシャル機能と、自身が制作したソフトウェアや楽曲の試聴・配信機能を備えています。
+**エノキ電気 公式ホームページ** は、ときえのき（エノキ電気）が運営する公式ポータルサイト＆Webアプリケーションです。  
+自作ソフトウェア・Webツールのカタログ配信、オリジナル楽曲のストリーミング試聴、各種デジタル制作物（自作Linux OS、妄想鉄道路線図Excel、OuDia2ダイヤデータ、電光掲示板制御ファイルなど）のダウンロードセンター、ユーザー登録・プロフィール管理・友達申請・QRコードによる友達追加・リアルタイムWebPush通知などの多彩なソーシャル機能を備えています。
 
-**Nuxt 4**（`compatibilityVersion: 4`）と **Capacitor 8** を採用したワンソース・マルチプラットフォーム構成となっており、同一のコードベースから **Web ブラウザ**、**PWA (Progressive Web Apps)**、および **Android / iOS ネイティブアプリ** を展開できます。
+**Nuxt 4**（`future: { compatibilityVersion: 4 }`）と **Capacitor 8** を採用したワンソース・マルチプラットフォーム構成となっており、同一のコードベースから **Webブラウザ**、**PWA (Progressive Web Apps)**、および **Android / iOS ネイティブアプリ** をシームレスに展開・運用できます。
 
 ---
 
 ## 主な機能・特徴
 
-- 📱 **マルチプラットフォーム展開**: Web、PWA、Android、iOS（Capacitor 8）に対応
-- 👥 **ユーザー & ソーシャル機能**: アカウント登録、ログイン、パスワードリセット、プロフィール編集、友達申請・一覧管理
-- 📷 **QR コード連携**:
-  - `vue-qrcode-reader` によるカメラからの QR コード読み取り（対面での友達登録）
-  - `qrcode` による自分専用 QR コードのリアルタイム生成
+- 📱 **マルチプラットフォーム展開**:
+  - Webブラウザ、PWA、Android、iOS（Capacitor 8）に対応
+  - `@ionic/pwa-elements` によるネイティブカメラ等のPWA対応UI補完
+- 📦 **ダウンロードセンター (`/download`)**:
+  - オリジナル楽曲データ（「人生のタイムカプセル」オフボーカル音源＆歌詞ZIP）
+  - 自作Linux OS（Toki Linux, Caramel OS などの ISO アーカイブ）
+  - 妄想鉄道路線図・ダイヤデータ（Excel / OuDia2 形式）
+  - 電子工作・LED電光掲示板制御ファイル、マイコンコンパイラ配布パッケージ
+  - 高速ミラーサーバー（`https://山d.com`）連携
+- 👥 **ユーザー & ソーシャル機能**:
+  - アカウント登録、ログイン、パスワードリセット、プロフィール編集
+  - 友達申請・承認・一覧管理
+- 📷 **QRコード連携**:
+  - `vue-qrcode-reader` によるカメラからのQRコードリアルタイム読み取り（対面での友達登録）
+  - `qrcode` による自分専用QRコードの動的生成
 - 🔔 **WebPush プッシュ通知**:
   - Service Worker と WebPush API によるバックグラウンド通知の送受信
-  - PHP バックエンド（`minishlink/web-push`）による通知配信基盤
+  - PHP バックエンド（`minishlink/web-push`）による VAPID 署名通知配信基盤
+- ⚡ **IndexedDB による高速オフラインキャッシュ**:
+  - `app/js/indexedDb.ts` によるアプリ一覧・楽曲一覧のローカル永続化（`enoki_homepage_cache`）
+  - 通信状況によらず高速な初期レンダリングを実現
 - 🎨 **モダンかつ親しみやすい UI**:
   - Vuetify 3 + Pug + SCSS (`sass-embedded`)
   - Google Fonts「Zen Maru Gothic」を採用
   - ダークテーマ / ライトテーマ / システム連動の動的切り替え
   - **Android 15+ のエッジ・トゥ・エッジ (Edge-to-Edge) 対応**: ステータスバーやノッチ切り欠きに応じたパディング制御
-- 🌐 **多言語対応 (i18n)**: `@nuxtjs/i18n` による日本語・英語のローカライズ対応
+- 🎮 **リッチなカスタム 404 / エラーページ (`app/error.vue`)**:
+  - Canvas によるサイバーパーティクルアニメーション & CRTスキャンライン演出
+  - Web Audio API によるサイバー効果音（トグル機能付き）
+  - 404 ページ内でのサイバーミニゲーム搭載
+- 🌐 **多言語対応 (i18n)**:
+  - `@nuxtjs/i18n` による日本語（`ja`）・英語（`en`）のローカライズ対応（`prefix_except_default` 戦略）
 - 🔍 **SEO & クロール・購読最適化**:
   - `robots.txt` による検索エンジンクローラーの全ページ巡回許可およびサイトマップ指定
   - 動的 XML サイトマップ（`/sitemap.xml`）による全静的ページ・多言語 alternate link・動的コンテンツ（アプリ/音楽）のリアルタイム自動集約
-  - 動的 RSS 2.0 フィード（`/rssfeed.xml`, `/feed.xml`）によるアプリ・音楽・ダウンロード最新情報の自動配信
-- 📚 **コンテンツ管理**: `@nuxt/content` (v3) による Markdown ページのコレクション管理
-- 🛠️ **管理者向けコンテンツ管理 (CMS)**:
+  - 動的 RSS 2.0 フィード（`/rssfeed.xml`, `/feed.xml`, `/rss.xml`）による最新情報の自動配信
+- 📚 **コンテンツ管理 (CMS) & 管理者機能**:
   - 管理者ログイン時（`/login`）のアプリ登録・音楽登録・編集・削除機能（FAB・設定・メニュー連動）
-  - **音声ファイル（mp3 / wav / m4a 等）のサーバー側アップロード** & クライアント側自動 duration 解析
-  - **画像（アイコン・サムネイル・カバー）の Base64 / URL 保存対応**（MySQL `mediumtext` 型による大容量データ保存）
+  - **画像アップロード基盤**: アプリアイコン・サムネイル、楽曲カバーアートのアップロード（`uploadImage.php` / `/api/upload-image`）
+  - **音声ファイルアップロード基盤**: 音声ファイル（mp3 / wav / m4a等）のサーバー側保存 & クライアント側 ID3 メタデータ自動抽出（タイトル・アーティスト・アルバム・歌詞・カバーアート・duration）
+  - **新カテゴリ体系**: 8大カテゴリ（ゲーム, メディア, ポータルサイト, 便利ツール, ソーシャル, Mod・拡張機能, 開発, その他）
   - **未完成フラグ (`isUnfinished`) & タグ (`tags`) 管理**: 開発中・制作途中のコンテンツの可視化と分類
-  - アプリ・音楽メタデータおよび音声ファイル URL の **MySQL データベース管理**（`app_list`, `music_list`）
-  - アップロードされた楽曲の本格インライン試聴・全体プレイヤー再生連携
-  - **ボトムナビ「ようこそ」画面・設定画面からの管理者ログアウト**: PHP バックエンド（`logoutAccount.php`）と連携し、サーバー側のアクセストークンを安全に破棄
-- 🔒 **セキュアな独自 API 認証**: API ID / Token / AccessKey によるリクエスト署名・認証機構
+  - **セキュアな管理者ログアウト**: PHP バックエンド（`logoutAccount.php`）と連携したアクセストークンの完全破棄
+- 🔒 **多層認証セキュリティ**:
+  - API ID / Token / AccessKey によるリクエスト署名・API認証機構
+  - ユーザーアクセストークン検証および管理者ロール判定（`isUserAdmin`）
 
 ---
 
@@ -94,21 +119,24 @@
 
 | 分類                        | 技術 / ライブラリ                                             | バージョン / 補足                                                 |
 | :-------------------------- | :------------------------------------------------------------ | :---------------------------------------------------------------- |
-| **フレームワーク**          | [Nuxt 4](https://nuxt.com/)                                   | `^4.3.1` (4.6+, `compatibilityVersion: 4`, SSR / SSG）            |
+| **フレームワーク**          | [Nuxt 4](https://nuxt.com/)                                   | `^4.3.1` (`future: { compatibilityVersion: 4 }`, SSR / SSG）       |
 | **フロントエンド基盤**      | [Vue.js](https://vuejs.org/)                                  | `^3.5` (Composition API & Options API)                            |
 | **言語**                    | [TypeScript](https://www.typescriptlang.org/)                 | 完全型定義対応                                                    |
 | **UI コンポーネント**       | [Vuetify 3](https://vuetifyjs.com/)                           | `vuetify-nuxt-module: ^0.19.5`, `@mdi/font: ^7.4.47`              |
 | **テンプレート**            | [Pug](https://pugjs.org/)                                     | `^3.0.3`                                                          |
 | **スタイル**                | [SCSS (sass-embedded)](https://sass-lang.com/)                | `^1.97.3`（Dart Sass 高速版）                                     |
-| **状態管理**                | [Pinia](https://pinia.vuejs.org/)                             | `^3.0.4` + `@pinia-plugin-persistedstate/nuxt`（永続化）          |
+| **状態管理**                | [Pinia](https://pinia.vuejs.org/)                             | `^3.0.4` + `@pinia-plugin-persistedstate/nuxt: ^1.2.1`（永続化）   |
+| **ローカルキャッシュ**      | [IndexedDB](https://developer.mozilla.org/ja/docs/Web/API/IndexedDB_API) | `enoki_homepage_cache`（アプリ・楽曲データのオフライン永続化）   |
 | **国際化**                  | [@nuxtjs/i18n](https://i18n.nuxtjs.org/)                      | `^10.2.3`（日本語 / 英語）                                        |
 | **コンテンツ管理**          | [@nuxt/content](https://content.nuxt.com/)                    | `^3.11.2` (Content v3) + `better-sqlite3: ^12.6.2`                |
-| **モバイル / ネイティブ**   | [Capacitor](https://capacitorjs.com/)                         | `^8.1.0` (Core, CLI, App, Camera, Device, StatusBar, Toast, etc.) |
-| **PWA**                     | Service Worker / Web App Manifest                             | オフライン対応、ホーム画面追加、プッシュ通知                      |
+| **Markdown パーサー**       | [Marked](https://marked.js.org/)                              | `^18.1.3` (アプリ紹介文・お知らせなどのパース)                     |
+| **モバイル / ネイティブ**   | [Capacitor](https://capacitorjs.com/)                         | `^8.1.0` (Core, CLI, App, Camera, Device, StatusBar, Toast, Browser, Clipboard, Share) |
+| **PWA UI 補完**             | [@ionic/pwa-elements](https://github.com/ionic-team/pwa-elements) | `^3.4.0` (PWA 実行時のカメラUI等のポリフィル)                     |
+| **PWA**                     | Service Worker / Web App Manifest                             | オフライン対応、ホーム画面追加、WebPush プッシュ通知              |
 | **QR コード**               | `vue-qrcode-reader`, `qrcode`                                 | カメラ認識 (`^5.7.3`) & コード生成 (`^1.5.4`)                     |
 | **リンター / フォーマッタ** | [@nuxt/eslint](https://eslint.nuxt.com/)                      | `^1.15.1` (Flat Config: `eslint.config.mjs`)                      |
 | **バックエンド言語**        | [PHP](https://www.php.net/)                                   | 7.4 / 8.x + Composer                                              |
-| **データベース**            | [MySQL](https://MySQL.com/) / MariaDB                     | PDO 接続、文字コード `utf8mb4`                                    |
+| **データベース**            | [MySQL](https://www.mysql.com/) / MariaDB                     | PDO 接続、文字コード `utf8mb4`                                    |
 | **メール送信**              | [PHPMailer](https://github.com/PHPMailer/PHPMailer)           | `^6.8` (SMTP 認証メール送信)                                      |
 | **プッシュ通知送信**        | [web-push-php](https://github.com/web-push-libs/web-push-php) | `^8.0` (VAPID 認証 WebPush 送信)                                  |
 
@@ -119,14 +147,17 @@
 | パス                          | ファイルパス                               | 内容・概要                                              |
 | :---------------------------- | :----------------------------------------- | :------------------------------------------------------ |
 | `/`                           | `app/pages/index.vue`                      | トップページ（ヒーローセクション、ピックアップ、最新コンテンツ等） |
-| `/apps`                       | `app/pages/apps/index.vue`                 | ソフトウェア一覧ページ（カテゴリ別棚、ランキング、全アプリ） |
-| `/apps/[appId]`               | `app/pages/apps/[appId].vue`               | ソフトウェア詳細画面（動的ルーティング）                |
-| `/music`                      | `app/pages/music/index.vue`                | 音楽一覧ページ（楽曲・アルバム・ジャンル探索）          |
-| `/music/[musicId]`            | `app/pages/music/[musicId].vue`            | 音楽詳細画面（動的ルーティング・シンセ試聴・歌詞）      |
+| `/apps`                       | `app/pages/apps/index.vue`                 | ソフトウェア一覧ページ（新カテゴリ別棚、ランキング、全アプリ検索） |
+| `/apps/[appId]`               | `app/pages/apps/[appId].vue`               | ソフトウェア詳細画面（動的ルーティング・スクリーンショット・外部リンク） |
+| `/music`                      | `app/pages/music/index.vue`                | 音楽一覧ページ（楽曲・アルバム・ジャンル探索・試聴）     |
+| `/music/[musicId]`            | `app/pages/music/[musicId].vue`            | 音楽詳細画面（動的ルーティング・シンセ/音声試聴・歌詞・メタデータ） |
+| `/download`                   | `app/pages/download.vue`                   | **ダウンロードセンター**（オリジナル曲ZIP・自作OS・妄想路線図Excel・LED制御ファイル等） |
 | `/profile`                    | `app/pages/profile/index.vue`              | プロフィールページ（ときえのき経歴・実績・運営情報）    |
 | `/sponsors`                   | `app/pages/sponsors.vue`                   | スポンサー・友人紹介ページ（支援者およびクリエイター仲間） |
-| `/product`                    | `app/pages/product.vue`                    | トップページ（`/`）へのリダイレクト                     |
-| `/info`                       | `app/pages/info.vue`                       | プロフィール（`/profile`）へのリダイレクト              |
+| `/product`                    | `app/pages/product/index.vue`              | 事業一覧（`/profile` への 301 リダイレクト）            |
+| `/product/it`                 | `app/pages/product/it.vue`                 | IT事業（`/apps` への 301 リダイレクト）                 |
+| `/product/music`              | `app/pages/product/music.vue`              | 音楽事業（`/music` への 301 リダイレクト）              |
+| `/info`                       | `app/pages/info.vue`                       | プロフィール（`/profile` への 301 リダイレクト）         |
 | `/login`                      | `app/pages/login.vue`                      | 管理者ログイン画面（二段階メール認証）                  |
 | `/registar`                   | `app/pages/registar.vue`                   | 管理者新規登録画面（管理者秘密キー・ワンタイム認証）    |
 | `/password_reset`             | `app/pages/password_reset.vue`             | パスワード再設定画面                                    |
@@ -137,13 +168,14 @@
 | `/settings/profile`           | `app/pages/settings/profile.vue`           | プロフィール編集画面（名前・自己紹介・アイコン等）      |
 | `/settings/display`           | `app/pages/settings/display.vue`           | 表示・言語設定（テーマ切替・言語選択）                  |
 | `/settings/developer-options` | `app/pages/settings/developer-options.vue` | 開発者向けオプション（Android 15 ノッチ切り欠き検証等） |
-| `/admin/manage`               | `app/pages/admin/manage.vue`               | コンテンツ管理（アプリ・音楽の一覧・編集・削除）        |
-| `/admin/register`             | `app/pages/admin/register.vue`             | コンテンツ新規登録（アプリ・音楽登録・音声アップロード）|
+| `/admin/manage`               | `app/pages/admin/manage.vue`               | コンテンツ管理（アプリ・音楽の一覧・試聴・編集・削除）  |
+| `/admin/register`             | `app/pages/admin/register.vue`             | コンテンツ新規登録（アプリ・音楽・音声/画像アップロード）|
 | `/terms`                      | `app/pages/terms.vue`                      | 利用規約                                                |
 | `/privacy`                    | `app/pages/privacy.vue`                    | プライバシーポリシー                                    |
 | `/about`                      | `app/pages/about.vue`                      | 運営情報・プロフィール                                  |
 | `/tutorial`                   | `app/pages/tutorial.vue`                   | アプリの使い方チュートリアル                            |
 | `/[...slug]`                  | `app/pages/[...slug].vue`                  | 存在しないパスへのフォールバック（準備中画面）          |
+| *(エラー / 404)*              | `app/error.vue`                            | **カスタムエラー画面**（サイバーパーティクル・ミニゲーム・効果音） |
 
 ---
 
@@ -155,6 +187,7 @@ Nuxt 4 の標準構造（`future: { compatibilityVersion: 4 }`）に基づき、
 enoki-homepage/
 ├── app/                                # Nuxt 4 アプリケーションルート
 │   ├── app.vue                         # ルートコンポーネント（テーマ・スプラッシュ・OS別パディング制御）
+│   ├── error.vue                       # カスタム404・エラー画面（パーティクル・CRT・ミニゲーム・効果音）
 │   ├── components/                     # Vue コンポーネント群
 │   │   ├── common/
 │   │   │   ├── BottomNav.vue           # ボトムナビゲーション & ようこそダイアログ（管理者ログアウト対応）
@@ -164,7 +197,7 @@ enoki-homepage/
 │   │   │   ├── AppCard.vue             # アプリカード
 │   │   │   ├── AppDetailModal.vue      # アプリ詳細モーダル
 │   │   │   ├── AppRankItem.vue         # ランキング表示アイテム
-│   │   │   ├── AppShelf.vue            # アプリシェルフ（横スクロール棚）
+│   │   │   ├── AppShelf.vue            # アプリシェルフ（新カテゴリ別横スクロール棚）
 │   │   │   └── HeroBanner.vue          # おすすめヒーローバナー
 │   │   ├── music/                      # 音楽プレイヤー向けコンポーネント群
 │   │   │   ├── MiniPlayer.vue          # 画面下部ミニプレイヤー
@@ -175,22 +208,39 @@ enoki-homepage/
 │   │   │   ├── MusicView.vue           # 音楽トップ表示ビュー
 │   │   │   └── NowPlayingModal.vue     # 全画面再生中モーダル
 │   │   ├── admin/                      # 管理者専用コンポーネント群
-│   │   │   └── AdminRegisterModal.vue  # アプリ・楽曲新規登録・編集モーダル（音声アップロード対応）
+│   │   │   └── AdminRegisterModal.vue  # アプリ・楽曲新規登録・編集モーダル（音声・画像アップロード対応）
 │   │   └── about/
 │   │       └── AboutView.vue           # 運営情報ビュー
-│   ├── data/                           # 初期モック・静的データ
+│   ├── data/                           # 初期モック・静的データ定義
 │   │   ├── apps.json                   # アプリ・ゲーム初期データ
+│   │   ├── downloads.ts                # ダウンロードセンター配布アイテム定義
 │   │   ├── music.json                  # 楽曲初期データ
 │   │   ├── profile.ts                  # プロフィール初期データ（経歴・SNS等）
 │   │   └── sponsors.ts                 # スポンサー・友人紹介データ
+│   ├── js/                             # ユーティリティモジュール
+│   │   ├── ajaxFunctions.ts            # API 通信ラッパー（GET/POST・署名ヘッダー処理）
+│   │   ├── audioMetadata.ts            # 音声ファイル（MP3/M4A/FLAC）ID3タグ・ジャケット抽出
+│   │   ├── contentApi.ts               # アプリ・音楽・音声/画像アップロード・ログアウト PHP/Nitro 連携
+│   │   ├── Functions.ts                # 汎用ヘルパー（外部リンク・クリップボード・トースト等）
+│   │   ├── indexedDb.ts                # IndexedDB 永続化ストレージ（オフラインキャッシュ）
+│   │   ├── metaFunctions.ts            # クライアント側メタタグ動的更新
+│   │   ├── setup.ts                    # サーバーサイド SEO メタ設定（useServerHead / useServerSeoMeta）
+│   │   └── webpush.ts                  # WebPush 購読・トークン登録・Service Worker 連携
+│   ├── mixins/
+│   │   └── mixins.ts                   # Vue Options API 用共通ミックスイン
 │   ├── pages/                          # ルーティング対応ページコンポーネント群
 │   │   ├── index.vue                   # トップページ（ヒーローセクション・最新コンテンツ）
+│   │   ├── download.vue                # ダウンロードセンター（オリジナル曲ZIP・自作OS・路線図Excel等）
 │   │   ├── apps/
-│   │   │   ├── index.vue               # ソフトウェア一覧
+│   │   │   ├── index.vue               # ソフトウェア一覧（新カテゴリ棚・ランキング・検索）
 │   │   │   └── [appId].vue             # ソフトウェア詳細
 │   │   ├── music/
 │   │   │   ├── index.vue               # 音楽一覧
 │   │   │   └── [musicId].vue           # 音楽詳細
+│   │   ├── product/                    # 事業案内リダイレクト
+│   │   │   ├── index.vue               # -> /profile (301)
+│   │   │   ├── it.vue                  # -> /apps (301)
+│   │   │   └── music.vue               # -> /music (301)
 │   │   ├── login.vue                   # 管理者ログイン
 │   │   ├── registar.vue                # 管理者新規登録
 │   │   ├── password_reset.vue          # パスワードリセット
@@ -200,46 +250,43 @@ enoki-homepage/
 │   │   ├── terms.vue                   # 利用規約
 │   │   ├── privacy.vue                 # プライバシーポリシー
 │   │   ├── about.vue                   # 運営情報
-│   │   ├── admin/                      # 管理者機能
-│   │   │   ├── manage.vue              # コンテンツ管理（一覧・インライン試聴・編集・削除）
-│   │   │   └── register.vue            # コンテンツ新規登録（アプリ・音楽・音声アップロード）
+│   │   ├── tutorial.vue                # チュートリアル
 │   │   ├── info.vue                    # プロフィールへのリダイレクト
 │   │   ├── profile/
 │   │   │   └── index.vue               # プロフィール画面
-│   │   ├── tutorial.vue                # チュートリアル
-│   │   ├── [...slug].vue               # 準備中フォールバックルート
+│   │   ├── admin/                      # 管理者機能
+│   │   │   ├── manage.vue              # コンテンツ管理（一覧・試聴・編集・削除）
+│   │   │   └── register.vue            # コンテンツ新規登録（アプリ・音楽・アップロード）
 │   │   ├── settings/                   # 設定サブルート
 │   │   │   ├── index.vue               # 設定トップ（管理者ログアウト対応）
 │   │   │   ├── profile.vue             # プロフィール編集
 │   │   │   ├── display.vue             # 表示・テーマ設定
 │   │   │   └── developer-options.vue   # 開発者オプション
-│   │   └── user/
-│   │       └── [userId].vue            # ユーザープロフィール詳細
-│   ├── stores/                         # Pinia 状態管理
-│   │   ├── app.ts                      # アプリ全体状態・アプリ一覧データ
-│   │   ├── meta.ts                     # メタ情報
-│   │   ├── music.ts                    # 音楽プレイヤー状態・楽曲一覧・再生キュー
-│   │   ├── myProfile.ts                # ログイン中ユーザー情報・管理者状態
-│   │   ├── navigation.ts               # ボトムナビ・ダイアログ表示制御状態
-│   │   └── settings.ts                 # 設定（テーマ・言語・開発者オプション、LocalStorage永続化）
-│   ├── js/                             # ユーティリティモジュール
-│   │   ├── Functions.ts                # 汎用ヘルパー（外部リンク・クリップボード等）
-│   │   ├── ajaxFunctions.ts            # API 通信ラッパー（GET/POST・署名ヘッダー処理）
-│   │   ├── contentApi.ts               # アプリ・音楽・音声アップロード・管理者ログアウト PHP 連携
-│   │   ├── metaFunctions.ts            # クライアント側メタタグ動的更新
-│   │   ├── setup.ts                    # サーバーサイド SEO メタ設定（useServerHead / useServerSeoMeta）
-│   │   └── webpush.ts                  # WebPush 購読・トークン登録・Service Worker 連携
-│   └── mixins/
-│       └── mixins.ts                   # Vue Options API 用共通ミックスイン
+│   │   ├── user/
+│   │   │   └── [userId].vue            # ユーザープロフィール詳細
+│   │   └── [...slug].vue               # 準備中フォールバックルート
+│   ├── plugins/
+│   │   └── pwa-elements.client.ts      # @ionic/pwa-elements カスタム要素登録プラグイン
+│   └── stores/                         # Pinia 状態管理
+│       ├── app.ts                      # アプリ全体状態・アプリ一覧・カテゴリ定義・IndexedDB連携
+│       ├── meta.ts                     # メタ情報
+│       ├── music.ts                    # 音楽プレイヤー状態・楽曲一覧・再生キュー・IndexedDB連携
+│       ├── myProfile.ts                # ログイン中ユーザー情報・管理者ロール判定
+│       ├── navigation.ts               # ボトムナビ・ダイアログ表示制御状態
+│       └── settings.ts                 # 設定（テーマ・言語・開発者オプション、LocalStorage永続化）
 ├── assets/                             # アプリアイコン原画（Capacitor Assets 生成用）
 │   ├── icon-background.png             # アイコン背景
 │   ├── icon-foreground.png             # アイコン前景
 │   └── icon-only.png                   # アイコン単体
 ├── php/                                # PHP API バックエンド
+│   ├── .user.ini                       # PHP 実行時設定（アップロード上限等）
 │   ├── functions/                      # 共通処理・関数群
 │   │   ├── database.php                # DB 接続・CRUD・OTP生成などのコア関数
 │   │   ├── authAPI.php / authAPIforUse.php         # API アクセス認証
-│   │   ├── authAccount.php / authAccountforUse.php # ユーザーアカウント認証
+│   │   ├── authAccount.php / authAccountforUse.php # ユーザーアカウント認証・管理者チェック
+│   │   ├── functions.php               # 共通ユーティリティ
+│   │   ├── id3Parser.php               # 音声ファイルメタデータ・ジャケット抽出
+│   │   ├── imageStorage.php            # 画像ファイル保存・URLパス変換
 │   │   ├── mailFunctions.php           # PHPMailer メール送信処理
 │   │   └── push.php                    # WebPush 送信処理
 │   ├── acceptFriend.php                # 友達申請承認
@@ -269,25 +316,32 @@ enoki-homepage/
 │   ├── settings.php                    # CORS・共通ヘッダー設定
 │   ├── updateGeoLocation.php           # 位置情報更新
 │   ├── updateProfile.php               # プロフィール更新
-│   └── uploadAudio.php                 # 音声ファイル (mp3/wav) アップロード API
+│   ├── uploadAudio.php                 # 音声ファイル (mp3/wav/m4a) アップロード API
+│   └── uploadImage.php                 # 画像ファイル (png/jpg/webp/svg/gif) アップロード API
 ├── public/                             # 静的アセット（Web公開ディレクトリ）
 │   ├── backgrounds/                    # トップページスライドショー用背景画像群
+│   ├── customfiles/                    # ダウンロードセンター配布用ファイル（ZIP, XLSX, OUD2 等）
 │   ├── data/                           # 公開データ（apps.json, music.json）
+│   ├── download/images/                # ダウンロードセンターアイテム紹介画像群
 │   ├── icons/                          # PWA 用アプリアイコン群 (WebP: 48~512px)
 │   ├── img/                            # サムネイル・画像素材
 │   ├── sponsor/                        # スポンサー・友人ロゴ画像群
 │   ├── uploads/                        # ユーザー・管理者アップロードファイル
 │   │   ├── audio/                      # アップロードされた音声ファイル群 (mp3/wav/m4a等)
-│   │   └── images/                     # アップロードされた画像ファイル群
+│   │   └── images/                     # アップロードされた画像ファイル群 (apps/, music/ 等)
 │   ├── manifest.json                   # PWA Web App Manifest
 │   ├── sw.js                           # PWA / WebPush 用 Service Worker
 │   ├── favicon.ico                     # ファビコン
 │   ├── icon.png                        # メインアプリアイコン
 │   └── robots.txt                      # クローラー許可・サイトマップ参照設定
+├── scripts/                            # 開発・運用サポートスクリプト
+│   ├── generate-mock-apps.js           # アプリモックデータ生成スクリプト
+│   ├── generate-mock-music.js          # 楽曲モックデータ生成スクリプト
+│   └── migrate-apps-images.js          # アプリBase64画像を実ファイルへ抽出・移行するスクリプト
 ├── server/                             # Nitro サーバーエンドポイント
 │   ├── api/
 │   │   ├── upload-audio.post.ts        # 音声ファイル (mp3/wav) アップロード API
-│   │   ├── upload-image.post.ts        # 画像ファイル アップロード API
+│   │   ├── upload-image.post.ts        # 画像ファイル (png/jpg/webp/svg/gif) アップロード API
 │   │   ├── register-app.post.ts        # アプリ登録 API (ローカル JSON 反映)
 │   │   ├── register-music.post.ts      # 音楽登録 API (ローカル JSON 反映)
 │   │   ├── delete-app.post.ts          # アプリ削除 API (ローカル JSON 反映)
@@ -304,11 +358,13 @@ enoki-homepage/
 ├── content.config.ts                   # @nuxt/content (v3) コレクション定義
 ├── eslint.config.mjs                   # ESLint Flat Config 設定
 ├── nuxt.config.ts                      # Nuxt 4 設定ファイル
-├── database.sql                        # MySQL スキーマ定義（全テーブル・ビュー・インデックス）
+├── database.sql                        # MySQL 完全スキーマ定義（全テーブル・ビュー・インデックス）
 ├── migration_admin.sql                 # 管理者権限追加用差分マイグレーション
 ├── migration_app_music.sql             # アプリ・音楽管理差分マイグレーション
 ├── migration_unfinished_tag.sql        # 未完成フラグ (`isUnfinished`)・タグ (`tags`) 追加差分マイグレーション
 ├── migration_content_mediumtext.sql    # Base64画像保存対応のためのカラム拡張 (`mediumtext`) 差分マイグレーション
+├── migration_apps_images_to_uploads.sql# アプリ画像 Base64 から実ファイルURLへの移行マイグレーション
+├── migration_app_categories.sql        # アプリ新カテゴリ体系への刷新マイグレーション
 ├── env.example.php                     # PHP 側環境変数サンプル
 ├── .env.example                        # Nuxt 側環境変数サンプル
 ├── composer.json                       # PHP 依存関係定義
@@ -322,7 +378,7 @@ enoki-homepage/
 ## 前提条件
 
 - **Node.js**: `20.x` 以上（LTS 推奨）
-- **パッケージマネージャー**: `yarn`（v1.x Classic 推奨）
+- **パッケージマネージャー**: `yarn`（v1.x Classic 推奨）または `npm`
 - **バックエンド API 実行時**:
   - **PHP**: `7.4` または `8.x`（PDO, cURL, OpenSSL, mbstring 拡張が必要）
   - **Composer**: `2.x`
@@ -456,7 +512,7 @@ Header append Access-Control-Allow-Headers: "*"
 
 ### 4. データベースの用意 (MySQL)
 
-リポジトリルートにある `database.sql` を MySQL データベースにインポートします。
+新規環境の場合は、リポジトリルートにある `database.sql` を MySQL データベースにインポートします。
 
 ```bash
 mysql -u your_user -p your_database_name < database.sql
@@ -467,34 +523,43 @@ mysql -u your_user -p your_database_name < database.sql
 >
 > **作成される主要テーブル:**
 >
-> - `accounts` / `user_list` / `user_profile_list`: ユーザー基本情報・プロフィール
+> - `accounts` / `user_list` / `user_profile_list`: ユーザー基本情報・プロフィール・管理者権限ロール (`role`)
 > - `user_accesstoken_list`: ログイン中アクセストークン管理
 > - `follow_list`: 友達申請・登録ステータス
 > - `push_token_list`: プッシュ通知送信用トークン一覧
 > - `location_list`: ユーザー位置情報
 > - `api_list`: API 認証キー（ID・トークン・ハッシュ化アクセスキー）
-> - `app_list`: アプリ・ゲーム情報（価格・プラットフォーム・外部リンク・画像URL・未完成フラグ・タグ）
-> - `music_list`: 楽曲情報・サーバー上音声ファイルURL（mp3/wav/m4a等）・歌詞・ジャケット画像・未完成フラグ・タグ
+> - `app_list`: アプリ・ゲーム情報（カテゴリ、価格、画像URL、未完成フラグ、タグ、外部リンク等）
+> - `music_list`: 楽曲情報（サーバー上音声ファイルURL、歌詞、ジャケット画像、未完成フラグ、タグ等）
 
 #### 既存データベースからの差分更新 (マイグレーション)
 
 すでに既存のデータベースを運用中の場合は、必要に応じて以下の差分マイグレーション SQL を順番に実行してください。
 
-1. **アプリ・音楽管理テーブルの追加**:
+1. **管理者権限の追加 (`user_list` への `role` カラム追加)**:
+   ```bash
+   mysql -u your_user -p your_database_name < migration_admin.sql
+   ```
+2. **アプリ・音楽管理テーブルの追加**:
    ```bash
    mysql -u your_user -p your_database_name < migration_app_music.sql
    ```
-2. **未完成フラグ (`isUnfinished`) & タグ (`tags`) カラムの追加**:
+3. **未完成フラグ (`isUnfinished`) & タグ (`tags`) カラムの追加**:
    ```bash
    mysql -u your_user -p your_database_name < migration_unfinished_tag.sql
    ```
-3. **画像カラムの拡張 (`mediumtext` による Base64 対応)**:
+4. **画像カラムの拡張 (`mediumtext` による Base64 対応)**:
    ```bash
    mysql -u your_user -p your_database_name < migration_content_mediumtext.sql
    ```
-
-> [!TIP]
-> phpMyAdmin をご利用の場合は、「インポート」タブから該当の `.sql` ファイルを選択して実行することで、既存データを保持したまま安全にカラムやテーブルが追加・拡張されます。
+5. **アプリ画像の Base64 から実ファイルURL (`/uploads/images/apps/`) への移行**:
+   ```bash
+   mysql -u your_user -p your_database_name < migration_apps_images_to_uploads.sql
+   ```
+6. **アプリカテゴリ体系の刷新・正規化 (新カテゴリ: ゲーム, メディア, ポータルサイト, 便利ツール, ソーシャル, Mod・拡張機能, 開発, その他)**:
+   ```bash
+   mysql -u your_user -p your_database_name < migration_app_categories.sql
+   ```
 
 ---
 
@@ -524,36 +589,55 @@ mysql -u your_user -p your_database_name < database.sql
 
 ### 2. 編集・登録機能
 - 管理ページ（`/admin/manage`）の「編集」ボタン、ボトムナビ「アプリ・音楽を登録」、または各詳細画面（`/apps/[appId]`, `/music/[musicId]`）の管理者バーからモーダルを呼び出せます。
-- 名前、ID、価格、画像（URL または Base64）、外部リンク、音声URL、作詞・作曲、歌詞、**未完成フラグ (`isUnfinished`)**、**タグ一覧 (`tags`)** などをフォームから手軽に編集・保存可能。
-- 保存を実行すると、MySQL データベースのレコードが `ON DUPLICATE KEY UPDATE` により更新され、サーバー側 JSON ファイルおよび Pinia ストアへ即座に反映されます。
+- **ファイルアップロード**:
+  - 音声ファイル（mp3 / wav / m4a等）をアップロードすると、クライアント側で自動的に ID3 タグ（曲名、アーティスト、アルバム、歌詞、ジャケット画像、再生時間）を解析してフォームに入力補完。
+  - 画像ファイル（アプリアイコン、サムネイル、ジャケット）をアップロードすると、`public/uploads/images/` に保存され URL が自動設定されます。
+- 名前、ID、価格、画像、外部リンク、音声URL、作詞・作曲、歌詞、**未完成フラグ (`isUnfinished`)**、**タグ一覧 (`tags`)** などをフォームから編集・保存可能。
+- 保存を実行すると、MySQL データベースのレコードが `ON DUPLICATE KEY UPDATE` により更新され、サーバー側 JSON ファイルおよび Pinia ストア、IndexedDB キャッシュへ即座に反映されます。
 
 ### 3. 安全な削除機能
 - 管理ページ（`/admin/manage`）または詳細画面（`/apps/[appId]`, `/music/[musicId]`）の「削除」ボタンをクリックすると、確認ダイアログが表示されます。
 - 削除を確定すると、以下の処理が安全に実行されます:
   1. **MySQL データベース**: `app_list` / `music_list` テーブルから該当レコードを物理削除 (`deleteApp.php` / `deleteMusic.php`)
   2. **サーバー JSON ファイル**: `app/data/apps.json`、`app/data/music.json`（および `public/data/`）から除外して保存 (`/api/delete-app` / `/api/delete-music`)
-  3. **Pinia 状態管理**: クライアントキャッシュから即座に削除（再生中楽曲の場合は安全に再生停止）
+  3. **Pinia 状態管理 & IndexedDB**: クライアントキャッシュおよび永続ストレージから即座に削除（再生中楽曲の場合は安全に再生停止）
 
 ### 4. 管理者ログアウト機能
 - **「ようこそ」画面（ボトムナビの「その他」）**: 管理者でログインしている場合、管理者アイコンや表示名、バッジと共に**「管理者ログアウト」**ボタンが表示されます。
 - **設定画面 (`/settings`)**: 設定一覧の中にも「管理者ログアウト」ボタンが常時表示されます。
 - ログアウトを実行すると、確認ダイアログが表示された上で、**PHP バックエンド（`logoutAccount.php`）を呼び出して MySQL の `user_accesstoken_list` からアクセストークンを完全に破棄**し、クライアント側のセッション（Pinia ストア）をリセットして安全にゲスト状態へ戻ります。
 
-### 5. 管理者向けナビゲーション導線
-- **ボトムナビ「その他（ようこそ）」**: 「コンテンツ管理 (編集・削除)」、「アプリ・音楽を登録」、「管理者ログアウト」
-- **設定画面 (`/settings`)**: 管理者ログイン時に「コンテンツ管理」「コンテンツ新規登録」「管理者ログアウト」を表示
-- **一覧画面 (`/apps`, `/music`)**: 画面右下に管理者用 FAB ボタン（登録 `+` および 管理リストアイコン）を常時表示
-- **詳細画面 (`/apps/[appId]`, `/music/[musicId]`)**: 管理者限定のアクションバナーおよびツールバー編集・削除ボタンを表示
+---
+
+## ダウンロードセンター (Download Center)
+
+`/download` ページでは、ときえのきが製作・公開している多彩なデジタルコンテンツを無料で直接ダウンロードできます。
+
+- **オリジナル曲データ**:
+  - 「人生のタイムカプセル」オフボーカルカラオケ音源 ＆ 歌詞テキスト（ZIPアーカイブ）
+- **自作 Linux OS**:
+  - Toki Linux（TokiLinux 24.04 等の ISO イメージ）
+  - Caramel OS（Caramel OS 10 等の ISO イメージ）
+- **妄想鉄道路線図・ダイヤデータ**:
+  - 関東高速鉄道、日本第三鉄道、定期快速路線図、合理化路線図などの高解像度 Excel 路線図ファイル（`.xlsx`）
+  - OuDia2 ダイヤデータ（羽田空港大宮線 `.oud2`）
+- **電子工作・制御ファイル**:
+  - 電光掲示板制御ファイル各種（`.zip`）
+  - マイコンコンパイラ配布パッケージ（`.zip`）
+- **ミラーサーバー連携**:
+  - 一部の大容量ファイルは高速配信サーバー `https://山d.com` と連携して快適なダウンロードを提供
 
 ---
 
 ## 開発・コマンドリファレンス
 
+### npm / yarn スクリプト
+
 `package.json` に定義されている開発・ビルドコマンド一覧です。
 
 | コマンド                | 説明                                                                         |
 | :---------------------- | :--------------------------------------------------------------------------- |
-| `yarn dev`              | ローカル開発サーバーを起動（`http://localhost:10000`）                       |
+| `yarn dev`              | ローカル開発サーバーをポート 10000 で起動（`http://localhost:10000`）         |
 | `yarn build`            | 本番用 Nuxt アプリケーションをビルド（SSR モード）                           |
 | `yarn generate`         | 静的プリレンダリングを行い、`dist/` ディレクトリを生成（SPA / SSG）          |
 | `yarn preview`          | `yarn build` または `yarn generate` で生成した成果物をローカルでプレビュー   |
@@ -563,6 +647,16 @@ mysql -u your_user -p your_database_name < database.sql
 | `yarn cap:open:android` | Android Studio を起動してネイティブプロジェクトを開く                        |
 | `yarn cap:open:ios`     | Xcode を起動してネイティブプロジェクトを開く                                 |
 | `yarn postinstall`      | `nuxt prepare` を実行し、Nuxt の型マッピングを生成（インストール時自動実行） |
+
+### ユーティリティスクリプト (scripts/)
+
+`scripts/` ディレクトリ配下にある運用・データ移行スクリプトです。
+
+| スクリプト                         | 実行例                                | 説明                                                                  |
+| :--------------------------------- | :------------------------------------ | :-------------------------------------------------------------------- |
+| `scripts/migrate-apps-images.js`   | `node scripts/migrate-apps-images.js` | アプリ情報の Base64/SVG 画像を実ファイルとして抽出し、`/uploads/images/apps/` へ保存・JSON/SQL を更新 |
+| `scripts/generate-mock-apps.js`    | `node scripts/generate-mock-apps.js`  | 開発・検証用アプリモックデータの生成                                  |
+| `scripts/generate-mock-music.js`   | `node scripts/generate-mock-music.js` | 開発・検証用楽曲モックデータの生成                                    |
 
 ---
 
@@ -614,13 +708,19 @@ npx @capacitor/assets generate
 
 ---
 
-## PWA (Progressive Web Apps)
+## PWA & オフラインキャッシュ (Progressive Web Apps & IndexedDB)
 
-本プロジェクトは PWA（Progressive Web App）に対応しています。
+本プロジェクトは PWA（Progressive Web App）およびクライアント側キャッシュに対応しています。
 
 - **Service Worker (`public/sw.js`)**:
   - 静的アセットのキャッシュ
   - WebPush プッシュ通知のバックグラウンド受信・通知バナーのタップハンドリング
+- **IndexedDB 永続化ストレージ (`app/js/indexedDb.ts`)**:
+  - データベース名: `enoki_homepage_cache`
+  - アプリ一覧（`enoki_apps_list`）および楽曲一覧（`enoki_music_list`）をローカルにキャッシュ
+  - 初回読み込み以降、オフライン時や低速ネットワーク下でも瞬時にコンテンツ一覧を表示可能
+- **PWA UI 補完 (`@ionic/pwa-elements`)**:
+  - `app/plugins/pwa-elements.client.ts` により、ブラウザ/PWA環境でも Capacitor Camera などのネイティブUIをエミュレート
 - **Web App Manifest (`public/manifest.json`)**:
   - ホーム画面への追加（Standalone 起動対応）
   - 各種解像度（48px〜512px）の WebP アプリアイコン対応
@@ -633,36 +733,52 @@ npx @capacitor/assets generate
 
 ## バックエンド API エンドポイント一覧
 
-PHP バックエンド（`php/`）に用意されている主なエンドポイントです。フロントエンドからは `app/js/contentApi.ts` または `app/js/ajaxFunctions.ts` を経由してリクエストが行われます。
+### PHP バックエンド (php/)
 
-| カテゴリ             | エンドポイント                  | 説明                                       |
-| :------------------- | :------------------------------ | :----------------------------------------- |
+フロントエンドからは `app/js/contentApi.ts` または `app/js/ajaxFunctions.ts` を経由してリクエストが行われます。
+
+| カテゴリ             | エンドポイント                  | 説明                                                 |
+| :------------------- | :------------------------------ | :--------------------------------------------------- |
 | **認証・アカウント** | `loginAccount.php`              | 管理者ログイン認証（メール二段階認証・トークン発行） |
-|                      | `logoutAccount.php`             | 管理者/ユーザーのログアウト処理（アクセストークンの削除） |
-|                      | `authAccount.php`               | アクセストークンの妥当性検証               |
-|                      | `createAccount.php`             | 新規アカウントの本登録                     |
-|                      | `requestToken.php`              | 新規登録・ログイン時のメール認証コード送信 |
-| **パスワード**       | `requestTokenForgotAccount.php` | パスワードリセット用認証コード送信         |
-|                      | `resetPassword.php`             | パスワードの再設定実行                     |
-| **プロフィール**     | `getProfile.php`                | ユーザープロフィールの取得                 |
-|                      | `updateProfile.php`             | プロフィール情報の更新（名前・自己紹介等） |
-| **ソーシャル・友達** | `friendRequest.php`             | 友達申請の送信                             |
-|                      | `acceptFriend.php`              | 友達申請の承認                             |
-|                      | `getMyFriendList.php`           | 友達一覧・申請中リストの取得               |
-| **プッシュ通知**     | `insertPushToken.php`           | WebPush 購読トークンの登録・更新           |
-|                      | `deletePushToken.php`           | WebPush 購読トークンの解除                 |
-|                      | `sendPushForAccount.php`        | 特定のユーザーへのプッシュ通知送信         |
-|                      | `sendPushForMe.php`             | 自分宛てのテスト通知送信                   |
-| **位置情報**         | `updateGeoLocation.php`         | ユーザーの位置情報（緯度・経度）更新       |
-| **システム・管理**   | `makeApiForAdmin.php`           | 管理者用 API トークンの初期生成            |
-|                      | `createTable.php`               | DB テーブル自動初期化                      |
+|                      | `logoutAccount.php`             | 管理者/ユーザーログアウト処理（アクセストークンの削除） |
+|                      | `authAccount.php`               | アクセストークンの妥当性検証                         |
+|                      | `createAccount.php`             | 新規アカウントの本登録                               |
+|                      | `requestToken.php`              | 新規登録・ログイン時のメール認証コード送信           |
+| **パスワード**       | `requestTokenForgotAccount.php` | パスワードリセット用認証コード送信                   |
+|                      | `resetPassword.php`             | パスワードの再設定実行                               |
+| **プロフィール**     | `getProfile.php`                | ユーザープロフィールの取得                           |
+|                      | `updateProfile.php`             | プロフィール情報の更新（名前・自己紹介等）           |
+| **ソーシャル・友達** | `friendRequest.php`             | 友達申請の送信                                       |
+|                      | `acceptFriend.php`              | 友達申請の承認                                       |
+|                      | `getMyFriendList.php`           | 友達一覧・申請中リストの取得                         |
+| **プッシュ通知**     | `insertPushToken.php`           | WebPush 購読トークンの登録・更新                     |
+|                      | `deletePushToken.php`           | WebPush 購読トークンの解除                           |
+|                      | `sendPushForAccount.php`        | 特定のユーザーへのプッシュ通知送信                   |
+|                      | `sendPushForMe.php`             | 自分宛てのテスト通知送信                             |
+| **位置情報**         | `updateGeoLocation.php`         | ユーザーの位置情報（緯度・経度）更新                 |
+| **システム・管理**   | `makeApiForAdmin.php`           | 管理者用 API トークンの初期生成                      |
+|                      | `createTable.php`               | DB テーブル自動初期化                                |
 | **コンテンツ管理**   | `uploadAudio.php`               | 音声ファイル (mp3/wav/m4a等) サーバー側アップロード API |
-|                      | `registerApp.php`               | アプリ情報 MySQL 登録・更新 API            |
-|                      | `registerMusic.php`             | 楽曲・音声ファイルURL MySQL 登録・更新 API |
-|                      | `deleteApp.php`                 | アプリ情報 MySQL & JSON 物理削除 API       |
-|                      | `deleteMusic.php`               | 楽曲情報 MySQL & JSON 物理削除 API         |
-|                      | `getApps.php`                   | アプリ一覧 MySQL 取得 API                  |
-|                      | `getMusic.php`                  | 楽曲一覧 MySQL 取得 API                    |
+|                      | `uploadImage.php`               | 画像ファイル (png/jpg/webp/svg/gif等) アップロード API |
+|                      | `registerApp.php`               | アプリ情報 MySQL 登録・更新 API                      |
+|                      | `registerMusic.php`             | 楽曲・音声ファイルURL MySQL 登録・更新 API           |
+|                      | `deleteApp.php`                 | アプリ情報 MySQL & JSON 物理削除 API                 |
+|                      | `deleteMusic.php`               | 楽曲情報 MySQL & JSON 物理削除 API                   |
+|                      | `getApps.php`                   | アプリ一覧 MySQL 取得 API                            |
+|                      | `getMusic.php`                  | 楽曲一覧 MySQL 取得 API                              |
+
+### Nitro サーバーエンドポイント (server/api/)
+
+ローカル開発環境や Nuxt サーバー稼働時にローカルデータと同期する Nitro API です。
+
+| エンドポイント                    | メソッド | 説明                                                           |
+| :-------------------------------- | :------- | :------------------------------------------------------------- |
+| `/api/upload-audio`               | POST     | 音声ファイル (mp3/wav/m4a) を `public/uploads/audio/` に保存   |
+| `/api/upload-image`               | POST     | 画像ファイル (png/jpg/webp/svg/gif) を `public/uploads/images/` に保存 |
+| `/api/register-app`               | POST     | アプリ情報をローカル `apps.json` に登録・更新                  |
+| `/api/register-music`             | POST     | 楽曲情報をローカル `music.json` に登録・更新                   |
+| `/api/delete-app`                 | POST     | アプリ情報をローカル `apps.json` から削除                      |
+| `/api/delete-music`               | POST     | 楽曲情報をローカル `music.json` から削除                      |
 
 ---
 
@@ -675,6 +791,10 @@ PHP バックエンド（`php/`）に用意されている主なエンドポイ�
 | **コンテンツ管理設定**      | `content.config.ts`       | `@nuxt/content` (v3) のコレクション定義                       |
 | **コード規約・ESLint**      | `eslint.config.mjs`       | `@nuxt/eslint` のフラットコンフィグ設定                       |
 | **テーマカラー・フォント**  | `app/app.vue`             | `--v-theme-primary: 225, 35, 120`、Zen Maru Gothic            |
+| **カスタムエラー・404**     | `app/error.vue`           | サイバーパーティクル描画、効果音トグル、ミニゲーム            |
+| **ダウンロードセンター**    | `app/data/downloads.ts`   | ダウンロードセンターのカテゴリ・アイテム・画像・配布URL定義   |
+| **アプリカテゴリ体系**      | `app/stores/app.ts`       | `APP_CATEGORIES`（ゲーム, メディア, 便利ツール等8カテゴリ）   |
+| **オフラインキャッシュ**    | `app/js/indexedDb.ts`     | `enoki_homepage_cache` によるアプリ・楽曲データ保存           |
 | **環境変数 (フロント)**     | `.env` / `nuxt.config.ts` | WebPush キー、API ホスト、API トークン                        |
 | **環境変数 (バックエンド)** | `env.php`                 | DB 接続情報、SMTP メールサーバー情報、WebPush 秘密鍵          |
 | **PWA マニフェスト**        | `public/manifest.json`    | アプリ名称、テーマカラー、アイコン定義                        |
@@ -701,7 +821,7 @@ PHP バックエンド（`php/`）に用意されている主なエンドポイ�
 
 1. レンタルサーバーや VPS の任意のドメイン / サブドメインに `php/` 配下のファイル一式を配置します。
 2. ルートディレクトリに `env.php` を配置し、DB・SMTP 接続情報を正しく設定します。
-3. `database.sql` を MySQL にインポートします（既存DBの場合は差分マイグレーション SQL を実行）。
+3. `database.sql` を MySQL にインポートします（既存DBの場合は差分マイグレーション SQL を順番に実行）。
 4. `/makeApiForAdmin.php` にアクセスし、生成されたトークンをフロントエンドの `.env` に反映します。
 
 ---
