@@ -1,4 +1,5 @@
 <?php
+//これがないとメモリがオーバーして処理が止まる
 ini_set('memory_limit', '-1');
 require_once '../env.php';
 require_once './settings.php';
