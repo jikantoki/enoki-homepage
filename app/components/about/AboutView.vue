@@ -96,6 +96,32 @@
             ul.skill-items-list
               li(v-for="(item, i) in skill.items" :key="i") {{ item }}
 
+      //- 事業一覧
+      .content-card
+        .card-header
+          v-icon(color="primary") mdi-briefcase-outline
+          h3 事業一覧
+          span.card-badge {{ profile.businesses.length }}事業
+        .businesses-grid
+          .business-card(
+            v-for="biz in profile.businesses"
+            :key="biz.id"
+            :style="{ borderColor: biz.color + '40' }"
+          )
+            .business-card-header
+              .business-icon-box(:style="{ background: biz.color + '1a', color: biz.color }")
+                v-icon {{ biz.icon }}
+              .business-header-text
+                .business-title-row
+                  h4.business-title {{ biz.title }}
+                  v-chip(
+                    v-if="biz.category"
+                    size="x-small"
+                    variant="tonal"
+                    :style="{ color: biz.color, backgroundColor: biz.color + '18' }"
+                  ) {{ biz.category }}
+            p.business-desc(v-if="biz.description") {{ biz.description }}
+
       //- 保有資格・免許
       .content-card
         .card-header
@@ -610,6 +636,72 @@ export default {
             margin-bottom: 0;
           }
         }
+      }
+    }
+  }
+
+  // 事業一覧
+  .businesses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+
+    .business-card {
+      border: 1px solid;
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(var(--v-theme-on-surface), 0.015);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .business-card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .business-icon-box {
+          width: 40px;
+          height: 40px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .business-header-text {
+          flex: 1;
+          min-width: 0;
+
+          .business-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+
+            .business-title {
+              font-size: 14.5px;
+              font-weight: 800;
+              margin: 0;
+              color: rgb(var(--v-theme-on-surface));
+            }
+          }
+        }
+      }
+
+      .business-desc {
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: rgba(var(--v-theme-on-surface), 0.78);
+        margin: 0;
       }
     }
   }

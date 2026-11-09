@@ -35,6 +35,15 @@ export interface LicenseItem {
   category: string
 }
 
+export interface BusinessItem {
+  id: string
+  title: string
+  icon: string
+  color: string
+  category: string
+  description: string
+}
+
 export interface SkillCategory {
   title: string
   icon: string
@@ -81,7 +90,7 @@ export const PROFILE_DATA = {
 
   licenses: [
     {
-      name: '第一種普通自動車免許 (AT)',
+      name: '第一種普通自動車免許 (AT限定)',
       date: '2024/05/13',
       icon: 'mdi-car',
       category: '免許',
@@ -99,7 +108,7 @@ export const PROFILE_DATA = {
       category: '免許',
     },
     {
-      name: '基本情報技術者 (午前免除)',
+      name: '基本情報技術者 (午前免除のみ)',
       date: '2021/08/26',
       icon: 'mdi-certificate',
       category: '国家資格',
@@ -164,6 +173,54 @@ export const PROFILE_DATA = {
       ],
     },
   ] as SkillCategory[],
+
+  businesses: [
+    {
+      id: 'engineering',
+      title: 'エンジニアリング事業',
+      icon: 'mdi-laptop-code',
+      color: '#1976D2',
+      category: '開発・技術',
+      description:
+        'Webシステム・スマホアプリ開発、自作OS・組み込み開発、インフラ構築などIT・技術全般の開発業務',
+    },
+    {
+      id: 'writing',
+      title: '執筆業',
+      icon: 'mdi-feather',
+      color: '#00897B',
+      category: 'メディア・記事',
+      description:
+        '技術解説ブログの運営、技術記事・コラム連載執筆、製品ドキュメントやマニュアルの作成',
+    },
+    {
+      id: 'music',
+      title: '作詞作曲業',
+      icon: 'mdi-music-clef-treble',
+      color: '#8E24AA',
+      category: '音楽・サウンド',
+      description:
+        'ボーカロイド楽曲制作、BGM・ジングル制作、各音楽配信プラットフォームへの音源配信・提供',
+    },
+    {
+      id: 'transport',
+      title: '運送業',
+      icon: 'mdi-truck-delivery',
+      color: '#F57C00',
+      category: '物流・配送',
+      description:
+        '軽貨物運送、スポット・定期配送、精密機器や生活関連物資の迅速かつ安全なラストワンマイル輸送',
+    },
+    {
+      id: 'agency',
+      title: '営業代理店事業',
+      icon: 'mdi-handshake',
+      color: '#E53935',
+      category: 'セールス・アライアンス',
+      description:
+        '各種サービスやプロダクトのセールスプロモーション代行、新規開拓営業代行、提携・アライアンス推進',
+    },
+  ] as BusinessItem[],
 
   achievements: [
     {
