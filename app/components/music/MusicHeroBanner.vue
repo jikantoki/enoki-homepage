@@ -195,6 +195,7 @@ export default {
         .exclusive-tag {
           background: rgba(255, 255, 255, 0.2);
           backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(4px);
           font-size: 11px;
           padding: 3px 8px;
           border-radius: 9999px;
@@ -211,7 +212,7 @@ export default {
           letter-spacing: 0.3px;
           display: inline-flex;
           align-items: center;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         }
       }
 

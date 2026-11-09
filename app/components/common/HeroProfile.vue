@@ -91,7 +91,9 @@ export default {
   },
   mounted() {
     if (this.heroBackgrounds && this.heroBackgrounds.length > 0) {
-      this.currentHeroBgIndex = Math.floor(Math.random() * this.heroBackgrounds.length)
+      this.currentHeroBgIndex = Math.floor(
+        Math.random() * this.heroBackgrounds.length,
+      )
       this.startHeroBgTimer()
     }
   },
@@ -112,7 +114,9 @@ export default {
     },
     rotateHeroBackground() {
       if (!this.heroBackgrounds || this.heroBackgrounds.length <= 1) return
-      let nextIdx = Math.floor(Math.random() * (this.heroBackgrounds.length - 1))
+      let nextIdx = Math.floor(
+        Math.random() * (this.heroBackgrounds.length - 1),
+      )
       if (nextIdx >= this.currentHeroBgIndex) {
         nextIdx += 1
       }
@@ -136,7 +140,8 @@ export default {
   user-select: none;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease,
+    border-color 0.25s ease;
   z-index: 8;
   flex-shrink: 0;
 
@@ -297,6 +302,7 @@ export default {
           background: rgba(255, 255, 255, 0.16);
           color: #e2e8f0;
           backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(4px);
         }
       }
 
@@ -357,9 +363,14 @@ export default {
         gap: 6px;
         padding: 8px 16px;
         border-radius: 9999px;
-        background: linear-gradient(135deg, rgba(56, 189, 248, 0.22) 0%, rgba(99, 102, 241, 0.26) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(56, 189, 248, 0.22) 0%,
+          rgba(99, 102, 241, 0.26) 100%
+        );
         border: 1px solid rgba(56, 189, 248, 0.45);
         backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         color: #ffffff;
         font-size: 12px;
         font-weight: 700;
@@ -401,7 +412,8 @@ export default {
 }
 
 @keyframes pulse-dot {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }

@@ -306,7 +306,7 @@ export default {
   background-color: rgba(var(--v-theme-surface), 0.4);
   border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
   z-index: 40;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(4px);
 
   .nav-buttons {
     display: flex;
@@ -359,7 +359,8 @@ export default {
   display: flex;
   flex-direction: column;
   background-color: rgba(var(--v-theme-surface), 0.4);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 
   &.is-pc {
     border-radius: 24px !important;
@@ -367,7 +368,8 @@ export default {
     max-height: 85dvh;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25) !important;
     border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
 
     .dialog-header {
       padding: 16px 16px 8px 24px;

@@ -452,6 +452,7 @@ export default {
       rgba(var(--v-theme-surface), 0.98) 100%
     );
     backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
     z-index: 3;
     transition: background 0.3s ease;
   }
@@ -478,6 +479,7 @@ export default {
     border-radius: 9999px;
     background: rgba(var(--v-theme-surface), 0.35);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border: 1px solid rgba(var(--v-theme-on-surface), 0.12);
     font-size: 13px;
     font-weight: 700;
@@ -561,6 +563,7 @@ export default {
         background: rgba(var(--v-theme-surface), 0.6) !important;
         border: 1px solid rgba(var(--v-theme-on-surface), 0.2) !important;
         backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         color: rgb(var(--v-theme-on-surface)) !important;
         box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
 

@@ -336,7 +336,8 @@ export default {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 
   .backdrop-gradient {
     position: absolute;
@@ -565,6 +566,7 @@ export default {
         border-radius: 16px;
         padding: 20px;
         backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
 
         .info-header {
           display: flex;

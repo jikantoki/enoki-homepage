@@ -166,6 +166,7 @@ export default {
       background: rgba(0, 0, 0, 0.65);
       border-radius: 4px;
       backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       z-index: 2;
 
       .eq-bar {
