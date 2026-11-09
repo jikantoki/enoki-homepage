@@ -144,6 +144,15 @@ export function uploadAudioToPHP(formData: FormData) {
   })
 }
 
+/** 画像ファイルを PHP サーバーへアップロード */
+export function uploadImageToPHP(formData: FormData) {
+  return requestContentApi<{ url: string }>('/uploadImage.php', {
+    method: 'POST',
+    body: formData,
+    withAccount: true,
+  })
+}
+
 // ==================== 認証・アカウント ====================
 
 /**

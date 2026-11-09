@@ -1,68 +1,77 @@
 import fs from 'fs';
 import path from 'path';
 
-// アイコン生成関数 (256x256 SVG Data URI)
-function createIconSvg(title, symbol, color1, color2, accent) {
+const uploadsAppDir = path.resolve('public/uploads/images/apps');
+if (!fs.existsSync(uploadsAppDir)) {
+  fs.mkdirSync(uploadsAppDir, { recursive: true });
+}
+
+// アイコン生成関数 (256x256 SVG ファイル保存 & URL返却)
+function createIconSvg(id, title, symbol, color1, color2, accent) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
   <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="grad_${id}" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="${color1}"/>
       <stop offset="100%" stop-color="${color2}"/>
     </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+    <filter id="shadow_${id}" x="-10%" y="-10%" width="130%" height="130%">
       <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.35"/>
     </filter>
   </defs>
-  <rect width="256" height="256" rx="56" fill="url(#grad)"/>
+  <rect width="256" height="256" rx="56" fill="url(#grad_${id})"/>
   <circle cx="128" cy="128" r="90" fill="none" stroke="${accent}" stroke-width="3" opacity="0.25"/>
-  <g filter="url(#shadow)" fill="#ffffff" transform="translate(128 128) scale(1.1) translate(-128 -128)">
+  <g filter="url(#shadow_${id})" fill="#ffffff" transform="translate(128 128) scale(1.1) translate(-128 -128)">
     ${symbol}
   </g>
 </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  const filename = `${id}_icon.svg`;
+  fs.writeFileSync(path.join(uploadsAppDir, filename), svg, 'utf-8');
+  return `/uploads/images/apps/${filename}`;
 }
 
-// サムネイル生成関数 (640x360 SVG Data URI)
-function createThumbnailSvg(title, category, color1, color2, symbol) {
+// サムネイル生成関数 (640x360 SVG ファイル保存 & URL返却)
+function createThumbnailSvg(id, title, category, color1, color2, symbol) {
   const cleanTitle = title.replace(/[<>&"']/g, '');
   const cleanCat = category.replace(/[<>&"']/g, '');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="bg_${id}" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="${color1}"/>
       <stop offset="100%" stop-color="${color2}"/>
     </linearGradient>
-    <linearGradient id="overlay" x1="0%" y1="100%" x2="0%" y2="0%">
+    <linearGradient id="overlay_${id}" x1="0%" y1="100%" x2="0%" y2="0%">
       <stop offset="0%" stop-color="#000000" stop-opacity="0.8"/>
       <stop offset="60%" stop-color="#000000" stop-opacity="0.2"/>
       <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <rect width="640" height="360" fill="url(#bg)"/>
+  <rect width="640" height="360" fill="url(#bg_${id})"/>
   <g opacity="0.12" fill="#ffffff" transform="translate(380, 40) scale(2.2)">
     ${symbol}
   </g>
   <circle cx="100" cy="80" r="140" fill="#ffffff" opacity="0.06"/>
   <circle cx="560" cy="280" r="180" fill="#ffffff" opacity="0.08"/>
-  <rect width="640" height="360" fill="url(#overlay)"/>
+  <rect width="640" height="360" fill="url(#overlay_${id})"/>
   <text x="36" y="270" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="28" fill="#ffffff">${cleanTitle}</text>
   <text x="36" y="305" font-family="system-ui, -apple-system, sans-serif" font-weight="500" font-size="16" fill="#e0e0e0">${cleanCat} • 公式ハイライト</text>
 </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  const filename = `${id}_thumb.svg`;
+  fs.writeFileSync(path.join(uploadsAppDir, filename), svg, 'utf-8');
+  return `/uploads/images/apps/${filename}`;
 }
 
-// スクリーンショット生成関数 (360x640 SVG Data URI)
-function createScreenshotSvg(title, step, color1, color2) {
+// スクリーンショット生成関数 (360x640 SVG ファイル保存 & URL返却)
+function createScreenshotSvg(id, title, step, color1, color2) {
   const cleanTitle = title.replace(/[<>&"']/g, '');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 640" width="360" height="640">
   <defs>
-    <linearGradient id="sbg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="sbg_${id}_${step}" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="${color1}"/>
       <stop offset="100%" stop-color="${color2}"/>
     </linearGradient>
   </defs>
   <rect width="360" height="640" fill="#121212"/>
-  <rect x="16" y="24" width="328" height="592" rx="28" fill="url(#sbg)"/>
+  <rect x="16" y="24" width="328" height="592" rx="28" fill="url(#sbg_${id}_${step})"/>
   <rect x="36" y="60" width="288" height="180" rx="16" fill="#ffffff" opacity="0.15"/>
   <text x="180" y="155" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="22" fill="#ffffff">Preview ${step}</text>
   <text x="180" y="320" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="600" font-size="18" fill="#ffffff">${cleanTitle}</text>
@@ -72,7 +81,9 @@ function createScreenshotSvg(title, step, color1, color2) {
   <rect x="40" y="520" width="280" height="54" rx="27" fill="#ffffff" opacity="0.9"/>
   <text x="180" y="554" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="700" font-size="16" fill="#000000">今すぐ体験</text>
 </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  const filename = `${id}_screen_${step}.svg`;
+  fs.writeFileSync(path.join(uploadsAppDir, filename), svg, 'utf-8');
+  return `/uploads/images/apps/${filename}`;
 }
 
 // アイコンシンボル定義
@@ -226,12 +237,12 @@ const mockList = RAW_APPS.map((item, index) => {
   const palette = PALETTES[index % PALETTES.length];
   const symbolSvg = SYMBOLS[item.sym] || SYMBOLS.star;
 
-  const iconUrl = createIconSvg(item.name, symbolSvg, palette[0], palette[1], '#ffffff');
-  const thumbUrl = createThumbnailSvg(item.name, item.cat, palette[0], palette[1], symbolSvg);
+  const iconUrl = createIconSvg(id, item.name, symbolSvg, palette[0], palette[1], '#ffffff');
+  const thumbUrl = createThumbnailSvg(id, item.name, item.cat, palette[0], palette[1], symbolSvg);
   const screenshots = [
-    createScreenshotSvg(item.name, 1, palette[0], palette[1]),
-    createScreenshotSvg(item.name, 2, palette[1], palette[0]),
-    createScreenshotSvg(item.name, 3, palette[0], '#111827'),
+    createScreenshotSvg(id, item.name, 1, palette[0], palette[1]),
+    createScreenshotSvg(id, item.name, 2, palette[1], palette[0]),
+    createScreenshotSvg(id, item.name, 3, palette[0], '#111827'),
   ];
 
   // リリース日: 2025年1月〜2026年10月のランダムUnixtime(ミリ秒)

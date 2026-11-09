@@ -195,6 +195,40 @@ v-dialog(
                         hide-details
                       )
 
+              //- スクリーンショット画像一覧
+              v-col(cols="12")
+                v-card.pa-3.mb-2(variant="outlined" rounded="lg")
+                  .d-flex.align-center.justify-space-between.mb-2
+                    span.font-weight-medium スクリーンショット画像
+                    v-chip(v-if="appData.images && appData.images.length" size="x-small" color="primary") {{ appData.images.length }}枚
+                  .d-flex.flex-wrap.gap-2.mb-3(v-if="appData.images && appData.images.length")
+                    .screenshot-thumb-box(
+                      v-for="(img, idx) in appData.images"
+                      :key="idx"
+                      style="position: relative; width: 100px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(128,128,128,0.3);"
+                    )
+                      img(:src="img" style="width: 100%; height: 100%; object-fit: cover;")
+                      v-btn(
+                        icon="mdi-close"
+                        size="x-small"
+                        color="error"
+                        variant="flat"
+                        density="compact"
+                        style="position: absolute; top: 2px; right: 2px; width: 20px; height: 20px;"
+                        @click="removeScreenshot(idx)"
+                      )
+                  v-file-input(
+                    accept="image/*"
+                    label="スクリーンショット画像を追加"
+                    variant="outlined"
+                    density="compact"
+                    prepend-icon=""
+                    prepend-inner-icon="mdi-image-plus"
+                    hide-details
+                    :loading="uploadingScreenshot"
+                    @change="handleScreenshotUpload"
+                  )
+
             //- プラットフォーム & 言語
             .form-section-title.mt-4 対応プラットフォーム & 言語
             .mb-2
@@ -571,7 +605,7 @@ import { defineComponent } from 'vue'
 import { useAppStore, type AppInfo } from '@/stores/app'
 import { useMusicStore, type MusicItem } from '@/stores/music'
 import { useMyProfileStore } from '@/stores/myProfile'
-import { saveAppToDB, saveMusicToDB, uploadAudioToPHP } from '@/js/contentApi'
+import { saveAppToDB, saveMusicToDB, uploadAudioToPHP, uploadImageToPHP } from '@/js/contentApi'
 
 export default defineComponent({
   name: 'AdminRegisterModal',
@@ -608,6 +642,7 @@ export default defineComponent({
         summary: '',
         icon: '',
         thumbnail: '',
+        images: [] as string[],
         platforms: ['Windows', 'Android', 'Web'] as string[],
         languages: ['日本語'] as string[],
         description: '',
@@ -673,6 +708,8 @@ export default defineComponent({
       previewDuration: 0,
 
       // 処理フラグ
+      uploadingImage: false,
+      uploadingScreenshot: false,
       submittingApp: false,
       submittingMusic: false,
       snackbar: {
@@ -780,6 +817,10 @@ export default defineComponent({
         this.appData.icon = item.icon || ''
         this.appData.thumbnail =
           item.thumbnail || (item.images && item.images[0]) || ''
+        this.appData.images =
+          Array.isArray(item.images) && item.images.length > 0
+            ? [...item.images]
+            : (item.thumbnail ? [item.thumbnail] : [])
         this.appData.platforms =
           Array.isArray(item.platforms) && item.platforms.length > 0
             ? [...item.platforms]
@@ -1045,6 +1086,39 @@ export default defineComponent({
     },
 
     // ==================== 画像アップロード ====================
+    async uploadSingleFile(file: File): Promise<string | null> {
+      const formData = new FormData()
+      formData.append('image', file)
+
+      // 1. まず Nuxt Nitro の /api/upload-image を試す
+      try {
+        const res = await fetch('/api/upload-image', {
+          method: 'POST',
+          body: formData,
+        })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.status === 'ok' && data.url) {
+            return data.url
+          }
+        }
+      } catch (e) {
+        console.warn('upload-image via nitro failed, trying PHP endpoint:', e)
+      }
+
+      // 2. 失敗した場合は PHP 側の uploadImage.php を試す
+      try {
+        const res = await uploadImageToPHP(formData)
+        if (res.status === 'ok' && res.url) {
+          return res.url
+        }
+      } catch (e) {
+        console.warn('upload-image via PHP failed:', e)
+      }
+
+      return null
+    },
+
     async handleImageUpload(
       event: Event,
       targetField: 'app_icon' | 'app_thumbnail' | 'music_cover',
@@ -1052,6 +1126,8 @@ export default defineComponent({
       const target = event.target as HTMLInputElement
       const file = target.files?.[0]
       if (!file) return
+
+      this.uploadingImage = true
 
       // まずBase64で即時プレビュー
       const reader = new FileReader()
@@ -1064,26 +1140,50 @@ export default defineComponent({
       }
       reader.readAsDataURL(file)
 
-      // サーバーへもアップロード
-      const formData = new FormData()
-      formData.append('image', file)
+      // サーバーへアップロードして実URLに置き換える
       try {
-        const res = await fetch('/api/upload-image', {
-          method: 'POST',
-          body: formData,
-        })
-        if (res.ok) {
-          const data = await res.json()
-          if (data.status === 'ok' && data.url) {
-            if (targetField === 'app_icon') this.appData.icon = data.url
-            else if (targetField === 'app_thumbnail')
-              this.appData.thumbnail = data.url
-            else if (targetField === 'music_cover')
-              this.musicData.cover = data.url
-          }
+        const url = await this.uploadSingleFile(file)
+        if (url) {
+          if (targetField === 'app_icon') this.appData.icon = url
+          else if (targetField === 'app_thumbnail') this.appData.thumbnail = url
+          else if (targetField === 'music_cover') this.musicData.cover = url
         }
       } catch (err) {
-        console.warn('Image upload to server error:', err)
+        console.warn('Image upload error:', err)
+      } finally {
+        this.uploadingImage = false
+      }
+    },
+
+    async handleScreenshotUpload(event: Event) {
+      const target = event.target as HTMLInputElement
+      const file = target.files?.[0]
+      if (!file) return
+
+      this.uploadingScreenshot = true
+      try {
+        const url = await this.uploadSingleFile(file)
+        if (url) {
+          if (!Array.isArray(this.appData.images)) {
+            this.appData.images = []
+          }
+          this.appData.images.push(url)
+          this.showToast('スクリーンショットを追加しました', 'success')
+        } else {
+          this.showToast('画像のアップロードに失敗しました', 'error')
+        }
+      } catch (err) {
+        console.error('Screenshot upload error:', err)
+        this.showToast('画像のアップロードに失敗しました', 'error')
+      } finally {
+        this.uploadingScreenshot = false
+        target.value = ''
+      }
+    },
+
+    removeScreenshot(index: number) {
+      if (Array.isArray(this.appData.images)) {
+        this.appData.images.splice(index, 1)
       }
     },
 
@@ -1120,21 +1220,22 @@ export default defineComponent({
         })
       }
 
-      // デフォルト画像の用意
+      // デフォルト画像の用意 (実体ファイルへのURL)
       const fallbackIcon =
-        this.appData.icon ||
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><rect width="256" height="256" rx="56" fill="%236366F1"/><text x="128" y="145" font-size="80" text-anchor="middle" fill="white" font-weight="bold">${this.appData.name.charAt(
-          0,
-        )}</text></svg>`
+        this.appData.icon || '/uploads/images/apps/default_app_icon.svg'
 
       const fallbackThumbnail =
-        this.appData.thumbnail ||
-        `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360"><rect width="640" height="360" fill="%234338CA"/><text x="320" y="190" font-size="32" text-anchor="middle" fill="white" font-weight="bold">${encodeURIComponent(
-          this.appData.name,
-        )}</text></svg>`
+        this.appData.thumbnail || '/uploads/images/apps/default_app_thumb.svg'
 
       const isEdit = this.isEditMode
       const existing = isEdit ? this.editItem : null
+
+      const appImages =
+        Array.isArray(this.appData.images) && this.appData.images.length > 0
+          ? this.appData.images
+          : existing?.images && existing.images.length > 0
+            ? existing.images
+            : [fallbackThumbnail]
 
       const newApp: AppInfo = {
         name: this.appData.name,
@@ -1148,10 +1249,7 @@ export default defineComponent({
         languages: [...this.appData.languages],
         links,
         githubUrl: this.appData.githubUrl || undefined,
-        images:
-          existing?.images && existing.images.length > 0
-            ? existing.images
-            : [fallbackThumbnail],
+        images: appImages,
         type: this.appData.type,
         category: this.appData.category,
         rating: existing?.rating ?? 5.0,

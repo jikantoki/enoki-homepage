@@ -5,6 +5,7 @@ require_once DIR_ROOT . '/php/myAutoLoad.php';
 require_once DIR_ROOT . '/php/functions/authAPIforUse.php';
 require_once DIR_ROOT . '/php/functions/authAccountforUse.php';
 require_once DIR_ROOT . '/php/functions/database.php';
+require_once DIR_ROOT . '/php/functions/imageStorage.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
@@ -32,12 +33,21 @@ if (empty($data['name']) || empty($data['id'])) {
 
 $now = time();
 $appId = trim($data['id']);
+$safeId = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $appId) ?: 'app';
 $name = trim($data['name']);
 $type = !empty($data['type']) ? $data['type'] : 'app';
 $category = !empty($data['category']) ? $data['category'] : '便利ツール';
 $price = isset($data['price']) ? intval($data['price']) : 0;
-$icon = !empty($data['icon']) ? $data['icon'] : '';
-$thumbnail = !empty($data['thumbnail']) ? $data['thumbnail'] : '';
+
+// 画像データ（Base64 / SVG Data URI）をファイルとして保存し、URL形式に変換
+$rawIcon = !empty($data['icon']) ? $data['icon'] : '';
+$rawThumbnail = !empty($data['thumbnail']) ? $data['thumbnail'] : '';
+$rawImages = isset($data['images']) ? $data['images'] : [];
+
+$icon = saveImageUriToFile($rawIcon, 'apps', "{$safeId}_icon");
+$thumbnail = saveImageUriToFile($rawThumbnail, 'apps', "{$safeId}_thumb");
+$processedImages = processAppImagesList($rawImages, $safeId);
+
 $description = !empty($data['description']) ? $data['description'] : '';
 $summary = !empty($data['summary']) ? $data['summary'] : '';
 $platforms = isset($data['platforms']) ? (is_array($data['platforms']) ? json_encode($data['platforms'], JSON_UNESCAPED_UNICODE) : $data['platforms']) : '[]';
@@ -45,7 +55,7 @@ $languages = isset($data['languages']) ? (is_array($data['languages']) ? json_en
 $links = isset($data['links']) ? (is_array($data['links']) ? json_encode($data['links'], JSON_UNESCAPED_UNICODE) : $data['links']) : '[]';
 $githubUrl = !empty($data['githubUrl']) ? $data['githubUrl'] : null;
 $videoUrl = !empty($data['videoUrl']) ? $data['videoUrl'] : null;
-$images = isset($data['images']) ? (is_array($data['images']) ? json_encode($data['images'], JSON_UNESCAPED_UNICODE) : $data['images']) : '[]';
+$images = json_encode($processedImages, JSON_UNESCAPED_UNICODE);
 $rating = isset($data['rating']) ? floatval($data['rating']) : 5.0;
 $downloads = !empty($data['downloads']) ? $data['downloads'] : 'NEW';
 $developer = !empty($data['developer']) ? $data['developer'] : 'エノキ電気';
@@ -135,11 +145,19 @@ if (!$mysqlSaved) {
   exit;
 }
 
+// レスポンス用データの更新
+$responseData = array_merge($data, [
+  'id' => $appId,
+  'icon' => $icon,
+  'thumbnail' => $thumbnail,
+  'images' => $processedImages,
+]);
+
 echo json_encode([
   'status' => 'ok',
   'message' => 'アプリ情報をデータベースに登録・更新しました。',
   'mysqlSaved' => $mysqlSaved,
   'mysqlError' => $mysqlError,
   'appId' => $appId,
-  'data' => $data,
+  'data' => $responseData,
 ], JSON_UNESCAPED_UNICODE);
