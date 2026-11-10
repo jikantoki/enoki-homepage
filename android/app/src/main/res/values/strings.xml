@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">エノキ電気アプリ</string>
+    <string name="title_activity_main">エノキ電気アプリ</string>
+    <string name="package_name">xyz.enoki.home</string>
+    <string name="custom_url_scheme">xyz.enoki.home</string>
+</resources>
