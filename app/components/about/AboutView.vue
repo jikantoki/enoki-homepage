@@ -302,6 +302,14 @@
           v-divider.my-3
 
           .app-action-list
+            .action-item(v-ripple @click="openURL('https://github.com/jikantoki/enoki-homepage')")
+              .action-icon
+                v-icon mdi-information-outline
+              .action-text
+                p.action-title Github
+                p.action-sub jikantoki/enoki-homepage
+
+          .app-action-list
             .action-item(v-ripple @click="developerOptionToggle")
               .action-icon
                 v-icon mdi-information-outline
@@ -654,7 +662,8 @@ export default {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.2s ease, border-color 0.2s ease,
+        box-shadow 0.2s ease;
 
       &:hover {
         transform: translateY(-2px);
