@@ -1,6 +1,10 @@
 <IfModule mod_rewrite.c>
+  Options -MultiViews
   RewriteEngine On
   RewriteBase /
+
+  # uploads, download, customfiles は php/public/ 側に実体があるためそちらへリライト
+  RewriteRule ^(uploads|download|customfiles)/(.*)$ /php/public/$1/$2 [L]
 
   # 実在するファイルやディレクトリへのアクセスはそのまま配信
   RewriteCond %{REQUEST_FILENAME} -f [OR]

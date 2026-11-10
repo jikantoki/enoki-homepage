@@ -1,15 +1,33 @@
 <IfModule mod_rewrite.c>
+  Options -MultiViews
   RewriteEngine on
   RewriteBase /
+
+  # 1. 静的アセット (/public/uploads, /uploads, /public/download, /download, /public/customfiles, /customfiles)
+  #    php/public/ 配下にある実ファイルへ確実にリライト
+  RewriteRule ^public/(uploads|download|customfiles)/(.*)$ /php/public/$1/$2 [L]
+  RewriteRule ^(uploads|download|customfiles)/(.*)$ /php/public/$1/$2 [L]
+
+  # 2. ルートアクセスは php/ へ
   RewriteRule ^$ php/ [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
+
+  # 3. 実在するファイルやディレクトリはそのまま配信
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 4. php/ 配下へのリライト（無限ループ防止: すでに php/ から始まる場合は再処理しない）
+  RewriteCond %{REQUEST_URI} !^/php/
   RewriteRule ^(.+)$ php/$1 [L]
 </IfModule>
 
 # CORS 許可
-Header append Access-Control-Allow-Origin: "*"
-Header append Access-Control-Allow-Headers: "*"
+<IfModule mod_headers.c>
+  Header set Access-Control-Allow-Origin "*"
+  Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, HEAD"
+  Header set Access-Control-Allow-Headers "*"
+  Header set Accept-Ranges bytes
+</IfModule>
 
 # 音声ファイル (mp3 等) アップロード用の上限設定（mod_php 環境用）
 <IfModule mod_php.c>

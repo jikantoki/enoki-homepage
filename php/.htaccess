@@ -1,0 +1,20 @@
+<IfModule mod_rewrite.c>
+  Options -MultiViews
+  RewriteEngine On
+  RewriteBase /php/
+
+  # uploads, download, customfiles へのアクセスを public/ 配下へ転送
+  RewriteRule ^(uploads|download|customfiles)/(.*)$ /php/public/$1/$2 [L]
+
+  # 実在するファイルやディレクトリはそのまま配信
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header set Access-Control-Allow-Origin "*"
+  Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE, HEAD"
+  Header set Access-Control-Allow-Headers "*"
+  Header set Accept-Ranges bytes
+</IfModule>
