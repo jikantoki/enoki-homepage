@@ -312,6 +312,7 @@ export default {
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
     padding-bottom: 24px;
   }
 

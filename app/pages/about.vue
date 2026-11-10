@@ -112,6 +112,7 @@ export default {
     overflow-y: auto;
     padding: 8px 4px 80px;
     -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
   }
 }
 

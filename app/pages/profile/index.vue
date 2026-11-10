@@ -108,6 +108,7 @@ export default {
     overflow-y: auto;
     padding: 0;
     -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
   }
 
   .bottom-nav-spacer {

@@ -91,37 +91,37 @@
             ) 管理者ログイン中
 
         v-list.options-list
-          v-list-item.item(@click="optionsDialog = false; $router.push('/')")
+          v-list-item.item(@click="goTo('/')")
             .icon-and-text
               v-icon mdi-home-outline
               v-list-item-title ホーム
-          v-list-item.item(@click="optionsDialog = false; $router.push('/qrcode')")
+          v-list-item.item(@click="goTo('/qrcode')")
             .icon-and-text
               v-icon mdi-qrcode-scan
               v-list-item-title QRコードで探す
-          v-list-item.item(@click="optionsDialog = false; $router.push('/download')")
+          v-list-item.item(@click="goTo('/download')")
             .icon-and-text
               v-icon mdi-download-box-outline
               v-list-item-title ダウンロード
-          v-list-item.item(@click="optionsDialog = false; $router.push('/profile')")
+          v-list-item.item(@click="goTo('/profile')")
             .icon-and-text
               v-icon mdi-account-circle-outline
               v-list-item-title プロフィール
-          v-list-item.item(@click="optionsDialog = false; $router.push('/sponsors')")
+          v-list-item.item(@click="goTo('/sponsors')")
             .icon-and-text
               v-icon mdi-handshake-outline
               v-list-item-title スポンサー・友人
-          v-list-item.item(@click="optionsDialog = false; $router.push('/terms')")
+          v-list-item.item(@click="goTo('/terms')")
             .icon-and-text
               v-icon mdi-file-document-outline
               v-list-item-title 利用規約
-          v-list-item.item(@click="optionsDialog = false; $router.push('/privacy')")
+          v-list-item.item(@click="goTo('/privacy')")
             .icon-and-text
               v-icon mdi-shield-lock-outline
               v-list-item-title プライバシーポリシー
           v-list-item.item(
             v-if="isAdmin"
-            @click="optionsDialog = false; $router.push('/admin/manage')"
+            @click="goTo('/admin/manage')"
             style="background: rgba(var(--v-theme-primary), 0.08); border-radius: 8px;"
           )
             .icon-and-text
@@ -129,7 +129,7 @@
               v-list-item-title.font-weight-bold(style="color: rgb(var(--v-theme-primary));") コンテンツ管理 (編集・削除)
           v-list-item.item(
             v-if="isAdmin"
-            @click="optionsDialog = false; $router.push('/admin/register')"
+            @click="goTo('/admin/register')"
             style="background: rgba(var(--v-theme-primary), 0.04); border-radius: 8px; margin-top: 4px;"
           )
             .icon-and-text
@@ -143,7 +143,7 @@
             .icon-and-text
               v-icon(color="error") mdi-logout
               v-list-item-title.font-weight-bold(style="color: rgb(var(--v-theme-error));") 管理者ログアウト
-          v-list-item.item(@click="optionsDialog = false; $router.push('/settings')")
+          v-list-item.item(@click="goTo('/settings')")
             .icon-and-text
               v-icon mdi-cog
               v-list-item-title 設定
@@ -249,13 +249,90 @@ export default {
     },
   },
   methods: {
-    goTo(path: string) {
-      this.$emit('tabClick', path)
-      if (this.currentPath !== path) {
-        this.$router.push(path)
-      } else {
-        // 同じページの場合、トップへスクロール
+    isSamePage(targetPath: string): boolean {
+      const normalize = (p: string) => (p || '').replace(/\/+$/, '') || '/'
+      const current = normalize(this.currentPath)
+      const target = normalize(targetPath)
+
+      // プロフィールとaboutは同一画面として扱う
+      if (target === '/profile') {
+        return current === '/profile' || current === '/about'
+      }
+
+      return current === target
+    },
+    scrollToTop() {
+      if (typeof window === 'undefined') return
+
+      // 1. window / document
+      try {
         window.scrollTo({ top: 0, behavior: 'smooth' })
+      } catch {
+        window.scrollTo(0, 0)
+      }
+      if (document.documentElement) {
+        try {
+          document.documentElement.scrollTo({ top: 0, behavior: 'smooth' })
+        } catch {
+          document.documentElement.scrollTop = 0
+        }
+      }
+      if (document.body) {
+        try {
+          document.body.scrollTo({ top: 0, behavior: 'smooth' })
+        } catch {
+          document.body.scrollTop = 0
+        }
+      }
+
+      // 2. 代表的なアプリ内スクロールコンテナ
+      const selectors = [
+        '.home-scroll-container',
+        '.store-scroll-content',
+        '.profile-page-content',
+        '.about-page-content',
+        '.detail-scroll-content',
+        '.music-scroll-content',
+        '.download-page-content',
+        '.terms-page-content',
+        '.privacy-page-content',
+        '.sponsors-page-content',
+        '.notfound-page-content',
+        '.v-card-text',
+        'main',
+      ]
+
+      const containers = document.querySelectorAll<HTMLElement>(selectors.join(','))
+      containers.forEach((el) => {
+        if (el && el.scrollTop > 0) {
+          try {
+            el.scrollTo({ top: 0, behavior: 'smooth' })
+          } catch {
+            el.scrollTop = 0
+          }
+        }
+      })
+
+      // 3. 画面内でスクロールされている任意の要素もすべてトップへ
+      const allElements = document.querySelectorAll<HTMLElement>('*')
+      allElements.forEach((el) => {
+        if (el && el.scrollTop > 0) {
+          try {
+            el.scrollTo({ top: 0, behavior: 'smooth' })
+          } catch {
+            el.scrollTop = 0
+          }
+        }
+      })
+    },
+    goTo(path: string) {
+      this.optionsDialog = false
+      this.$emit('tabClick', path)
+      if (this.isSamePage(path)) {
+        // 同じページの場合、トップへスクロール
+        this.scrollToTop()
+      } else {
+        this.$router.push(path)
       }
     },
     async shareSite() {
