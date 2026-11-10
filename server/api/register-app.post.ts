@@ -79,20 +79,26 @@ function generateAppThumbnailSvg(name: string, category: string = 'アプリ'): 
 </svg>`
 }
 
+function getApiHostUrl(): string {
+  const config = useRuntimeConfig()
+  return String(config.public?.apiHost || process.env.NUXT_API_HOST || 'https://api.home.enoki.xyz').replace(/\/+$/, '')
+}
+
 async function saveSvgToFile(svg: string, prefix: string): Promise<string> {
-  const uploadDir = path.resolve(process.cwd(), 'public/uploads/images')
+  const uploadDir = path.resolve(process.cwd(), 'php/public/uploads/images')
   await fs.mkdir(uploadDir, { recursive: true })
   const filename = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}.svg`
   await fs.writeFile(path.join(uploadDir, filename), svg, 'utf-8')
-  return `/uploads/images/${filename}`
+  const host = getApiHostUrl()
+  return `${host}/public/uploads/images/${filename}`
 }
 
 async function saveImageUri(dataUri: string | undefined, filenameBase: string): Promise<string> {
   if (!dataUri || typeof dataUri !== 'string') {
     return ''
   }
+  const host = getApiHostUrl()
   if (
-    dataUri.startsWith('/uploads/') ||
     dataUri.startsWith('http://') ||
     dataUri.startsWith('https://') ||
     dataUri.startsWith('/img/') ||
@@ -100,8 +106,14 @@ async function saveImageUri(dataUri: string | undefined, filenameBase: string): 
   ) {
     return dataUri
   }
+  if (dataUri.startsWith('/public/uploads/')) {
+    return `${host}${dataUri}`
+  }
+  if (dataUri.startsWith('/uploads/')) {
+    return `${host}/public${dataUri}`
+  }
 
-  const uploadDir = path.resolve(process.cwd(), 'public/uploads/images')
+  const uploadDir = path.resolve(process.cwd(), 'php/public/uploads/images')
   await fs.mkdir(uploadDir, { recursive: true })
 
   // 1. SVG Data URI
@@ -119,7 +131,7 @@ async function saveImageUri(dataUri: string | undefined, filenameBase: string): 
     }
     const filename = `${filenameBase}_${Date.now()}.svg`
     await fs.writeFile(path.join(uploadDir, filename), svgContent, 'utf-8')
-    return `/uploads/images/${filename}`
+    return `${host}/public/uploads/images/${filename}`
   }
 
   // 2. ラスター画像
@@ -130,7 +142,7 @@ async function saveImageUri(dataUri: string | undefined, filenameBase: string): 
     const buffer = Buffer.from(rasterMatch[2], 'base64')
     const filename = `${filenameBase}_${Date.now()}.${ext}`
     await fs.writeFile(path.join(uploadDir, filename), buffer)
-    return `/uploads/images/${filename}`
+    return `${host}/public/uploads/images/${filename}`
   }
 
   return dataUri

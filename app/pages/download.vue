@@ -299,6 +299,7 @@ import {
 import { useSettingsStore } from '@/stores/settings'
 import Setup from '@/js/setup'
 import mixins from '@/mixins/mixins'
+import { resolvePublicAssetUrl } from '@/utils/assetUrl'
 
 export default {
   name: 'DownloadPage',
@@ -368,7 +369,7 @@ export default {
     openImageModal(url: string, title: string, caption?: string) {
       this.imageModal = {
         isOpen: true,
-        url,
+        url: resolvePublicAssetUrl(url),
         title,
         caption: caption || '',
       }
@@ -379,10 +380,11 @@ export default {
     },
     async handleDownload(item: DownloadItem) {
       if (!item.downloadUrl) return
-      const filename = item.downloadUrl.split('/').pop() || item.title
+      const targetUrl = resolvePublicAssetUrl(item.downloadUrl)
+      const filename = targetUrl.split('/').pop() || item.title
       try {
         const link = document.createElement('a')
-        link.href = item.downloadUrl
+        link.href = targetUrl
         link.download = decodeURIComponent(filename)
         link.target = '_blank'
         link.rel = 'noopener noreferrer'
@@ -395,7 +397,7 @@ export default {
           duration: 'short',
         })
       } catch {
-        window.open(item.downloadUrl, '_blank')
+        window.open(targetUrl, '_blank')
       }
     },
     async sharePage() {

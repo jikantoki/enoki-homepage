@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import mockAppsData from '../data/apps.json'
 import { fetchAppList } from '@/js/contentApi'
 import { idbGet, idbSet, IDB_KEY_APPS } from '@/js/indexedDb'
+import { normalizeAppAssetUrls } from '@/utils/assetUrl'
 
 /**
  * サポートされているプラットフォーム種別
@@ -342,7 +343,7 @@ export const useAppStore = defineStore('app', {
         const cached = await idbGet<AppOrMusicItem[]>(IDB_KEY_APPS)
         if (Array.isArray(cached) && cached.length > 0) {
           if (!this.dbLoaded || this.list.length === 0) {
-            this.list = cached
+            this.list = (cached || []).map(item => normalizeAppAssetUrls(item))
           }
           this.cacheLoaded = true
           return cached
@@ -357,9 +358,10 @@ export const useAppStore = defineStore('app', {
       this.dbLoading = true
       try {
         const list = await fetchAppList<AppOrMusicItem>()
-        this.list = list
+        const normalized = (list || []).map(item => normalizeAppAssetUrls(item))
+        this.list = normalized
         this.dbLoaded = true
-        await idbSet(IDB_KEY_APPS, list)
+        await idbSet(IDB_KEY_APPS, normalized)
         this.dbError = null
         return true
       } catch (err: any) {
@@ -392,7 +394,7 @@ export const useAppStore = defineStore('app', {
         this.list.length === 0 ||
         !this.list.some(item => (item.platforms || []).includes('Windows'))
       if (force || needsRefresh) {
-        this.list = [...(mockAppsData as AppOrMusicItem[])]
+        this.list = (mockAppsData as AppOrMusicItem[]).map(item => normalizeAppAssetUrls(item))
       }
     },
     /**
@@ -400,6 +402,7 @@ export const useAppStore = defineStore('app', {
      * @param item - 追加するアプリまたは楽曲情報
      */
     addItem(item: AppOrMusicItem) {
+      item = normalizeAppAssetUrls(item)
       const existingIdx = this.list.findIndex(t => t.id === item.id)
       if (existingIdx !== -1) {
         this.list[existingIdx] = item

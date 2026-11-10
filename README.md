@@ -278,8 +278,13 @@ enoki-homepage/
 │   ├── icon-background.png             # アイコン背景
 │   ├── icon-foreground.png             # アイコン前景
 │   └── icon-only.png                   # アイコン単体
-├── php/                                # PHP API バックエンド
-│   ├── .user.ini                       # PHP 実行時設定（アップロード上限等）
+├── php/                                # PHP API バックエンド（APIサーバー別端末ホスト対応）
+│   ├── public/                         # APIサーバー配下の大容量静的アセット（Vercel成果物外へ分離）
+│   │   ├── customfiles/                # ダウンロードセンター配布用ファイル（ZIP, XLSX, OUD2 等）
+│   │   ├── download/images/            # ダウンロードセンターアイテム紹介画像群
+│   │   └── uploads/                    # ユーザー・管理者アップロードファイル
+│   │       ├── audio/                  # アップロードされた音声ファイル群 (mp3/wav/m4a等)
+│   │       └── images/                 # アップロードされた画像ファイル群 (apps/, music/ 等)
 │   ├── functions/                      # 共通処理・関数群
 │   │   ├── database.php                # DB 接続・CRUD・OTP生成などのコア関数
 │   │   ├── authAPI.php / authAPIforUse.php         # API アクセス認証
@@ -288,7 +293,8 @@ enoki-homepage/
 │   │   ├── id3Parser.php               # 音声ファイルメタデータ・ジャケット抽出
 │   │   ├── imageStorage.php            # 画像ファイル保存・URLパス変換
 │   │   ├── mailFunctions.php           # PHPMailer メール送信処理
-│   │   └── push.php                    # WebPush 送信処理
+│   │   ├── push.php                    # WebPush 送信処理
+│   │   └── urlHelper.php               # APIサーバー完全URL解決ヘルパー
 │   ├── acceptFriend.php                # 友達申請承認
 │   ├── authAccount.php                 # アカウント認証チェック
 │   ├── createAccount.php               # 新規アカウント作成
@@ -297,8 +303,8 @@ enoki-homepage/
 │   ├── deleteMusic.php                 # 音楽情報 MySQL & JSON 削除 API
 │   ├── deletePushToken.php             # プッシュ通知トークン削除
 │   ├── friendRequest.php               # 友達申請送信
-│   ├── getApps.php                     # アプリ一覧 MySQL 取得 API
-│   ├── getMusic.php                    # 楽曲一覧 MySQL 取得 API
+│   ├── getApps.php                     # アプリ一覧 MySQL 取得 API（完全URL正規化）
+│   ├── getMusic.php                    # 楽曲一覧 MySQL 取得 API（完全URL正規化）
 │   ├── getMyFriendList.php             # 友達リスト取得
 │   ├── getProfile.php                  # プロフィール情報取得
 │   ├── insertPushToken.php             # プッシュ通知トークン登録
@@ -316,19 +322,14 @@ enoki-homepage/
 │   ├── settings.php                    # CORS・共通ヘッダー設定
 │   ├── updateGeoLocation.php           # 位置情報更新
 │   ├── updateProfile.php               # プロフィール更新
-│   ├── uploadAudio.php                 # 音声ファイル (mp3/wav/m4a) アップロード API
-│   └── uploadImage.php                 # 画像ファイル (png/jpg/webp/svg/gif) アップロード API
-├── public/                             # 静的アセット（Web公開ディレクトリ）
+│   ├── uploadAudio.php                 # 音声ファイル (mp3/wav/m4a) アップロード API (/php/public/uploads/audio/ に保存)
+│   └── uploadImage.php                 # 画像ファイル (png/jpg/webp/svg/gif) アップロード API (/php/public/uploads/images/ に保存)
+├── public/                             # Nuxt 静的アセット（Web公開ディレクトリ・軽量ファイルのみ）
 │   ├── backgrounds/                    # トップページスライドショー用背景画像群
-│   ├── customfiles/                    # ダウンロードセンター配布用ファイル（ZIP, XLSX, OUD2 等）
 │   ├── data/                           # 公開データ（apps.json, music.json）
-│   ├── download/images/                # ダウンロードセンターアイテム紹介画像群
 │   ├── icons/                          # PWA 用アプリアイコン群 (WebP: 48~512px)
 │   ├── img/                            # サムネイル・画像素材
 │   ├── sponsor/                        # スポンサー・友人ロゴ画像群
-│   ├── uploads/                        # ユーザー・管理者アップロードファイル
-│   │   ├── audio/                      # アップロードされた音声ファイル群 (mp3/wav/m4a等)
-│   │   └── images/                     # アップロードされた画像ファイル群 (apps/, music/ 等)
 │   ├── manifest.json                   # PWA Web App Manifest
 │   ├── sw.js                           # PWA / WebPush 用 Service Worker
 │   ├── favicon.ico                     # ファビコン
@@ -591,7 +592,7 @@ mysql -u your_user -p your_database_name < database.sql
 - 管理ページ（`/admin/manage`）の「編集」ボタン、ボトムナビ「アプリ・音楽を登録」、または各詳細画面（`/apps/[appId]`, `/music/[musicId]`）の管理者バーからモーダルを呼び出せます。
 - **ファイルアップロード**:
   - 音声ファイル（mp3 / wav / m4a等）をアップロードすると、クライアント側で自動的に ID3 タグ（曲名、アーティスト、アルバム、歌詞、ジャケット画像、再生時間）を解析してフォームに入力補完。
-  - 画像ファイル（アプリアイコン、サムネイル、ジャケット）をアップロードすると、`public/uploads/images/` に保存され URL が自動設定されます。
+  - 画像ファイル（アプリアイコン、サムネイル、ジャケット）をアップロードすると、APIサーバーの `php/public/uploads/images/` に保存され URL が自動設定されます。
 - 名前、ID、価格、画像、外部リンク、音声URL、作詞・作曲、歌詞、**未完成フラグ (`isUnfinished`)**、**タグ一覧 (`tags`)** などをフォームから編集・保存可能。
 - 保存を実行すると、MySQL データベースのレコードが `ON DUPLICATE KEY UPDATE` により更新され、サーバー側 JSON ファイルおよび Pinia ストア、IndexedDB キャッシュへ即座に反映されます。
 
@@ -773,8 +774,8 @@ npx @capacitor/assets generate
 
 | エンドポイント                    | メソッド | 説明                                                           |
 | :-------------------------------- | :------- | :------------------------------------------------------------- |
-| `/api/upload-audio`               | POST     | 音声ファイル (mp3/wav/m4a) を `public/uploads/audio/` に保存   |
-| `/api/upload-image`               | POST     | 画像ファイル (png/jpg/webp/svg/gif) を `public/uploads/images/` に保存 |
+| `/api/upload-audio`               | POST     | 音声ファイル (mp3/wav/m4a) を PHP API サーバー (`php/public/uploads/audio/`) に転送・保存 |
+| `/api/upload-image`               | POST     | 画像ファイル (png/jpg/webp/svg/gif) を PHP API サーバー (`php/public/uploads/images/`) に転送・保存 |
 | `/api/register-app`               | POST     | アプリ情報をローカル `apps.json` に登録・更新                  |
 | `/api/register-music`             | POST     | 楽曲情報をローカル `music.json` に登録・更新                   |
 | `/api/delete-app`                 | POST     | アプリ情報をローカル `apps.json` から削除                      |

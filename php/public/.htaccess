@@ -1,0 +1,7 @@
+<IfModule mod_headers.c>
+    # 別端末・別オリジンのフロントエンド (Vercel) からの画像・音声・静的アセットアクセスを許可
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, HEAD, OPTIONS"
+    Header set Access-Control-Allow-Headers "*"
+    Header set Accept-Ranges bytes
+</IfModule>

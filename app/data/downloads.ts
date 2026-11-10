@@ -31,6 +31,25 @@ export interface ExternalResource {
   badge?: string
 }
 
+/**
+ * API サーバーのベースURL (例: https://api.home.enoki.xyz)
+ */
+export const DOWNLOAD_API_HOST =
+  (typeof process !== 'undefined' && process.env?.NUXT_API_HOST) || 'https://api.home.enoki.xyz'
+
+/**
+ * /php/public/ 配下のアセットへの完全URLを生成
+ */
+export function toDownloadAssetUrl(path: string): string {
+  if (!path) return ''
+  if (path.startsWith('http://') || path.startsWith('https://')) return path
+  const clean = path.startsWith('/') ? path : `/${path}`
+  if (clean.startsWith('/public/')) {
+    return `${DOWNLOAD_API_HOST.replace(/\/+$/, '')}${clean}`
+  }
+  return `${DOWNLOAD_API_HOST.replace(/\/+$/, '')}/public${clean}`
+}
+
 export const DOWNLOAD_ITEMS: DownloadItem[] = [
   // ================= 1. オリジナル曲関連データ =================
   {
@@ -43,10 +62,10 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
       'ときえのきオリジナル楽曲「人生のタイムカプセル」のオフボーカル音源（カラオケ）と歌詞テキストファイルです。歌ってみた、BGM利用、二次創作等にご活用いただけます。',
     format: 'ZIP',
     formatColor: 'amber-darken-2',
-    downloadUrl: '/customfiles/jinseitimec.zip',
+    downloadUrl: toDownloadAssetUrl('/customfiles/jinseitimec.zip'),
     images: [
       {
-        url: '/download/images/download-pkg.png',
+        url: toDownloadAssetUrl('/download/images/download-pkg.png'),
         caption: '人生のタイムカプセル 配布パッケージ',
       },
     ],
@@ -63,10 +82,10 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
       'ときえのきオリジナル楽曲「コンパイラ」のオフボーカル音源（カラオケ）と歌詞テキストファイルです。歌ってみた、BGM利用、二次創作等にご活用いただけます。',
     format: 'ZIP',
     formatColor: 'amber-darken-2',
-    downloadUrl: '/customfiles/compiler_haihu.zip',
+    downloadUrl: toDownloadAssetUrl('/customfiles/compiler_haihu.zip'),
     images: [
       {
-        url: '/download/images/download-pkg.png',
+        url: toDownloadAssetUrl('/download/images/download-pkg.png'),
         caption: 'コンパイラ 配布パッケージ',
       },
     ],
@@ -88,7 +107,7 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
     externalUrl: 'https://caramelos.xyz',
     images: [
       {
-        url: '/download/images/caramel-os-10.jpg',
+        url: toDownloadAssetUrl('/download/images/caramel-os-10.jpg'),
         caption: 'Caramel OS 1.0 デスクトップ',
       },
     ],
@@ -107,7 +126,7 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
     externalUrl: 'https://caramelos.xyz/other/upper',
     images: [
       {
-        url: '/download/images/upper-linux-1804.jpg',
+        url: toDownloadAssetUrl('/download/images/upper-linux-1804.jpg'),
         caption: 'Upper Linux 18.04 概要',
       },
     ],
@@ -125,7 +144,7 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
     externalUrl: 'https://caramelos.xyz/download/',
     images: [
       {
-        url: '/download/images/caramel-os-10.jpg',
+        url: toDownloadAssetUrl('/download/images/caramel-os-10.jpg'),
         caption: 'Upper Linux Xfce 18.04',
       },
     ],
@@ -142,10 +161,10 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
       'JR東日本首都圏の路線図に勝手な妄想・脚色を加えた夢の路線図です。Excelファイル（.xlsx）としてダウンロードできます。',
     format: 'XLSX',
     formatColor: 'teal-darken-1',
-    downloadUrl: '/customfiles/%E5%A6%84%E6%83%B3%E8%B7%AF%E7%B7%9A%E5%9B%B3.xlsx',
+    downloadUrl: toDownloadAssetUrl('/customfiles/%E5%A6%84%E6%83%B3%E8%B7%AF%E7%B7%9A%E5%9B%B3.xlsx'),
     images: [
       {
-        url: '/download/images/jr-east-mousou.png',
+        url: toDownloadAssetUrl('/download/images/jr-east-mousou.png'),
         caption: 'JR東日本 妄想路線図 プレビュー',
       },
     ],
@@ -160,10 +179,10 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
       'JR東日本首都圏の路線図から支線と快速を省き、純粋な各駅停車・普通列車の運行系統に焦点を当てた路線図です。',
     format: 'XLSX',
     formatColor: 'teal-darken-1',
-    downloadUrl: '/customfiles/%E7%B5%B6%E5%AF%BE%E6%99%AE%E9%80%9A%E8%B7%AF%E7%B7%9A%E5%9B%B3.xlsx',
+    downloadUrl: toDownloadAssetUrl('/customfiles/%E7%B5%B6%E5%AF%BE%E6%99%AE%E9%80%9A%E8%B7%AF%E7%B7%9A%E5%9B%B3.xlsx'),
     images: [
       {
-        url: '/download/images/jr-east-futsu.png',
+        url: toDownloadAssetUrl('/download/images/jr-east-futsu.png'),
         caption: '絶対普通路線図 プレビュー',
       },
     ],
@@ -178,10 +197,10 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
       'JR東日本首都圏の路線図から、1時間に1本以上の快速運転がある範囲のみを分かりやすく切り取った路線図です。',
     format: 'XLSX',
     formatColor: 'teal-darken-1',
-    downloadUrl: '/customfiles/%E5%AE%9A%E6%9C%9F%E5%BF%AB%E9%80%9F%E8%B7%AF%E7%B7%9A%E5%9B%B3.xlsx',
+    downloadUrl: toDownloadAssetUrl('/customfiles/%E5%AE%9A%E6%9C%9F%E5%BF%AB%E9%80%9F%E8%B7%AF%E7%B7%9A%E5%9B%B3.xlsx'),
     images: [
       {
-        url: '/download/images/jr-east-kaisoku.png',
+        url: toDownloadAssetUrl('/download/images/jr-east-kaisoku.png'),
         caption: '定期快速路線図 プレビュー',
       },
     ],
@@ -196,10 +215,10 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
       'JR東日本首都圏の路線図をより合理的に再設計した路線図です。Excelファイル（.xlsx）でお届けします。',
     format: 'XLSX',
     formatColor: 'teal-darken-1',
-    downloadUrl: '/customfiles/%E5%90%88%E7%90%86%E5%8C%96%E3%81%95%E3%82%8C%E3%81%9F%E8%B7%AF%E7%B7%9A%E5%9B%B3.xlsx',
+    downloadUrl: toDownloadAssetUrl('/customfiles/%E5%90%88%E7%90%86%E5%8C%96%E3%81%95%E3%82%8C%E3%81%9F%E8%B7%AF%E7%B7%9A%E5%9B%B3.xlsx'),
     images: [
       {
-        url: '/download/images/download-pkg.png',
+        url: toDownloadAssetUrl('/download/images/download-pkg.png'),
         caption: '合理化された路線図',
       },
     ],
@@ -214,11 +233,12 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
       '東海道本線が函南に停車！全駅の乗り換え案内付き。現在は青森から姫路まで完成しており、いつか博多まで延伸予定の壮大な直通路線図です。',
     format: 'XLSX',
     formatColor: 'teal-darken-1',
-    downloadUrl:
+    downloadUrl: toDownloadAssetUrl(
       '/customfiles/%E6%9D%B1%E5%8C%97%E6%9C%AC%E7%B7%9A%E3%83%BB%E6%9D%B1%E6%B5%B7%E9%81%93%E6%9C%AC%E7%B7%9A%E8%B7%AF%E7%B7%9A%E5%9B%B3.xlsx',
+    ),
     images: [
       {
-        url: '/download/images/japan-tyokutou.png',
+        url: toDownloadAssetUrl('/download/images/japan-tyokutou.png'),
         caption: '日本の主要路線はすべて直通',
       },
     ],
@@ -234,18 +254,18 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
       '配線図、簡略路線図、種別一覧表の3つを1つのExcelファイルにまとめた妄想鉄道データです。\n【運行範囲】大宮 - 赤羽 - 東京 - 品川 - 羽田 - 木更津 - 館山 - 安房鴨川',
     format: 'XLSX',
     formatColor: 'teal-darken-1',
-    downloadUrl: '/customfiles/%E9%96%A2%E6%9D%B1%E9%AB%98%E9%80%9F%E9%89%84%E9%81%93.xlsx',
+    downloadUrl: toDownloadAssetUrl('/customfiles/%E9%96%A2%E6%9D%B1%E9%AB%98%E9%80%9F%E9%89%84%E9%81%93.xlsx'),
     images: [
       {
-        url: '/download/images/kanto-haisen.png',
+        url: toDownloadAssetUrl('/download/images/kanto-haisen.png'),
         caption: '配線図',
       },
       {
-        url: '/download/images/kanto-rosen.png',
+        url: toDownloadAssetUrl('/download/images/kanto-rosen.png'),
         caption: '簡略路線図',
       },
       {
-        url: '/download/images/kanto-syubetsu.png',
+        url: toDownloadAssetUrl('/download/images/kanto-syubetsu.png'),
         caption: '種別一覧表',
       },
     ],
@@ -261,14 +281,14 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
       '首都圏環状線と房総連絡を網羅する妄想私鉄の路線データです。\n【範囲】\n・環七線: 安房鴨川-安房笹川-木更津-小島新田-鶴見-成城学園前-武蔵境-光ヶ丘-赤羽-北千住-新小岩-西葛西-東京テレポート-品川\n・東房総線: 木更津-上総村上-ちはら台-誉田-八街-成田-印旛日本医大-勝田台-稲毛-磯辺\n・空港線: 茂原-誉田-八街-成田空港-旭新町-銚子-若松中央-鹿島神宮\n・茂原線: 木更津-横田-上総牛久-茂原-九十九里-干潟',
     format: 'XLSX',
     formatColor: 'teal-darken-1',
-    downloadUrl: '/customfiles/%E6%97%A5%E6%9C%AC%E7%AC%AC%E4%B8%89%E9%89%84%E9%81%93.xlsx',
+    downloadUrl: toDownloadAssetUrl('/customfiles/%E6%97%A5%E6%9C%AC%E7%AC%AC%E4%B8%89%E9%89%84%E9%81%93.xlsx'),
     images: [
       {
-        url: '/download/images/japan-third-kannana.png',
+        url: toDownloadAssetUrl('/download/images/japan-third-kannana.png'),
         caption: '環七線 路線図',
       },
       {
-        url: '/download/images/japan-third-higashiboso.png',
+        url: toDownloadAssetUrl('/download/images/japan-third-higashiboso.png'),
         caption: '東房総線 路線図',
       },
     ],
@@ -284,10 +304,10 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
       '細かい種別設定、時刻表、運行ダイヤ、駅の配線情報が記録されたOuDiaSecond用ファイルです（制作途中の未完成データ）。',
     format: 'OUD2',
     formatColor: 'orange-darken-3',
-    downloadUrl: '/customfiles/%E7%BE%BD%E7%94%B0%E7%A9%BA%E6%B8%AF%E5%A4%A7%E5%AE%AE%E7%B7%9A.oud2',
+    downloadUrl: toDownloadAssetUrl('/customfiles/%E7%BE%BD%E7%94%B0%E7%A9%BA%E6%B8%AF%E5%A4%A7%E5%AE%AE%E7%B7%9A.oud2'),
     images: [
       {
-        url: '/download/images/japan-third-oudia.png',
+        url: toDownloadAssetUrl('/download/images/japan-third-oudia.png'),
         caption: '羽田空港大宮線 ダイヤプレビュー',
       },
     ],
@@ -305,16 +325,16 @@ export const DOWNLOAD_ITEMS: DownloadItem[] = [
       '電光掲示板を制御するソフト「LEDVISION」用の行先表示・運行案内データです。JR東日本E233系風のリアルなドットアニメーションを再現しています。',
     format: 'ZIP',
     formatColor: 'amber-darken-2',
-    downloadUrl: '/customfiles/train_led_iroiro.zip',
+    downloadUrl: toDownloadAssetUrl('/customfiles/train_led_iroiro.zip'),
     images: [
       {
-        url: '/download/images/download-pkg.png',
+        url: toDownloadAssetUrl('/download/images/download-pkg.png'),
         caption: 'LEDVISION設定ファイル パッケージ',
       },
     ],
     blogUrl: 'https://blog.caramelos.xyz/electro/denko_tsukuru/',
     blogTitle: '【電子工作】暇だし電光掲示板・行先表示器でも作るか(´・ω・｀)【E233系】',
-    blogImage: '/download/images/denko-blog.jpg',
+    blogImage: toDownloadAssetUrl('/download/images/denko-blog.jpg'),
     youtubeId: 'Q3VU0a8KBfk',
     youtubeTitle: '宇都宮線 新快速 黒磯行き（LED表示再現）',
     note: 'LEDマトリクスのサイズが 32×128 以外の場合、正しく表示されない場合があります。',

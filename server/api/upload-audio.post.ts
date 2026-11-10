@@ -19,7 +19,7 @@ const ALLOWED_MIME_TYPES = [
   'audio/x-flac',
   'audio/aac',
   'audio/webm',
-  'application/octet-stream', // 一部ブラウザでmp3/wavがoctet-streamになる場合がある
+  'application/octet-stream',
 ]
 
 // 最大ファイルサイズ: 100MB
@@ -36,7 +36,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // audio フィールドまたは最初のファイルを探索
     const audioPart =
       formData.find((part) => part.name === 'audio' || part.name === 'file') ||
       formData.find((part) => part.filename)
@@ -65,29 +64,52 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // MIMEタイプチェック（設定されている場合）
-    if (audioPart.type && !ALLOWED_MIME_TYPES.includes(audioPart.type.toLowerCase())) {
-      console.warn(`Warning: Unexpected audio mime type: ${audioPart.type}`)
+    const config = useRuntimeConfig()
+    const apiHost = String(config.public?.apiHost || '').replace(/\/+$/, '')
+
+    // 1. PHP API サーバーが設定されている場合は PHP サーバーへ転送して保存
+    if (apiHost) {
+      try {
+        const phpFormData = new FormData()
+        const blob = new Blob([audioPart.data], { type: audioPart.type || 'audio/mpeg' })
+        phpFormData.append('audio', blob, audioPart.filename)
+
+        const phpRes = await fetch(`${apiHost}/uploadAudio.php`, {
+          method: 'POST',
+          headers: {
+            apiid: String(config.public?.apiId || ''),
+            apitoken: String(config.public?.apiToken || ''),
+            apipassword: String(config.public?.apiAccesskey || ''),
+          },
+          body: phpFormData,
+        })
+
+        if (phpRes.ok) {
+          const phpJson = await phpRes.json()
+          if (phpJson && phpJson.status === 'ok') {
+            return phpJson
+          }
+        }
+      } catch (proxyErr) {
+        console.warn('PHP audio upload proxy error:', proxyErr)
+      }
     }
 
-    // アップロード先ディレクトリの準備
-    const uploadDir = path.resolve(process.cwd(), 'public/uploads/audio')
+    // 2. フォールバック: ローカルの php/public/uploads/audio に保存
+    const uploadDir = path.resolve(process.cwd(), 'php/public/uploads/audio')
     await fs.mkdir(uploadDir, { recursive: true })
 
-    // 安全で一意なファイル名を生成
     const timestamp = Date.now()
     const randomHex = Math.random().toString(36).substring(2, 10)
     const sanitizedOriginalName = path.basename(audioPart.filename, rawExt).replace(/[^a-zA-Z0-9_\-\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f\u4e00-\u9faf]/g, '_').substring(0, 30)
     const finalFilename = `${timestamp}_${randomHex}_${sanitizedOriginalName}${ext}`
     const targetFilePath = path.join(uploadDir, finalFilename)
 
-    // ファイル保存
     await fs.writeFile(targetFilePath, audioPart.data)
 
-    // 公開URLパス
-    const publicUrl = `/uploads/audio/${finalFilename}`
+    const hostBase = apiHost || 'https://api.home.enoki.xyz'
+    const publicUrl = `${hostBase}/public/uploads/audio/${finalFilename}`
 
-    // ID3タグ・メタデータの自動解析およびジャケット画像の保存
     let metadata: {
       title?: string
       artist?: string
@@ -104,11 +126,11 @@ export default defineEventHandler(async (event) => {
       if (parsed.cover && parsed.cover.data && parsed.cover.data.length > 0) {
         const imgExt = parsed.cover.format === 'png' ? '.png' : parsed.cover.format === 'webp' ? '.webp' : '.jpg'
         const coverFilename = `img_${timestamp}_${randomHex}_cover${imgExt}`
-        const imgDir = path.resolve(process.cwd(), 'public/uploads/images')
+        const imgDir = path.resolve(process.cwd(), 'php/public/uploads/images')
         await fs.mkdir(imgDir, { recursive: true })
         const coverPath = path.join(imgDir, coverFilename)
         await fs.writeFile(coverPath, parsed.cover.data)
-        coverUrl = `/uploads/images/${coverFilename}`
+        coverUrl = `${hostBase}/public/uploads/images/${coverFilename}`
       }
 
       if (parsed.title || parsed.artist || parsed.album || parsed.genre || coverUrl) {

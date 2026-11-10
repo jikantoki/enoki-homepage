@@ -219,7 +219,7 @@ function extractMp3MetadataAndCover(string $filePath): array
                 }
             }
             if ($saved) {
-                $result['coverUrl'] = "/uploads/images/{$filename}";
+                $result['coverUrl'] = toApiPublicAssetUrl("/public/uploads/images/{$filename}");
             }
         }
     }

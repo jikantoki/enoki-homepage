@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import mockMusicData from '../data/music.json'
 import { fetchMusicList } from '@/js/contentApi'
 import { idbGet, idbSet, IDB_KEY_MUSIC } from '@/js/indexedDb'
+import { normalizeMusicAssetUrls, resolvePublicAssetUrl } from '@/utils/assetUrl'
 
 /**
  * 音楽ジャンル定数（「歌モノ」「インスト」「AI楽曲」の3つ）
@@ -299,7 +300,7 @@ export const useMusicStore = defineStore('music', {
         const cached = await idbGet<MusicItem[]>(IDB_KEY_MUSIC)
         if (Array.isArray(cached) && cached.length > 0) {
           if (!this.dbLoaded || this.list.length === 0) {
-            this.list = cached
+            this.list = (cached || []).map(t => normalizeMusicAssetUrls(t))
           }
           this.cacheLoaded = true
           return cached
@@ -314,7 +315,8 @@ export const useMusicStore = defineStore('music', {
       this.dbLoading = true
       try {
         const list = await fetchMusicList<MusicItem>()
-        this.list = list
+        const normalized = (list || []).map(t => normalizeMusicAssetUrls(t))
+        this.list = normalized
         // 再生中の曲がDBで更新・削除されていたら反映
         if (this.currentTrack) {
           const latest = list.find(t => t.id === this.currentTrack?.id)
@@ -322,7 +324,7 @@ export const useMusicStore = defineStore('music', {
         }
         this.queue = this.queue.filter(q => list.some(t => t.id === q.id))
         this.dbLoaded = true
-        await idbSet(IDB_KEY_MUSIC, list)
+        await idbSet(IDB_KEY_MUSIC, normalized)
         this.dbError = null
         return true
       } catch (err: any) {
@@ -349,7 +351,7 @@ export const useMusicStore = defineStore('music', {
         this.list.length === 0 ||
         !this.list.some(item => item.genre === '歌モノ')
       if (force || needsRefresh) {
-        this.list = [...(mockMusicData as MusicItem[])]
+        this.list = (mockMusicData as MusicItem[]).map(t => normalizeMusicAssetUrls(t))
       }
     },
 
@@ -357,6 +359,7 @@ export const useMusicStore = defineStore('music', {
      * 新しい楽曲を登録してリストの先頭に追加（既存IDなら更新）
      */
     addTrack(track: MusicItem) {
+      track = normalizeMusicAssetUrls(track)
       const existingIdx = this.list.findIndex(t => t.id === track.id)
       if (existingIdx !== -1) {
         this.list[existingIdx] = track
@@ -430,7 +433,7 @@ export const useMusicStore = defineStore('music', {
       // ※ 失敗してもデモ用シンセには切り替えない（アップロードした曲が鳴らない原因を隠してしまうため）
       if (track.audioUrl) {
         if (typeof window === 'undefined') return
-        const audio = new Audio(track.audioUrl)
+        const audio = new Audio(resolvePublicAssetUrl(track.audioUrl))
         audioElement = audio
         audioTrackId = track.id
         audio.preload = 'auto'

@@ -18,14 +18,17 @@ try {
 
     $apps = [];
     foreach ($rows as $row) {
+      $rawImages = json_decode($row['images'], true) ?: [];
+      $normalizedImages = is_array($rawImages) ? array_map('toApiPublicAssetUrl', $rawImages) : [];
+
       $apps[] = [
         'id' => $row['appId'],
         'name' => $row['name'],
         'type' => $row['type'],
         'category' => $row['category'],
         'price' => intval($row['price']),
-        'icon' => $row['icon'],
-        'thumbnail' => $row['thumbnail'],
+        'icon' => toApiPublicAssetUrl($row['icon']),
+        'thumbnail' => toApiPublicAssetUrl($row['thumbnail']),
         'description' => $row['description'],
         'summary' => $row['summary'],
         'platforms' => json_decode($row['platforms'], true) ?: [],
@@ -33,7 +36,7 @@ try {
         'links' => json_decode($row['links'], true) ?: [],
         'githubUrl' => $row['githubUrl'],
         'videoUrl' => $row['videoUrl'],
-        'images' => json_decode($row['images'], true) ?: [],
+        'images' => $normalizedImages,
         'rating' => floatval($row['rating']),
         'downloads' => $row['downloads'],
         'developer' => $row['developer'],

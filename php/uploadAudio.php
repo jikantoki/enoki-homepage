@@ -8,8 +8,8 @@ require_once DIR_ROOT . '/php/functions/id3Parser.php'; // ID3タグ解析・ジ
 
 header('Content-Type: application/json; charset=UTF-8');
 
-// アップロード先ディレクトリの準備
-$upload_rel_dir = 'uploads/audio/';
+// アップロード先ディレクトリの準備（/php/public/uploads/audio/）
+$upload_rel_dir = 'public/uploads/audio/';
 $upload_dir = __DIR__ . '/' . $upload_rel_dir;
 
 if (!is_dir($upload_dir)) {
@@ -24,15 +24,8 @@ if (!is_dir($upload_dir)) {
 
 // 許可する拡張子
 $allowed_exts = ['mp3', 'wav', 'm4a', 'ogg', 'flac', 'aac', 'webm'];
-// リバースプロキシ / トンネル経由でも https を正しく判定する
-$is_https = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
-  || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower(explode(',', $_SERVER['HTTP_X_FORWARDED_PROTO'])[0]) === 'https')
-  || (isset($_SERVER['HTTP_X_FORWARDED_SSL']) && strtolower($_SERVER['HTTP_X_FORWARDED_SSL']) === 'on')
-  || (isset($_SERVER['HTTP_CF_VISITOR']) && strpos($_SERVER['HTTP_CF_VISITOR'], 'https') !== false)
-  || (isset($_SERVER['SERVER_PORT']) && intval($_SERVER['SERVER_PORT']) === 443);
-$script_dir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
-$base_url = ($is_https ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $script_dir . '/' . $upload_rel_dir;
-$origin_url = ($is_https ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
+$origin_url = getApiOriginUrl();
+$base_url = rtrim($origin_url, '/') . '/' . $upload_rel_dir;
 
 // 1. 通常の multipart/form-data によるファイルアップロードの場合
 if (isset($_FILES['audio']) || isset($_FILES['file'])) {
@@ -72,8 +65,8 @@ if (isset($_FILES['audio']) || isset($_FILES['file'])) {
       try {
         $parsed = extractMp3MetadataAndCover($dest_path);
         if (!empty($parsed)) {
-          if (!empty($parsed['coverUrl']) && !str_starts_with($parsed['coverUrl'], 'http')) {
-            $parsed['coverUrl'] = $origin_url . $parsed['coverUrl'];
+          if (!empty($parsed['coverUrl'])) {
+            $parsed['coverUrl'] = toApiPublicAssetUrl($parsed['coverUrl']);
           }
           $metadata = $parsed;
         }
@@ -138,8 +131,8 @@ if (isset($body_data['audioBase64'])) {
       try {
         $parsed = extractMp3MetadataAndCover($dest_path);
         if (!empty($parsed)) {
-          if (!empty($parsed['coverUrl']) && !str_starts_with($parsed['coverUrl'], 'http')) {
-            $parsed['coverUrl'] = $origin_url . $parsed['coverUrl'];
+          if (!empty($parsed['coverUrl'])) {
+            $parsed['coverUrl'] = toApiPublicAssetUrl($parsed['coverUrl']);
           }
           $metadata = $parsed;
         }

@@ -82,10 +82,12 @@ if (isset($_FILES['image']) || isset($_FILES['file'])) {
   }
 
   if ($saved) {
-    $urlPath = $subDir === 'images' ? "/uploads/images/{$file_name}" : "/uploads/images/{$subDir}/{$file_name}";
+    $urlPath = $subDir === 'images' ? "/public/uploads/images/{$file_name}" : "/public/uploads/images/{$subDir}/{$file_name}";
+    $fullUrl = toApiPublicAssetUrl($urlPath);
     echo json_encode([
       'status' => 'ok',
-      'url' => $urlPath,
+      'url' => $fullUrl,
+      'path' => $urlPath,
       'filename' => $file_name,
       'originalName' => $orig_name,
       'size' => strlen($fileData),

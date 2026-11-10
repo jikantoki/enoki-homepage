@@ -1223,7 +1223,17 @@ export default defineComponent({
       const formData = new FormData()
       formData.append('image', file)
 
-      // 1. まず Nuxt Nitro の /api/upload-image を試す
+      // 1. まず PHP 側の uploadImage.php を実行（すべてのファイルを PHP サーバー側へ保存）
+      try {
+        const res = await uploadImageToPHP(formData)
+        if (res.status === 'ok' && res.url) {
+          return res.url
+        }
+      } catch (phpErr: any) {
+        console.warn('upload-image via PHP failed, trying Nitro endpoint:', phpErr)
+      }
+
+      // 2. PHP 直接呼び出しが失敗した場合は Nitro API (プロキシ経由で PHP へ転送) を試す
       try {
         const res = await fetch('/api/upload-image', {
           method: 'POST',
@@ -1236,17 +1246,7 @@ export default defineComponent({
           }
         }
       } catch (e) {
-        console.warn('upload-image via nitro failed, trying PHP endpoint:', e)
-      }
-
-      // 2. 失敗した場合は PHP 側の uploadImage.php を試す
-      try {
-        const res = await uploadImageToPHP(formData)
-        if (res.status === 'ok' && res.url) {
-          return res.url
-        }
-      } catch (e) {
-        console.warn('upload-image via PHP failed:', e)
+        console.warn('upload-image via nitro failed:', e)
       }
 
       return null

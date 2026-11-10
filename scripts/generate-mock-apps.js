@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const uploadsAppDir = path.resolve('public/uploads/images/apps');
+const uploadsAppDir = path.resolve('php/public/uploads/images/apps');
 if (!fs.existsSync(uploadsAppDir)) {
   fs.mkdirSync(uploadsAppDir, { recursive: true });
 }

@@ -5,6 +5,8 @@
  * アプリ名からアイコン・サムネイルSVGを自動生成して保存するヘルパー関数群
  */
 
+require_once __DIR__ . '/urlHelper.php';
+
 /**
  * アップロード先の物理ディレクトリ一覧を取得
  *
@@ -18,27 +20,23 @@ function getUploadTargetDirectories(string $subDir = ''): array
 
     $candidates = [];
 
-    // 1. DOCUMENT_ROOT/public/uploads/images が最優先
+    // 1. php/public/uploads/images (imageStorage.php の親ディレクトリ php/public)
+    $candidates[] = dirname(__DIR__) . '/public/uploads/images' . $subPath;
+
+    // 2. DOCUMENT_ROOT/public/uploads/images
     if (!empty($_SERVER['DOCUMENT_ROOT'])) {
         $candidates[] = rtrim($_SERVER['DOCUMENT_ROOT'], '/\\') . '/public/uploads/images' . $subPath;
     }
 
-    // 2. DIR_ROOT/public/uploads/images
+    // 3. DIR_ROOT/php/public/uploads/images または DIR_ROOT/public/uploads/images
     if (defined('DIR_ROOT') && DIR_ROOT) {
+        $candidates[] = rtrim(DIR_ROOT, '/\\') . '/php/public/uploads/images' . $subPath;
         $candidates[] = rtrim(DIR_ROOT, '/\\') . '/public/uploads/images' . $subPath;
     }
 
-    // 3. リポジトリルート/public/uploads/images (php/functions からの相対)
-    $candidates[] = dirname(__DIR__, 2) . '/public/uploads/images' . $subPath;
-
-    // 4. DOCUMENT_ROOT/uploads/images (ドキュメントルートが public 自体の場合)
+    // 4. DOCUMENT_ROOT/uploads/images
     if (!empty($_SERVER['DOCUMENT_ROOT'])) {
         $candidates[] = rtrim($_SERVER['DOCUMENT_ROOT'], '/\\') . '/uploads/images' . $subPath;
-    }
-
-    // 5. DIR_ROOT/uploads/images
-    if (defined('DIR_ROOT') && DIR_ROOT) {
-        $candidates[] = rtrim(DIR_ROOT, '/\\') . '/uploads/images' . $subPath;
     }
 
     $validDirs = [];
@@ -168,15 +166,15 @@ function saveSvgContentToFile(string $svgContent, string $filenamePrefix): ?stri
     foreach ($targetDirs as $dir) {
         $dest = rtrim($dir, '/\\') . '/' . $filename;
         if (@file_put_contents($dest, $svgContent) !== false) {
-            return "/uploads/images/{$filename}";
+            return toApiPublicAssetUrl("/public/uploads/images/{$filename}");
         }
     }
     return null;
 }
 
 /**
- * Base64 または SVG Data URI を画像ファイルとして保存し、相対URL (/uploads/images/...) を返す
- * すでに URL（/uploads/... や http...）の場合はそのまま返す
+ * Base64 または SVG Data URI を画像ファイルとして保存し、URLを返す
+ * すでに URL（/uploads/... や http...）の場合は正規化して返す
  */
 function saveImageUriToFile(?string $dataUri, ?string $preferredName = null): string
 {
@@ -186,15 +184,16 @@ function saveImageUriToFile(?string $dataUri, ?string $preferredName = null): st
 
     $trimmed = trim($dataUri);
 
-    // 既にURL形式の場合はそのまま返す
+    // 既にURL形式の場合は正規化して返す
     if (
         str_starts_with($trimmed, '/uploads/') ||
+        str_starts_with($trimmed, '/public/uploads/') ||
         str_starts_with($trimmed, 'http://') ||
         str_starts_with($trimmed, 'https://') ||
         str_starts_with($trimmed, '/img/') ||
         str_starts_with($trimmed, '/icons/')
     ) {
-        return $trimmed;
+        return toApiPublicAssetUrl($trimmed);
     }
 
     // Data URI でない場合はそのまま返す
@@ -245,7 +244,7 @@ function saveImageUriToFile(?string $dataUri, ?string $preferredName = null): st
     foreach ($targetDirs as $dir) {
         $dest = rtrim($dir, '/\\') . '/' . $filename;
         if (@file_put_contents($dest, $fileData) !== false) {
-            return "/uploads/images/{$filename}";
+            return toApiPublicAssetUrl("/public/uploads/images/{$filename}");
         }
     }
 

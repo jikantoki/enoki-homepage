@@ -44,7 +44,39 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const uploadDir = path.resolve(process.cwd(), 'public/uploads/images')
+    const config = useRuntimeConfig()
+    const apiHost = String(config.public?.apiHost || '').replace(/\/+$/, '')
+
+    // 1. PHP API サーバーが設定されている場合は PHP サーバーへ転送して保存
+    if (apiHost) {
+      try {
+        const phpFormData = new FormData()
+        const blob = new Blob([filePart.data], { type: filePart.type || 'image/png' })
+        phpFormData.append('image', blob, filePart.filename)
+
+        const phpRes = await fetch(`${apiHost}/uploadImage.php`, {
+          method: 'POST',
+          headers: {
+            apiid: String(config.public?.apiId || ''),
+            apitoken: String(config.public?.apiToken || ''),
+            apipassword: String(config.public?.apiAccesskey || ''),
+          },
+          body: phpFormData,
+        })
+
+        if (phpRes.ok) {
+          const phpJson = await phpRes.json()
+          if (phpJson && phpJson.status === 'ok') {
+            return phpJson
+          }
+        }
+      } catch (proxyErr) {
+        console.warn('PHP upload proxy error:', proxyErr)
+      }
+    }
+
+    // 2. フォールバック: ローカルの php/public/uploads/images に保存
+    const uploadDir = path.resolve(process.cwd(), 'php/public/uploads/images')
     await fs.mkdir(uploadDir, { recursive: true })
 
     const timestamp = Date.now()
@@ -54,7 +86,8 @@ export default defineEventHandler(async (event) => {
 
     await fs.writeFile(targetFilePath, filePart.data)
 
-    const publicUrl = `/uploads/images/${finalFilename}`
+    const hostBase = apiHost || 'https://api.home.enoki.xyz'
+    const publicUrl = `${hostBase}/public/uploads/images/${finalFilename}`
 
     return {
       status: 'ok',
