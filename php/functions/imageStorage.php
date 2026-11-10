@@ -152,21 +152,25 @@ SVG;
 /**
  * 文字列SVGをファイルとして保存し、URLを返す
  */
-function saveSvgContentToFile(string $svgContent, string $filenamePrefix): ?string
+function saveSvgContentToFile(string $svgContent, string $filenamePrefix, string $subDir = 'apps'): ?string
 {
-    $targetDirs = getUploadTargetDirectories();
+    $targetDirs = getUploadTargetDirectories($subDir);
     if (empty($targetDirs)) {
         return null;
     }
 
     $timestamp = time();
     $random = bin2hex(random_bytes(4));
-    $filename = "{$filenamePrefix}_{$timestamp}_{$random}.svg";
+    $prefix = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $filenamePrefix) ?: 'svg';
+    $filename = "{$prefix}_{$timestamp}_{$random}.svg";
+
+    $sub = trim($subDir, '/');
+    $urlSub = $sub !== '' ? "/{$sub}" : '';
 
     foreach ($targetDirs as $dir) {
         $dest = rtrim($dir, '/\\') . '/' . $filename;
         if (@file_put_contents($dest, $svgContent) !== false) {
-            return toApiPublicAssetUrl("/public/uploads/images/{$filename}");
+            return toApiPublicAssetUrl("/public/uploads/images{$urlSub}/{$filename}");
         }
     }
     return null;
@@ -175,8 +179,13 @@ function saveSvgContentToFile(string $svgContent, string $filenamePrefix): ?stri
 /**
  * Base64 または SVG Data URI を画像ファイルとして保存し、URLを返す
  * すでに URL（/uploads/... や http...）の場合は正規化して返す
+ *
+ * @param string|null $dataUri Base64文字列、Data URI、または既存URL
+ * @param string $subDir サブディレクトリ名 (例: 'apps', 'music', '')
+ * @param string|null $preferredName 希望するファイル名プレフィックス（例: 'icon_app', 'screen_app_1'）
+ * @return string Webアクセス可能な画像URL (例: 'https://api.home.enoki.xyz/public/uploads/images/apps/...')
  */
-function saveImageUriToFile(?string $dataUri, ?string $preferredName = null): string
+function saveImageUriToFile(?string $dataUri, string $subDir = 'apps', ?string $preferredName = null): string
 {
     if (empty($dataUri) || !is_string($dataUri)) {
         return '';
@@ -201,7 +210,13 @@ function saveImageUriToFile(?string $dataUri, ?string $preferredName = null): st
         return $trimmed;
     }
 
-    $targetDirs = getUploadTargetDirectories();
+    // 互換性ハンドリング: もし第2引数にファイル名プレフィックスが渡され、第3引数がnullの場合
+    if ($preferredName === null && !empty($subDir) && !in_array($subDir, ['apps', 'music', 'images', ''])) {
+        $preferredName = $subDir;
+        $subDir = 'apps';
+    }
+
+    $targetDirs = getUploadTargetDirectories($subDir);
     if (empty($targetDirs)) {
         return $trimmed;
     }
@@ -241,12 +256,47 @@ function saveImageUriToFile(?string $dataUri, ?string $preferredName = null): st
     $prefix = !empty($preferredName) ? preg_replace('/[^a-zA-Z0-9_\-]/', '_', $preferredName) : 'img';
     $filename = "{$prefix}_{$timestamp}_{$random}.{$ext}";
 
+    $sub = trim($subDir, '/');
+    $urlSub = $sub !== '' ? "/{$sub}" : '';
+
     foreach ($targetDirs as $dir) {
         $dest = rtrim($dir, '/\\') . '/' . $filename;
         if (@file_put_contents($dest, $fileData) !== false) {
-            return toApiPublicAssetUrl("/public/uploads/images/{$filename}");
+            return toApiPublicAssetUrl("/public/uploads/images{$urlSub}/{$filename}");
         }
     }
 
     return $trimmed;
+}
+
+/**
+ * 複数画像（スクリーンショット一覧）の配列またはJSONを受け取り、各Base64画像を実ファイル化してURL配列を返す
+ *
+ * @param array|string|null $images JSON文字列または配列
+ * @param string $appId アプリID
+ * @param string $subDir サブディレクトリ名 (デフォルト: 'apps')
+ * @return array<string> 画像URLの配列
+ */
+function processAppImagesList($images, string $appId, string $subDir = 'apps'): array
+{
+    if (empty($images)) {
+        return [];
+    }
+    $list = is_string($images) ? (json_decode($images, true) ?: []) : (array)$images;
+    if (!is_array($list)) {
+        return [];
+    }
+
+    $result = [];
+    $idx = 1;
+    $safeId = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $appId) ?: 'app';
+
+    foreach ($list as $img) {
+        if (!empty($img) && is_string($img)) {
+            $result[] = saveImageUriToFile($img, $subDir, "screen_{$safeId}_{$idx}");
+            $idx++;
+        }
+    }
+
+    return $result;
 }

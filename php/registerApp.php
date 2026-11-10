@@ -44,10 +44,10 @@ $rawIcon = !empty($data['icon']) ? trim($data['icon']) : '';
 if ($rawIcon === '') {
   // 画像が未アップロードの場合はアプリ名からアイコンSVGを生成・保存
   $iconSvg = generateAppIconSvgPHP($name);
-  $icon = saveSvgContentToFile($iconSvg, "icon_{$safeId}") ?: '';
+  $icon = saveSvgContentToFile($iconSvg, "icon_{$safeId}", 'apps') ?: '';
 } else {
   // Data URI で送られてきた場合はファイル保存して URL に置換
-  $icon = saveImageUriToFile($rawIcon, "icon_{$safeId}");
+  $icon = saveImageUriToFile($rawIcon, 'apps', "icon_{$safeId}");
 }
 
 // ==================== サムネイル画像の設定 ====================
@@ -55,26 +55,19 @@ $rawThumbnail = !empty($data['thumbnail']) ? trim($data['thumbnail']) : '';
 if ($rawThumbnail === '') {
   // 画像が未アップロードの場合はアプリ名からサムネイルSVGを生成・保存
   $thumbSvg = generateAppThumbnailSvgPHP($name, $category);
-  $thumbnail = saveSvgContentToFile($thumbSvg, "thumb_{$safeId}") ?: '';
+  $thumbnail = saveSvgContentToFile($thumbSvg, "thumb_{$safeId}", 'apps') ?: '';
 } else {
   // Data URI で送られてきた場合はファイル保存して URL に置換
-  $thumbnail = saveImageUriToFile($rawThumbnail, "thumb_{$safeId}");
+  $thumbnail = saveImageUriToFile($rawThumbnail, 'apps', "thumb_{$safeId}");
 }
 
 // ==================== スクリーンショット画像一覧 ====================
 $rawImages = isset($data['images']) ? $data['images'] : [];
-$imagesList = is_string($rawImages) ? (json_decode($rawImages, true) ?: []) : (array)$rawImages;
-$processedImages = [];
-if (!empty($imagesList)) {
-  $idx = 1;
-  foreach ($imagesList as $img) {
-    if (!empty($img) && is_string($img)) {
-      $processedImages[] = saveImageUriToFile($img, "screen_{$safeId}_{$idx}");
-      $idx++;
-    }
-  }
+$processedImages = processAppImagesList($rawImages, $safeId, 'apps');
+if (empty($processedImages) && !empty($thumbnail)) {
+  $processedImages = [$thumbnail];
 }
-$images = json_encode(!empty($processedImages) ? $processedImages : ($thumbnail ? [$thumbnail] : []), JSON_UNESCAPED_UNICODE);
+$images = json_encode($processedImages, JSON_UNESCAPED_UNICODE);
 
 $description = !empty($data['description']) ? $data['description'] : '';
 $summary = !empty($data['summary']) ? $data['summary'] : '';

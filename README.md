@@ -323,7 +323,8 @@ enoki-homepage/
 │   ├── updateGeoLocation.php           # 位置情報更新
 │   ├── updateProfile.php               # プロフィール更新
 │   ├── uploadAudio.php                 # 音声ファイル (mp3/wav/m4a) アップロード API (/php/public/uploads/audio/ に保存)
-│   └── uploadImage.php                 # 画像ファイル (png/jpg/webp/svg/gif) アップロード API (/php/public/uploads/images/ に保存)
+│   ├── uploadImage.php                 # 画像ファイル (png/jpg/webp/svg/gif) アップロード API (/php/public/uploads/images/ に保存)
+│   └── migrateAppImagesApi.php         # アプリ画像 Base64 -> 実ファイル＆URL 一括マイグレーション API (管理者専用)
 ├── public/                             # Nuxt 静的アセット（Web公開ディレクトリ・軽量ファイルのみ）
 │   ├── backgrounds/                    # トップページスライドショー用背景画像群
 │   ├── data/                           # 公開データ（apps.json, music.json）
@@ -338,7 +339,8 @@ enoki-homepage/
 ├── scripts/                            # 開発・運用サポートスクリプト
 │   ├── generate-mock-apps.js           # アプリモックデータ生成スクリプト
 │   ├── generate-mock-music.js          # 楽曲モックデータ生成スクリプト
-│   └── migrate-apps-images.js          # アプリBase64画像を実ファイルへ抽出・移行するスクリプト
+│   ├── migrate-apps-images.js          # アプリモックBase64画像を実ファイルへ抽出・移行するスクリプト (Node.js)
+│   └── migrate_app_images.php          # 本番DB(app_list)の画像Base64を一括で画像ファイル化・URL置換するスクリプト (PHP/CLI)
 ├── server/                             # Nitro サーバーエンドポイント
 │   ├── api/
 │   │   ├── upload-audio.post.ts        # 音声ファイル (mp3/wav) アップロード API
@@ -767,6 +769,7 @@ npx @capacitor/assets generate
 |                      | `deleteMusic.php`               | 楽曲情報 MySQL & JSON 物理削除 API                   |
 |                      | `getApps.php`                   | アプリ一覧 MySQL 取得 API                            |
 |                      | `getMusic.php`                  | 楽曲一覧 MySQL 取得 API                              |
+|                      | `migrateAppImagesApi.php`       | 本番DB画像Base64 -> ファイルURL一括移行 API (管理者) |
 
 ### Nitro サーバーエンドポイント (server/api/)
 

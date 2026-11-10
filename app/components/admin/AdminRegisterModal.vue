@@ -221,7 +221,8 @@ v-dialog(
                       )
                   v-file-input(
                     accept="image/*"
-                    label="スクリーンショット画像を追加"
+                    multiple
+                    label="スクリーンショット画像を追加 (複数選択可)"
                     variant="outlined"
                     density="compact"
                     prepend-icon=""
@@ -230,6 +231,25 @@ v-dialog(
                     :loading="uploadingScreenshot"
                     @change="handleScreenshotUpload"
                   )
+                  .d-flex.align-center.gap-2.mt-2
+                    v-text-field(
+                      v-model="newScreenshotUrl"
+                      label="または画像URLを追加"
+                      placeholder="https://..."
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                      @keydown.enter.prevent="addScreenshotUrl"
+                    )
+                    v-btn(
+                      color="primary"
+                      variant="tonal"
+                      density="compact"
+                      :disabled="!newScreenshotUrl"
+                      @click="addScreenshotUrl"
+                    )
+                      v-icon(start) mdi-plus
+                      | 追加
 
             //- プラットフォーム & 言語
             .form-section-title.mt-4 対応プラットフォーム & 言語
@@ -720,6 +740,7 @@ export default defineComponent({
       // 処理フラグ
       uploadingImage: false,
       uploadingScreenshot: false,
+      newScreenshotUrl: '',
       submittingApp: false,
       submittingMusic: false,
       snackbar: {
@@ -1290,18 +1311,40 @@ export default defineComponent({
 
     async handleScreenshotUpload(event: Event) {
       const target = event.target as HTMLInputElement
-      const file = target.files?.[0]
-      if (!file) return
+      const files = target.files ? Array.from(target.files) : []
+      if (files.length === 0) return
 
       this.uploadingScreenshot = true
+      let successCount = 0
+      let failCount = 0
+
       try {
-        const url = await this.uploadSingleFile(file)
-        if (url) {
-          if (!Array.isArray(this.appData.images)) {
-            this.appData.images = []
+        if (!Array.isArray(this.appData.images)) {
+          this.appData.images = []
+        }
+
+        for (const file of files) {
+          try {
+            const url = await this.uploadSingleFile(file)
+            if (url) {
+              this.appData.images.push(url)
+              successCount++
+            } else {
+              failCount++
+            }
+          } catch (fileErr) {
+            console.error('File upload failed for', file.name, fileErr)
+            failCount++
           }
-          this.appData.images.push(url)
-          this.showToast('スクリーンショットを追加しました', 'success')
+        }
+
+        if (successCount > 0) {
+          this.showToast(
+            files.length === 1
+              ? 'スクリーンショットを追加しました'
+              : `${successCount}枚のスクリーンショットを追加しました${failCount > 0 ? ` (${failCount}枚失敗)` : ''}`,
+            successCount === files.length ? 'success' : 'warning',
+          )
         } else {
           this.showToast('画像のアップロードに失敗しました', 'error')
         }
@@ -1312,6 +1355,17 @@ export default defineComponent({
         this.uploadingScreenshot = false
         target.value = ''
       }
+    },
+
+    addScreenshotUrl() {
+      const url = (this.newScreenshotUrl || '').trim()
+      if (!url) return
+      if (!Array.isArray(this.appData.images)) {
+        this.appData.images = []
+      }
+      this.appData.images.push(url)
+      this.newScreenshotUrl = ''
+      this.showToast('スクリーンショットURLを追加しました', 'success')
     },
 
     removeScreenshot(index: number) {
@@ -1411,6 +1465,51 @@ export default defineComponent({
       }
     },
 
+    async uploadDataUriString(dataUri: string, filenamePrefix: string): Promise<string | null> {
+      try {
+        if (!dataUri || typeof dataUri !== 'string') return null
+        if (!dataUri.startsWith('data:image/')) return dataUri
+
+        // SVG Data URI の場合
+        if (dataUri.startsWith('data:image/svg+xml')) {
+          let svg = ''
+          if (dataUri.includes(';base64,')) {
+            const b64 = dataUri.split(';base64,')[1]
+            svg = atob(b64)
+          } else {
+            const raw = dataUri.replace(/^data:image\/svg\+xml;?(?:utf8|charset=utf-8)?,/i, '')
+            try {
+              svg = decodeURIComponent(raw)
+            } catch {
+              svg = raw
+            }
+          }
+          return await this.uploadSvgString(svg, `${filenamePrefix}.svg`)
+        }
+
+        // ラスター画像 (PNG, JPEG, WebP, GIF)
+        const match = dataUri.match(/^data:image\/([a-zA-Z0-9+\-_]+);base64,(.+)$/)
+        if (match) {
+          const rawExt = match[1].toLowerCase()
+          const ext = rawExt === 'jpeg' ? 'jpg' : rawExt
+          const base64Data = match[2]
+          const byteCharacters = atob(base64Data)
+          const byteNumbers = new Array(byteCharacters.length)
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i)
+          }
+          const byteArray = new Uint8Array(byteNumbers)
+          const mimeType = `image/${rawExt}`
+          const blob = new Blob([byteArray], { type: mimeType })
+          const file = new File([blob], `${filenamePrefix}.${ext}`, { type: mimeType })
+          return await this.uploadSingleFile(file)
+        }
+      } catch (err) {
+        console.warn('uploadDataUriString error:', err)
+      }
+      return null
+    },
+
     // ==================== アプリ登録送信 ====================
     async submitApp() {
       if (!this.appData.name || !this.appData.id) {
@@ -1449,23 +1548,42 @@ export default defineComponent({
       if (!finalIcon) {
         const svg = this.generateAppIconSvg(this.appData.name)
         finalIcon = (await this.uploadSvgString(svg, `icon_${Date.now()}.svg`)) || ''
+      } else if (typeof finalIcon === 'string' && finalIcon.startsWith('data:image/')) {
+        const uploaded = await this.uploadDataUriString(finalIcon, `icon_${this.appData.id || Date.now()}`)
+        if (uploaded) finalIcon = uploaded
       }
 
       let finalThumbnail = this.appData.thumbnail
       if (!finalThumbnail) {
         const svg = this.generateAppThumbnailSvg(this.appData.name, this.appData.category)
         finalThumbnail = (await this.uploadSvgString(svg, `thumb_${Date.now()}.svg`)) || ''
+      } else if (typeof finalThumbnail === 'string' && finalThumbnail.startsWith('data:image/')) {
+        const uploaded = await this.uploadDataUriString(finalThumbnail, `thumb_${this.appData.id || Date.now()}`)
+        if (uploaded) finalThumbnail = uploaded
       }
 
       const isEdit = this.isEditMode
       const existing = isEdit ? this.editItem : null
 
-      const appImages =
+      const rawAppImages =
         Array.isArray(this.appData.images) && this.appData.images.length > 0
           ? this.appData.images
           : existing?.images && existing.images.length > 0
             ? existing.images
             : (finalThumbnail ? [finalThumbnail] : [])
+
+      // スクリーンショット一覧にBase64が含まれている場合はAPIサーバーへアップロードしてURLに変換
+      const appImages: string[] = []
+      for (let i = 0; i < rawAppImages.length; i++) {
+        let imgUrl = rawAppImages[i]
+        if (typeof imgUrl === 'string' && imgUrl.startsWith('data:image/')) {
+          const uploaded = await this.uploadDataUriString(imgUrl, `screen_${this.appData.id || 'app'}_${i + 1}`)
+          if (uploaded) {
+            imgUrl = uploaded
+          }
+        }
+        if (imgUrl) appImages.push(imgUrl)
+      }
 
       const newApp: AppInfo = {
         name: this.appData.name,

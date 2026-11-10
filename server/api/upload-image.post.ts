@@ -44,6 +44,10 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    const subDirPart = formData.find((part) => part.name === 'subDir')
+    const subDir = subDirPart && subDirPart.data ? subDirPart.data.toString().trim() : 'images'
+    const safeSubDir = (subDir === 'apps' || subDir === 'music') ? subDir : 'images'
+
     const config = useRuntimeConfig()
     const apiHost = String(config.public?.apiHost || '').replace(/\/+$/, '')
 
@@ -53,6 +57,7 @@ export default defineEventHandler(async (event) => {
         const phpFormData = new FormData()
         const blob = new Blob([filePart.data], { type: filePart.type || 'image/png' })
         phpFormData.append('image', blob, filePart.filename)
+        phpFormData.append('subDir', safeSubDir)
 
         const phpRes = await fetch(`${apiHost}/uploadImage.php`, {
           method: 'POST',
@@ -76,7 +81,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // 2. フォールバック: ローカルの php/public/uploads/images に保存
-    const uploadDir = path.resolve(process.cwd(), 'php/public/uploads/images')
+    const subPath = safeSubDir === 'images' ? '' : `/${safeSubDir}`
+    const uploadDir = path.resolve(process.cwd(), `php/public/uploads/images${subPath}`)
     await fs.mkdir(uploadDir, { recursive: true })
 
     const timestamp = Date.now()
@@ -87,7 +93,7 @@ export default defineEventHandler(async (event) => {
     await fs.writeFile(targetFilePath, filePart.data)
 
     const hostBase = apiHost || 'https://api.home.enoki.xyz'
-    const publicUrl = `${hostBase}/public/uploads/images/${finalFilename}`
+    const publicUrl = `${hostBase}/public/uploads/images${subPath}/${finalFilename}`
 
     return {
       status: 'ok',

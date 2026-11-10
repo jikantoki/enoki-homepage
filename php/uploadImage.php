@@ -112,9 +112,12 @@ if (isset($body_data['imageBase64']) || isset($body_data['image'])) {
   $url = saveImageUriToFile($dataUri, $subDir === 'images' ? '' : $subDir, $preferredName);
 
   if ($url && !str_starts_with($url, 'data:')) {
+    $parsedPath = parse_url($url, PHP_URL_PATH) ?: $url;
     echo json_encode([
       'status' => 'ok',
       'url' => $url,
+      'path' => $parsedPath,
+      'filename' => basename($parsedPath),
     ], JSON_UNESCAPED_UNICODE);
     exit;
   } else {
