@@ -92,11 +92,20 @@ export default {
   flex-direction: column;
   height: 100%;
   height: 100dvh;
+  position: relative;
+  overflow: hidden;
 
   .about-page-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 56px;
     padding: 0 12px;
     border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+    background-color: rgba(var(--v-theme-surface), 0.6);
+    backdrop-filter: blur(6px);
+    z-index: 20;
     flex-shrink: 0;
 
     .header-title {
@@ -109,8 +118,9 @@ export default {
 
   .about-page-content {
     flex: 1;
+    height: 100%;
     overflow-y: auto;
-    padding: 8px 4px 80px;
+    padding: 64px 4px 80px;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
   }

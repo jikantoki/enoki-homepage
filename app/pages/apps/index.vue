@@ -37,24 +37,24 @@ v-card.playstore-root(
           onerror="this.src='/icon.png'"
         )
 
-  //- ================= ヒーロー自己紹介エリア =================
-  HeroProfile(v-if="!isInitialLoading")
-
-  //- ================= サブナビバー（おすすめ / カテゴリ / プラットフォーム） =================
-  .store-sub-nav(v-if="!searchQuery && !isInitialLoading")
-    v-tabs(
-      v-model="activeTab"
-      color="primary"
-      density="compact"
-      align-tabs="center"
-      show-arrows
-    )
-      v-tab(value="foryou") おすすめ
-      v-tab(value="categories") カテゴリ
-      v-tab(value="platforms") プラットフォーム
-
   //- ================= メインスクロールエリア =================
   .store-scroll-content(ref="scrollContainer")
+
+    //- ================= ヒーロー自己紹介エリア =================
+    HeroProfile(v-if="!isInitialLoading")
+
+    //- ================= サブナビバー（おすすめ / カテゴリ / プラットフォーム） =================
+    .store-sub-nav(v-if="!searchQuery && !isInitialLoading")
+      v-tabs(
+        v-model="activeTab"
+        color="primary"
+        density="compact"
+        align-tabs="center"
+        show-arrows
+      )
+        v-tab(value="foryou") おすすめ
+        v-tab(value="categories") カテゴリ
+        v-tab(value="platforms") プラットフォーム
 
     //- ---------------- 0. 初回データ取得中画面 ----------------
     .store-initial-loading(v-if="isInitialLoading")
@@ -272,11 +272,7 @@ import { Toast } from '@capacitor/toast'
 import mixins from '@/mixins/mixins'
 import { useMyProfileStore } from '@/stores/myProfile'
 import { useSettingsStore } from '@/stores/settings'
-import {
-  useAppStore,
-  isPlatformMatch,
-  type AppOrMusicItem,
-} from '@/stores/app'
+import { useAppStore, isPlatformMatch, type AppOrMusicItem } from '@/stores/app'
 import Setup from '@/js/setup'
 import HeroProfile from '@/components/common/HeroProfile.vue'
 import { useNavigationStore } from '@/stores/navigation'
@@ -346,8 +342,8 @@ export default {
     isAdmin(): boolean {
       return Boolean(
         this.myProfile.isAdmin ||
-        this.myProfile.role === 'admin' ||
-        (!this.myProfile.guest && this.myProfile.canRegisterApp)
+          this.myProfile.role === 'admin' ||
+          (!this.myProfile.guest && this.myProfile.canRegisterApp),
       )
     },
     allApps(): AppOrMusicItem[] {
@@ -358,7 +354,8 @@ export default {
       return this.appStore.featuredApps.slice(0, 6)
     },
     recommendedApps(): AppOrMusicItem[] {
-      if (this.displayRecommendedApps.length > 0) return this.displayRecommendedApps
+      if (this.displayRecommendedApps.length > 0)
+        return this.displayRecommendedApps
       return this.appStore.recommendedApps.slice(0, 25)
     },
     randomPickupApps(): AppOrMusicItem[] {
@@ -411,15 +408,27 @@ export default {
       icon: string
       color: string
     }> {
-      const predefinedCategories: Array<{ name: string; icon: string; color: string }> = [
+      const predefinedCategories: Array<{
+        name: string
+        icon: string
+        color: string
+      }> = [
         { name: 'ゲーム', icon: 'mdi-gamepad-variant', color: '#6366f1' },
         { name: 'メディア', icon: 'mdi-play-circle-outline', color: '#ec4899' },
-        { name: 'ポータルサイト', icon: 'mdi-compass-outline', color: '#3b82f6' },
+        {
+          name: 'ポータルサイト',
+          icon: 'mdi-compass-outline',
+          color: '#3b82f6',
+        },
         { name: '便利ツール', icon: 'mdi-tools', color: '#06b6d4' },
         { name: 'ソーシャル', icon: 'mdi-account-group', color: '#10b981' },
         { name: 'Mod・拡張機能', icon: 'mdi-puzzle-outline', color: '#f59e0b' },
         { name: '開発', icon: 'mdi-code-tags', color: '#8b5cf6' },
-        { name: 'その他', icon: 'mdi-dots-horizontal-circle-outline', color: '#64748b' },
+        {
+          name: 'その他',
+          icon: 'mdi-dots-horizontal-circle-outline',
+          color: '#64748b',
+        },
       ]
 
       const iconMap: Record<string, { icon: string; color: string }> = {}
@@ -435,7 +444,12 @@ export default {
       })
 
       // 新カテゴリの定義順を維持してリストを作成
-      const result: Array<{ name: string; count: number; icon: string; color: string }> = []
+      const result: Array<{
+        name: string
+        count: number
+        icon: string
+        color: string
+      }> = []
       const processed = new Set<string>()
 
       for (const cat of predefinedCategories) {
@@ -469,7 +483,11 @@ export default {
     allApps: {
       immediate: true,
       handler(newList) {
-        if (newList && newList.length > 0 && this.displayRecommendedApps.length === 0) {
+        if (
+          newList &&
+          newList.length > 0 &&
+          this.displayRecommendedApps.length === 0
+        ) {
           this.initRandomSections()
         }
       },
@@ -543,8 +561,8 @@ export default {
     shuffle<T>(array: T[]): T[] {
       const result = [...array]
       for (let i = result.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [result[i], result[j]] = [result[j], result[i]]
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[result[i], result[j]] = [result[j], result[i]]
       }
       return result
     },
@@ -625,11 +643,17 @@ export default {
 
   // ---------------- トップ検索バー ----------------
   .store-top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 66px;
     padding: 10px 16px 8px 16px;
     display: flex;
     align-items: center;
-    background-color: rgb(var(--v-theme-surface));
-    z-index: 10;
+    background-color: rgba(var(--v-theme-surface), 0.6);
+    backdrop-filter: blur(6px);
+    z-index: 20;
     flex-shrink: 0;
 
     .search-pill {
@@ -689,19 +713,24 @@ export default {
 
   // ---------------- サブナビ（おすすめ / カテゴリ / プラットフォーム） ----------------
   .store-sub-nav {
-    background-color: rgb(var(--v-theme-surface));
-    border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.06);
+    position: sticky;
+    top: 0;
+    background-color: rgba(var(--v-theme-surface), 0.6);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.05);
     flex-shrink: 0;
-    z-index: 9;
+    z-index: 8;
   }
 
   // ---------------- スクロールコンテンツ ----------------
   .store-scroll-content {
     flex: 1;
+    height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+    padding-top: 66px;
     padding-bottom: 24px;
   }
 

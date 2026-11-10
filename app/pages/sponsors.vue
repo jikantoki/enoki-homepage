@@ -268,11 +268,20 @@ export default {
   height: 100%;
   height: 100dvh;
   background-color: rgb(var(--v-theme-surface));
+  position: relative;
+  overflow: hidden;
 
   .sponsors-page-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 56px;
     padding: 0 12px;
     border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+    background-color: rgba(var(--v-theme-surface), 0.6);
+    backdrop-filter: blur(6px);
+    z-index: 20;
     flex-shrink: 0;
 
     .header-title {
@@ -284,9 +293,11 @@ export default {
 
   .sponsors-page-content {
     flex: 1;
+    height: 100%;
     overflow-y: auto;
-    padding: 20px 16px 80px;
+    padding: 76px 16px 80px;
     -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
 
     .content-wrapper {
       max-width: 960px;

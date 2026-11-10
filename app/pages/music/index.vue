@@ -36,11 +36,11 @@ v-card.music-page-root(
           onerror="this.src='/icon.png'"
         )
 
-  //- ================= ヒーロー自己紹介エリア =================
-  HeroProfile(v-if="!isInitialLoading")
-
   //- ================= メインスクロールエリア =================
   .store-scroll-content(ref="scrollContainer")
+
+    //- ================= ヒーロー自己紹介エリア =================
+    HeroProfile(v-if="!isInitialLoading")
 
     //- ---------------- 0. 初回データ取得中画面 ----------------
     .music-initial-loading(v-if="isInitialLoading")
@@ -157,8 +157,8 @@ export default {
     isAdmin(): boolean {
       return Boolean(
         this.myProfile.isAdmin ||
-        this.myProfile.role === 'admin' ||
-        (!this.myProfile.guest && this.myProfile.canRegisterApp)
+          this.myProfile.role === 'admin' ||
+          (!this.myProfile.guest && this.myProfile.canRegisterApp),
       )
     },
     musicSearchResults(): MusicItem[] {
@@ -179,7 +179,9 @@ export default {
     this.setTitle('音楽')
 
     // 1. IndexedDB からキャッシュ済みデータを読み込み
-    let hasCache = Boolean(this.musicStore.list && this.musicStore.list.length > 0)
+    let hasCache = Boolean(
+      this.musicStore.list && this.musicStore.list.length > 0,
+    )
     if (!hasCache) {
       const cached = await this.musicStore.loadFromCache()
       if (cached && cached.length > 0) {
@@ -252,11 +254,17 @@ export default {
   background-color: rgb(var(--v-theme-surface));
 
   .store-top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 66px;
     padding: 10px 16px 8px 16px;
     display: flex;
     align-items: center;
-    background-color: rgb(var(--v-theme-surface));
-    z-index: 10;
+    background-color: rgba(var(--v-theme-surface), 0.6);
+    backdrop-filter: blur(6px);
+    z-index: 20;
     flex-shrink: 0;
 
     .search-pill {
@@ -309,10 +317,12 @@ export default {
 
   .store-scroll-content {
     flex: 1;
+    height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+    padding-top: 66px;
     padding-bottom: 24px;
   }
 

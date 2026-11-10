@@ -424,13 +424,22 @@ export default {
   flex-direction: column;
   background-color: rgb(var(--v-theme-background));
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
+  position: relative;
 }
 
 .download-page-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
   padding: 8px 16px;
-  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  background-color: rgb(var(--v-theme-surface));
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  background-color: rgba(var(--v-theme-surface), 0.6);
+  backdrop-filter: blur(6px);
+  z-index: 20;
   flex-shrink: 0;
 
   .header-title {
@@ -442,9 +451,11 @@ export default {
 
 .download-page-content {
   flex: 1;
+  height: 100%;
   overflow-y: auto;
-  padding: 16px;
+  padding: 72px 16px 16px;
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 .content-wrapper {
@@ -461,7 +472,11 @@ export default {
   padding: 36px 24px;
   text-align: center;
   margin-bottom: 16px;
-  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.12) 0%, rgba(var(--v-theme-surface), 0.95) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--v-theme-primary), 0.12) 0%,
+    rgba(var(--v-theme-surface), 0.95) 100%
+  );
   border: 1px solid rgba(var(--v-theme-primary), 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
 
@@ -472,7 +487,11 @@ export default {
     width: 300px;
     height: 300px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(var(--v-theme-primary), 0.15) 0%, transparent 70%);
+    background: radial-gradient(
+      circle,
+      rgba(var(--v-theme-primary), 0.15) 0%,
+      transparent 70%
+    );
     pointer-events: none;
   }
 
@@ -804,7 +823,8 @@ export default {
     padding: 20px;
     border-radius: 18px;
     cursor: pointer;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, border-color 0.2s ease,
+      box-shadow 0.2s ease;
     display: flex;
     flex-direction: column;
 

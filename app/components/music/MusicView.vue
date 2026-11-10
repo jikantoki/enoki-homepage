@@ -206,11 +206,13 @@ export default {
       return this.musicStore.byGenre(this.selectedGenre)
     },
     featuredTracks(): MusicItem[] {
-      if (this.displayFeaturedTracks.length > 0) return this.displayFeaturedTracks
+      if (this.displayFeaturedTracks.length > 0)
+        return this.displayFeaturedTracks
       return this.musicStore.featuredTracks.slice(0, 5)
     },
     recommendedTracks(): MusicItem[] {
-      if (this.displayRecommendedTracks.length > 0) return this.displayRecommendedTracks
+      if (this.displayRecommendedTracks.length > 0)
+        return this.displayRecommendedTracks
       return this.musicStore.recommendedTracks.slice(0, 25)
     },
     randomPickupTracks(): MusicItem[] {
@@ -230,7 +232,11 @@ export default {
     allTracks: {
       immediate: true,
       handler(newList) {
-        if (newList && newList.length > 0 && this.displayRecommendedTracks.length === 0) {
+        if (
+          newList &&
+          newList.length > 0 &&
+          this.displayRecommendedTracks.length === 0
+        ) {
           this.initRandomSections()
         }
       },
@@ -243,8 +249,8 @@ export default {
     shuffle<T>(array: T[]): T[] {
       const result = [...array]
       for (let i = result.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [result[i], result[j]] = [result[j], result[i]]
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[result[i], result[j]] = [result[j], result[i]]
       }
       return result
     },
@@ -303,7 +309,8 @@ export default {
 
   .genre-filter-bar {
     padding: 6px 16px;
-    background-color: rgb(var(--v-theme-surface));
+    background-color: rgba(var(--v-theme-surface), 0.6);
+    backdrop-filter: blur(6px);
     position: sticky;
     top: 0;
     z-index: 8;
