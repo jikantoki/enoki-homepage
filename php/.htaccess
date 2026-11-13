@@ -3,7 +3,12 @@
   RewriteEngine On
   RewriteBase /php/
 
-  # uploads, download, customfiles へのアクセスを public/ 配下へ転送
+  # 1. 外部リダイレクト (SNS / ブログ)
+  RewriteRule ^twitter/?$ https://twitter.com/jikantoki [R=301,L]
+  RewriteRule ^youtube/?$ https://www.youtube.com/@jikantoki [R=301,L]
+  RewriteRule ^blog/?$ https://blog.caramelos.xyz [R=301,L]
+
+  # 2. uploads, download, customfiles へのアクセスを public/ 配下へ転送
   RewriteRule ^(uploads|download|customfiles)/(.*)$ /php/public/$1/$2 [L]
 
   # 実在するファイルやディレクトリはそのまま配信

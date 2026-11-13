@@ -188,6 +188,9 @@
 | `/terms`                      | `app/pages/terms.vue`                      | 利用規約                                                |
 | `/privacy`                    | `app/pages/privacy.vue`                    | プライバシーポリシー                                    |
 | `/about`                      | `app/pages/about.vue`                      | 運営情報・プロフィール                                  |
+| `/twitter`                    | `app/pages/twitter.vue`                    | 公式Twitter / Xへの 301 リダイレクト (`https://twitter.com/jikantoki`) |
+| `/youtube`                    | `app/pages/youtube.vue`                    | 公式YouTubeへの 301 リダイレクト (`https://www.youtube.com/@jikantoki`) |
+| `/blog`                       | `app/pages/blog.vue`                       | 公式ブログへの 301 リダイレクト (`https://blog.caramelos.xyz`)       |
 | `/tutorial`                   | `app/pages/tutorial.vue`                   | アプリの使い方チュートリアル                            |
 | `/[...slug]`                  | `app/pages/[...slug].vue`                  | 存在しないパスへのフォールバック（準備中画面）          |
 | *(エラー / 404)*              | `app/error.vue`                            | **カスタムエラー画面**（サイバーパーティクル・ミニゲーム・効果音） |

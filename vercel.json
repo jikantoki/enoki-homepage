@@ -1,4 +1,21 @@
 {
+  "redirects": [
+    {
+      "source": "/twitter",
+      "destination": "https://twitter.com/jikantoki",
+      "permanent": true
+    },
+    {
+      "source": "/youtube",
+      "destination": "https://www.youtube.com/@jikantoki",
+      "permanent": true
+    },
+    {
+      "source": "/blog",
+      "destination": "https://blog.caramelos.xyz",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",

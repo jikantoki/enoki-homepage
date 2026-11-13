@@ -7,6 +7,15 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
 
+  routeRules: {
+    '/twitter': { redirect: { to: 'https://twitter.com/jikantoki', statusCode: 301 } },
+    '/twitter/**': { redirect: { to: 'https://twitter.com/jikantoki', statusCode: 301 } },
+    '/youtube': { redirect: { to: 'https://www.youtube.com/@jikantoki', statusCode: 301 } },
+    '/youtube/**': { redirect: { to: 'https://www.youtube.com/@jikantoki', statusCode: 301 } },
+    '/blog': { redirect: { to: 'https://blog.caramelos.xyz', statusCode: 301 } },
+    '/blog/**': { redirect: { to: 'https://blog.caramelos.xyz', statusCode: 301 } },
+  },
+
   modules: [
     '@nuxt/content',
     '@nuxt/eslint',

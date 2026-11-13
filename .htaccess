@@ -3,21 +3,29 @@
   RewriteEngine on
   RewriteBase /
 
-  # 1. 静的アセット (/public/uploads, /uploads, /public/download, /download, /public/customfiles, /customfiles)
+  # 1. 外部リダイレクト (SNS / ブログ)
+  RewriteRule ^twitter/?$ https://twitter.com/jikantoki [R=301,L]
+  RewriteRule ^youtube/?$ https://www.youtube.com/@jikantoki [R=301,L]
+  RewriteRule ^blog/?$ https://blog.caramelos.xyz [R=301,L]
+
+  # 2. 静的アセット (/public/uploads, /uploads, /public/download, /download, /public/customfiles, /customfiles)
   #    php/public/ 配下にある実ファイルへ確実にリライト
   RewriteRule ^public/(uploads|download|customfiles)/(.*)$ /php/public/$1/$2 [L]
   RewriteRule ^(uploads|download|customfiles)/(.*)$ /php/public/$1/$2 [L]
 
-  # 2. ルートアクセスは php/ へ
+  # 3. ルートアクセスは php/ へ
   RewriteRule ^$ php/ [L]
 
-  # 3. 実在するファイルやディレクトリはそのまま配信
+  # 4. 実在するファイルやディレクトリはそのまま配信
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
 
-  # 4. php/ 配下へのリライト（無限ループ防止: すでに php/ から始まる場合は再処理しない）
+  # 5. php/ 配下へのリライト（無限ループ防止: 初回リクエストかつ php/ 配下に実ファイルが存在する場合のみリライト）
+  RewriteCond %{ENV:REDIRECT_STATUS} ^$
   RewriteCond %{REQUEST_URI} !^/php/
+  RewriteCond %{DOCUMENT_ROOT}/php/$1 -f [OR]
+  RewriteCond %{DOCUMENT_ROOT}/php/$1 -d
   RewriteRule ^(.+)$ php/$1 [L]
 </IfModule>
 
